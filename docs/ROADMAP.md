@@ -22,7 +22,12 @@ Last updated: 2026-09-15
 - [x] `AstraLogo` lifted from astra-app
 - [x] Supabase browser + server clients (`src/lib/supabase/`)
 - [x] Generated database types from the live project (`src/lib/supabase/types.ts`)
-- [x] Deployed to Vercel, connected to GitHub for automatic deploys
+- [x] Deployed to Vercel: <https://astrabocconi-web.vercel.app>
+- [ ] **Connect GitHub to Vercel for automatic deploys.** Blocked: the
+      `astrabocconidev` Vercel account has no GitHub login connection yet, so
+      `vercel link` could not attach the repo. Fix it in the Vercel dashboard
+      under the project's Git settings, or add GitHub as a login connection on
+      the account. Until then, deploys are manual via `vercel deploy --prod`.
 
 ## Phase 1 — Fix the database security (do this first)
 

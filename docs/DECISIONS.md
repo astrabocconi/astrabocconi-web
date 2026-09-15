@@ -45,6 +45,10 @@ reachability or on credentials being present in CI.
 only, so commits attribute to the association rather than to Michele's personal
 or work identity.
 
+**Vercel project lives under the `ASTRA` team scope**, not the personal
+`astrabocconidev` account, so collaborators can be added and the project
+survives a handover to the next committee.
+
 **The old repo is reference only.** It is cloned to a temp scratchpad for
 reading the calculator logic and the page inventory. It is never the base of
 this project, and its UI and content model are not carried over.
