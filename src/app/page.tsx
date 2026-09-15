@@ -1,20 +1,15 @@
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
+import { AstraLogo } from "@/components/ui/logo";
 
 export default function Home() {
   return (
-    <div className="flex flex-1 items-center justify-center">
-      <Container maxWidth="sm">
-        <Stack spacing={2} sx={{ alignItems: "center", textAlign: "center" }}>
-          <Typography variant="h3" component="h1" sx={{ fontWeight: 600 }}>
-            Astra Bocconi
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Site under construction.
-          </Typography>
-        </Stack>
-      </Container>
-    </div>
+    <main className="flex flex-1 flex-col items-center justify-center bg-linear-to-b from-astra-light to-white px-6">
+      <AstraLogo className="h-16 w-16 text-astra-primary" />
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-astra-primary sm:text-4xl">
+        ASTRA Bocconi
+      </h1>
+      <p className="mt-3 max-w-md text-center text-gray-600">
+        Il nuovo sito è in costruzione.
+      </p>
+    </main>
   );
 }

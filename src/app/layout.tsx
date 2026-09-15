@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import ThemeRegistry from "./ThemeRegistry";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,19 +13,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Astra Bocconi",
-  description: "Astra Bocconi website",
+  title: {
+    default: "ASTRA Bocconi",
+    template: "%s | ASTRA Bocconi",
+  },
+  description:
+    "ASTRA Bocconi — dispense, guide, calcolatori e risorse per gli studenti dell'Università Bocconi.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="it"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <ThemeRegistry>{children}</ThemeRegistry>
-      </body>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }
