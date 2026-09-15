@@ -3,10 +3,11 @@
 Working state of the ASTRA website rebuild. **Keep this file current.** It is
 the first thing to read when picking the project up on another machine.
 
-> **You are here:** Phase 0 complete. Phase 1 is written and verified but the
-> migration has **not been applied to the live database yet**, and the two
-> server side secrets are not set, so the backoffice cannot be signed into.
-> Those three steps are the immediate next actions.
+> **You are here:** Phases 0 and 1 are done. The database has a real role
+> model, the backoffice shell is deployed, and secrets are set. The one
+> remaining step is creating the first owner account through the gate at
+> `/admin`. After that, Phase 2 is the editorial schema and the content CRUD,
+> which is where the rebuild actually starts paying off.
 
 Last updated: 2026-09-15
 
@@ -35,15 +36,18 @@ Audited against the live database, not the old repo's migrations. Two of the
 issues originally listed here turned out not to exist in production; see
 `docs/ARCHITECTURE.md` for what was real.
 
-Written and dry run, **not yet applied**:
+Database, **applied to production on 2026-09-15**:
 
 - [x] `supabase/migrations/20260915_001_roles_and_rls.sql` written
-- [x] Dry run in a rolled back transaction: executes cleanly, ends with RLS on
-      every table, `admin_users` created, 33 permission gated policies
-- [ ] **Apply it to the live database.** Needs a deliberate go ahead; it drops
-      and replaces policies on ten content tables.
-- [ ] Regenerate `src/lib/supabase/types.ts` afterwards and drop the hand
-      written `admin_users` block
+- [x] Dry run in a rolled back transaction before applying
+- [x] Applied. Verified after: RLS on all 26 tables, `admin_users` created,
+      33 permission gated policies
+- [x] Regression checked: anonymous reads of public content unchanged
+      (guides 49, handouts 162, representatives 16, and the rest)
+- [x] `Document` now returns 0 rows to the publishable key, and still returns
+      all 27,769 to the secret key, so astra-app's RAG is unaffected
+- [ ] Regenerate `src/lib/supabase/types.ts` and drop the hand written
+      `admin_users` block
 
 Backoffice shell, built:
 
@@ -54,8 +58,15 @@ Backoffice shell, built:
 - [x] Middleware protecting `/admin/*`
 - [x] `/admin/utenti`: operator list, create operator, enable and disable
 - [x] Permission editor using `GroupedToggleFlow` from `~/component-library`
-- [ ] Set `SUPABASE_SECRET_KEY` and `ADMIN_BOOTSTRAP_SECRET` locally and on
-      Vercel, then create the first owner and test end to end
+- [x] `SUPABASE_SECRET_KEY` and `ADMIN_BOOTSTRAP_SECRET` set in `.env.local`
+      and on Vercel for all three environments
+- [x] Tested end to end against production with a throwaway owner: gesture,
+      bootstrap, sign in, operator list, permission graph. The throwaway was
+      deleted afterwards, so `needsBootstrap` is true again and the first real
+      owner is still to be created.
+- [ ] **Create the first owner account.** Open `/admin`, click the "t" seven
+      times, and fill the form. The activation code is
+      `ADMIN_BOOTSTRAP_SECRET` from `.env.local` or Vercel.
 
 Still open:
 

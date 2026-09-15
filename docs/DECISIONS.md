@@ -70,3 +70,11 @@ survives a handover to the next committee.
 **The old repo is reference only.** It is cloned to a temp scratchpad for
 reading the calculator logic and the page inventory. It is never the base of
 this project, and its UI and content model are not carried over.
+
+**`src/proxy.ts`, not `src/middleware.ts`.** Next.js 16 renamed the convention
+and warns on the old filename. The exported function is `proxy`. Behaviour is
+unchanged: it refreshes the Supabase session and bounces anonymous visitors off
+`/admin/*` back to the gate.
+
+**The proxy uses `getUser()`, not `getSession()`.** `getSession` only reads the
+cookie and can be forged; `getUser` revalidates the token with Supabase.
