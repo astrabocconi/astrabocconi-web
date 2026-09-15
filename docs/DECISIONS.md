@@ -45,6 +45,24 @@ reachability or on credentials being present in CI.
 only, so commits attribute to the association rather than to Michele's personal
 or work identity.
 
+**The seven click gesture reveals the login, it does not grant access.**
+Michele asked for first access by clicking the letter "t" seven times, without
+an account. Implemented as: the gesture unhides the panel, but creating the
+first owner still requires `ADMIN_BOOTSTRAP_SECRET`, and the bootstrap route
+refuses once any operator row exists. A gesture alone cannot be the gate,
+because it ships in the client bundle and anyone reading it would get full
+control of the association's database.
+
+**Permissions are `resource:action` strings on `admin_users.permissions`**, with
+`role='owner'` short circuiting to everything. The permission keys in
+`src/lib/auth/permissions.ts` are the same strings the RLS policies check, so
+adding one without a matching policy produces a button that silently fails.
+
+**RLS helper functions live in a `private` schema**, not `public`. Functions in
+`public` are callable as RPC by anyone holding the publishable key. They are
+`security definer` with an empty `search_path`, which is also what stops a
+policy on `admin_users` from recursing while reading `admin_users`.
+
 **Vercel project lives under the `ASTRA` team scope**, not the personal
 `astrabocconidev` account, so collaborators can be added and the project
 survives a handover to the next committee.

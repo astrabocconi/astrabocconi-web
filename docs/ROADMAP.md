@@ -3,10 +3,10 @@
 Working state of the ASTRA website rebuild. **Keep this file current.** It is
 the first thing to read when picking the project up on another machine.
 
-> **You are here:** Phase 0 complete. The repo is scaffolded, branded, wired to
-> Supabase, and deployed. Nothing user-facing exists yet beyond a placeholder
-> homepage. Phase 1 (the security fixes) should happen before any public
-> content ships, because the fixes change how the backoffice must authenticate.
+> **You are here:** Phase 0 complete. Phase 1 is written and verified but the
+> migration has **not been applied to the live database yet**, and the two
+> server side secrets are not set, so the backoffice cannot be signed into.
+> Those three steps are the immediate next actions.
 
 Last updated: 2026-09-15
 
@@ -29,24 +29,40 @@ Last updated: 2026-09-15
       under the project's Git settings, or add GitHub as a login connection on
       the account. Until then, deploys are manual via `vercel deploy --prod`.
 
-## Phase 1 — Fix the database security (do this first)
+## Phase 1 — Role model, RLS, and the backoffice shell
 
-The old site left the database in a state that is not safe to build a public
-site on top of. Details and evidence in `docs/ARCHITECTURE.md`.
+Audited against the live database, not the old repo's migrations. Two of the
+issues originally listed here turned out not to exist in production; see
+`docs/ARCHITECTURE.md` for what was real.
 
-- [ ] Remove the `tmp_guides_upload` storage policy. It currently lets **any
-      anonymous visitor upload files** into the `guides` bucket.
-- [ ] Replace every `auth.uid() IS NOT NULL` write policy. Right now **any
-      registered user can edit or delete all content**. There is no role model.
-- [ ] Add a `profiles` (or `app_admins`) table with an explicit role column,
-      and rewrite write policies against it.
-- [ ] Lock down `event_registrations`. It is anon-readable and holds names and
-      emails. It is empty today, so this is free to fix now.
-- [ ] Confirm RLS is enabled on all 22 tables. The migrations only enable it on
-      17.
-- [ ] Turn off open signups in Supabase Auth, or gate them to `@studbocconi.it`.
+Written and dry run, **not yet applied**:
+
+- [x] `supabase/migrations/20260915_001_roles_and_rls.sql` written
+- [x] Dry run in a rolled back transaction: executes cleanly, ends with RLS on
+      every table, `admin_users` created, 33 permission gated policies
+- [ ] **Apply it to the live database.** Needs a deliberate go ahead; it drops
+      and replaces policies on ten content tables.
+- [ ] Regenerate `src/lib/supabase/types.ts` afterwards and drop the hand
+      written `admin_users` block
+
+Backoffice shell, built:
+
+- [x] `/admin` gate: seven clicks on the "t" in "Astra" reveals the panel
+- [x] Email and password sign in via Supabase Auth
+- [x] First run bootstrap that creates the first owner, gated on
+      `ADMIN_BOOTSTRAP_SECRET` and self disabling once one operator exists
+- [x] Middleware protecting `/admin/*`
+- [x] `/admin/utenti`: operator list, create operator, enable and disable
+- [x] Permission editor using `GroupedToggleFlow` from `~/component-library`
+- [ ] Set `SUPABASE_SECRET_KEY` and `ADMIN_BOOTSTRAP_SECRET` locally and on
+      Vercel, then create the first owner and test end to end
+
+Still open:
+
+- [ ] Turn off open signups in Supabase Auth, or gate them to `@studbocconi.it`
 - [ ] Rotate the Supabase database password and secret key. Both sat in
       cleartext in `~/astra-app/apps/web/.env`.
+- [ ] Decide whether the `gpt knowledge` storage bucket should stay public
 
 ## Phase 2 — Content model and backoffice
 

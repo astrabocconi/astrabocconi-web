@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      // Hand written until 20260915_001_roles_and_rls.sql is applied, after
+      // which this file should be regenerated and this block will come back
+      // from the database like everything else.
+      admin_users: {
+        Row: {
+          user_id: string
+          email: string
+          full_name: string | null
+          role: string
+          permissions: string[]
+          disabled: boolean
+          created_at: string
+          created_by: string | null
+        }
+        Insert: {
+          user_id: string
+          email: string
+          full_name?: string | null
+          role?: string
+          permissions?: string[]
+          disabled?: boolean
+          created_at?: string
+          created_by?: string | null
+        }
+        Update: {
+          user_id?: string
+          email?: string
+          full_name?: string | null
+          role?: string
+          permissions?: string[]
+          disabled?: boolean
+          created_at?: string
+          created_by?: string | null
+        }
+        Relationships: []
+      }
       astra_polare_media_content: {
         Row: {
           content_type: string
