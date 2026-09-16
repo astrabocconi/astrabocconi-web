@@ -8,7 +8,6 @@ interface DisplayCardProps {
   icon?: React.ReactNode;
   title?: string;
   description?: string;
-  iconClassName?: string;
   titleClassName?: string;
 }
 
@@ -17,7 +16,6 @@ function DisplayCard({
   icon = <AstraLogo className="size-3.5 text-white" />,
   title = "ASTRA",
   description = "Risorse per gli studenti",
-  iconClassName = "text-astra-primary",
   titleClassName = "text-astra-primary",
 }: DisplayCardProps) {
   return (
