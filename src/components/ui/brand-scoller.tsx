@@ -48,7 +48,7 @@ function Track({
   reverse?: boolean;
 }) {
   return (
-    <div className="group flex max-w-full flex-row overflow-hidden py-2 [--duration:40s] [--gap:2.5rem] [gap:var(--gap)] [mask-image:linear-gradient(to_right,_rgba(0,_0,_0,_0),rgba(0,_0,_0,_1)_10%,rgba(0,_0,_0,_1)_90%,rgba(0,_0,_0,_0))]">
+    <div className="group flex max-w-full flex-row overflow-hidden py-1 [--duration:40s] [--gap:2.5rem] [gap:var(--gap)] [mask-image:linear-gradient(to_right,_rgba(0,_0,_0,_0),rgba(0,_0,_0,_1)_10%,rgba(0,_0,_0,_1)_90%,rgba(0,_0,_0,_0))]">
       {Array(TRACK_COPIES)
         .fill(0)
         .map((_, i) => (

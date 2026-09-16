@@ -4,7 +4,11 @@ import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { EncryptedText } from "@/components/ui/encrypted-text";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
-import { BrandScroller, type BrandItem } from "@/components/ui/brand-scoller";
+import {
+  BrandScroller,
+  BrandScrollerReverse,
+  type BrandItem,
+} from "@/components/ui/brand-scoller";
 import { HoverExpand_001 } from "@/components/ui/expand-on-hover";
 import WovenCloth from "@/components/ui/woven-cloth";
 import { HeroCarousel } from "@/components/home/hero-carousel";
@@ -304,8 +308,16 @@ function PartnerBar() {
   return (
     // Height matches the Forbes bar above it: py-7 around an 80px plate.
     <section className="flex min-h-[136px] items-center bg-astra-primary text-white">
-      <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
+      <div className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col gap-1.5">
         <BrandScroller items={PARTNER_BRANDS} />
+        {/* Second row runs the other way and starts halfway through the list,
+            so the two rows never show the same plate at the same point. */}
+        <BrandScrollerReverse
+          items={[
+            ...PARTNER_BRANDS.slice(PARTNER_BRANDS.length / 2),
+            ...PARTNER_BRANDS.slice(0, PARTNER_BRANDS.length / 2),
+          ]}
+        />
       </div>
     </section>
   );
