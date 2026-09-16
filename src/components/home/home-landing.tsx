@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { EncryptedText } from "@/components/ui/encrypted-text";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
+import { BrandScroller, type BrandItem } from "@/components/ui/brand-scoller";
 import { HoverExpand_001 } from "@/components/ui/expand-on-hover";
 import WovenCloth from "@/components/ui/woven-cloth";
 import { HeroCarousel } from "@/components/home/hero-carousel";
@@ -36,6 +37,18 @@ const CALCULATORS = [
   { name: "Crediti liberi", hint: "Simulazione" },
 ];
 
+// Placeholder plates until the real partner logos arrive.
+const PARTNER_BRANDS: BrandItem[] = [
+  { name: "Partner 01" },
+  { name: "Partner 02" },
+  { name: "Partner 03" },
+  { name: "Partner 04" },
+  { name: "Partner 05" },
+  { name: "Partner 06" },
+  { name: "Partner 07" },
+  { name: "Partner 08" },
+];
+
 const PARTNERS = [
   { name: "Partner principale", span: "lg:col-span-7" },
   { name: "Partner accademico", span: "lg:col-span-5" },
@@ -53,6 +66,7 @@ export function HomeLanding() {
       <ForbesBar />
       <Handouts />
       <Calculators />
+      <PartnerBar />
       <Partners />
       <Banner />
       <SiteFooter />
@@ -281,6 +295,17 @@ function Calculators() {
             </a>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+function PartnerBar() {
+  return (
+    // Height matches the Forbes bar above it: py-7 around an 80px plate.
+    <section className="flex min-h-[136px] items-center bg-astra-primary text-white">
+      <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
+        <BrandScroller items={PARTNER_BRANDS} />
       </div>
     </section>
   );

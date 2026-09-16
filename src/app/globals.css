@@ -295,3 +295,41 @@ body {
   -webkit-backdrop-filter: none;
 }
 
+
+/* Marquee for the brand scroller. The track holds several copies of the list
+   and travels exactly one copy plus one gap, so the seam lands back at the
+   start. --duration and --gap are set on the container. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-100% - var(--gap, 2.5rem)));
+  }
+}
+
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(calc(-100% - var(--gap, 2.5rem)));
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration, 40s) linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse var(--duration, 40s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-reverse {
+    animation: none;
+  }
+}
