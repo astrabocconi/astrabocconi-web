@@ -143,9 +143,13 @@ Page inventory carried over from the old site. UI is a rebuild, not a port.
 Visual direction is tracked in `docs/DESIGN.md`; Michele is supplying a fuller
 design system before this phase starts.
 
-- [ ] Layout: header (check `~/component-library` pill nav first), footer, i18n
-      scaffolding (the old site had an IT/EN `LanguageContext`)
-- [ ] `/` home
+- [x] `/` home scaffold, built to Michele's September 2026 brief: rotating
+      hero ring, chi siamo with the compact circular split roll, Forbes bar,
+      six column handout marquee, calculator grid with the encrypted heading,
+      partner bento, and the woven cloth banner. All imagery is blank white
+      placeholder and no link is wired: this is skeleton only.
+- [x] Header and footer for the landing page
+- [ ] i18n scaffolding (the old site had an IT/EN `LanguageContext`)
 - [ ] `/chi-siamo`
 - [ ] `/rappresentanti` (16 rows)
 - [ ] `/dispense` and nested course/year routes

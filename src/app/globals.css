@@ -100,3 +100,88 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Hero ring. A 3D carousel of blank tiles that turns continuously. */
+.hero-ring {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 2900px;
+  pointer-events: none;
+}
+
+.hero-ring__stage {
+  position: relative;
+  width: 1px;
+  height: 1px;
+  transform-style: preserve-3d;
+  transform: rotateX(-7deg) translateZ(-260px);
+  animation: hero-ring-spin 46s linear infinite;
+}
+
+.hero-ring__tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 208px;
+  height: 274px;
+  margin-top: -137px;
+  margin-left: -104px;
+  transform: rotateY(var(--tile-angle)) translateZ(var(--tile-radius));
+}
+
+.hero-ring__card {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgb(4 16 126 / 10%);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow:
+    0 34px 70px rgb(4 16 126 / 10%),
+    0 8px 20px rgb(4 16 126 / 6%);
+}
+
+@keyframes hero-ring-spin {
+  from {
+    transform: rotateX(-7deg) translateZ(-260px) rotateY(0deg);
+  }
+
+  to {
+    transform: rotateX(-7deg) translateZ(-260px) rotateY(-360deg);
+  }
+}
+
+@media (width <= 900px) {
+  .hero-ring__tile {
+    width: 148px;
+    height: 194px;
+    margin-top: -97px;
+    margin-left: -74px;
+  }
+}
+
+/* Vertical marquee used by the handout columns. */
+.infinite-slider__track {
+  animation-name: infinite-slide-y;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes infinite-slide-y {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(calc(-50% - (var(--slider-gap, 16px) / 2)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-ring__stage,
+  .infinite-slider__track {
+    animation: none !important;
+  }
+}

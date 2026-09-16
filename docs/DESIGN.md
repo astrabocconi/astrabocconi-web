@@ -60,3 +60,23 @@ The liquid glass look leans decorative and Apple-like. ASTRA's existing surfaces
 confirming this is a deliberate change of direction for the website rather than
 a reference that happened to be to hand, because the two will look like
 different products side by side.
+
+## The September 2026 landing brief
+
+The homepage is built from `astra website prompy.md`, which supplied three
+components verbatim. They were copied into `src/components/ui/` with their
+logic intact; only the palette, the copy and the placeholder imagery changed.
+
+| Component | Source | What was adapted |
+| --- | --- | --- |
+| `circular-split-roll.tsx` | brief, GSAP + ScrollTrigger | Ten embedded base64 photos replaced with blank white cards; the `w-[50vw]` internal columns became `w-[50%]` so it can sit inside a grid column; added `stageClassName` so the stage does not have to be full viewport height |
+| `encrypted-text.tsx` | brief, motion | Starts fully revealed so server and client agree, then scrambles on mount. Seeding random characters during render broke hydration |
+| `woven-cloth.tsx` | brief, three.js in an iframe | Crimson and Kyoto palette swapped for ASTRA blue throughout: page gradient, cloth ground, hem, typography, rim light. The cloth now weaves "ASTRA BOCCONI". External aura image and icon font dropped |
+
+Two further pieces were described by link rather than supplied, so they are
+implemented here: the vertical infinite slider (`infinite-slider.tsx`) and the
+rotating hero ring (`home/hero-carousel.tsx`).
+
+**`pinSpacing` must stay on** for the circular split roll. With it off the
+pinned stage reserves no scroll space, outlives its section and floats over the
+next one.
