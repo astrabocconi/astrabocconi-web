@@ -241,13 +241,7 @@ const luminaWeaversClothSource = `<!DOCTYPE html>
                 logo.onload = function () {
                     const lw = W * 0.58;
                     const lh = lw * (LOGO_H / LOGO_W);
-                    x.drawImage(logo, (W - lw) / 2, H * 0.42 - lh / 2, lw, lh);
-
-                    x.fillStyle = '#3b4ad0';
-                    x.font = '600 20px "Helvetica Neue", Arial, sans-serif';
-                    x.textAlign = 'center';
-                    x.textBaseline = 'middle';
-                    x.fillText('R E T E   S T U D E N T E S C A   ·   B O C C O N I', W / 2, H * 0.72);
+                    x.drawImage(logo, (W - lw) / 2, H * 0.5 - lh / 2, lw, lh);
 
                     tex.needsUpdate = true;
                 };
@@ -303,15 +297,25 @@ const luminaWeaversClothSource = `<!DOCTYPE html>
             const restH = BW / GX, restV = BH / GY;
             const GRAV = -3.1, DAMP = 0.985, DT = 0.016;
 
+            // Pointer state, eased so the cloth trails the cursor instead of
+            // snapping to it. Idle gusting is deliberately gentle: the banner
+            // should mostly answer the mouse, not flap on its own.
+            let pointerX = 0, pointerY = 0, targetX = 0, targetY = 0;
+            window.addEventListener('mousemove', function (e) {
+                targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+                targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+            });
+            window.addEventListener('mouseleave', function () { targetX = 0; targetY = 0; });
+
             function wind(ix, iy, t) {
                 const cx = ix / GX, cy = iy / GY;
-                const travel = t * 1.7 - cy * 4.2;
-                const gust = 0.6 + 0.42 * Math.sin(t * 0.6) + 0.18 * Math.sin(t * 1.9 + 1.3);
+                const travel = t * 1.15 - cy * 4.2;
+                const gust = 0.30 + 0.16 * Math.sin(t * 0.6) + 0.07 * Math.sin(t * 1.9 + 1.3);
                 const amp = 4.3 * cy;
                 const fz = (Math.sin(travel + cx * 3.3) + 0.5 * Math.sin(travel * 1.7 + cx * 6.0)) * amp * gust;
-                const fx = Math.sin(t * 0.9 + cy * 2.2) * 0.6 * cy;
+                const fx = Math.sin(t * 0.9 + cy * 2.2) * 0.3 * cy + pointerX * 2.4 * cy;
                 const fy = -0.4 * cy;
-                return [fx, fy, fz];
+                return [fx, fy, fz + pointerY * 1.3 * cy];
             }
 
             function step(t) {
@@ -376,8 +380,10 @@ const luminaWeaversClothSource = `<!DOCTYPE html>
                 camera = new THREE.PerspectiveCamera(42, aspect, 0.1, 100);
                 const vFit = (BH/2) / Math.tan(42 * Math.PI / 360);
                 const hFit = (BW/2) / Math.tan(42 * Math.PI / 360) / aspect;
-                camera.position.set(0, 0.05, Math.max(vFit, hFit) * 1.16 + 0.4);
-                camera.lookAt(0, 0, 0);
+                // Aim at the hanging cloth's visual centre, which sits below
+                // the plane's origin because it sags from its pinned top edge.
+                camera.position.set(0, -0.12, Math.max(vFit, hFit) * 1.35 + 0.6);
+                camera.lookAt(0, -0.12, 0);
             }
 
             window.addEventListener('resize', fit);
@@ -386,6 +392,10 @@ const luminaWeaversClothSource = `<!DOCTYPE html>
             let running = false, raf = 0, t = 0;
             function loop() {
                 if(!running) return;
+                pointerX += (targetX - pointerX) * 0.045;
+                pointerY += (targetY - pointerY) * 0.045;
+                mesh.rotation.y = pointerX * 0.16;
+                mesh.rotation.x = -pointerY * 0.07;
                 t += DT;
                 step(t);
                 commit();

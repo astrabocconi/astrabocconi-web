@@ -108,14 +108,14 @@ body {
 .hero-cylinder {
   position: absolute;
   inset: 0;
-  perspective: 1150px;
+  perspective: 880px;
   perspective-origin: 50% 52%;
   pointer-events: none;
 }
 
 .hero-cylinder__stage {
   position: absolute;
-  top: 76%;
+  top: 80%;
   left: 50%;
   width: 1px;
   height: 1px;
@@ -127,10 +127,10 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 318px;
-  height: 452px;
-  margin-top: -226px;
-  margin-left: -159px;
+  width: 420px;
+  height: 590px;
+  margin-top: -295px;
+  margin-left: -210px;
   transform: rotateY(var(--tile-angle)) translateZ(calc(-1 * var(--tile-radius)));
 
   /* Tiles on the near half of the cylinder face away from the camera and would
@@ -236,16 +236,61 @@ body {
   -webkit-backdrop-filter: blur(22px) saturate(180%);
 }
 
-.glass-nav {
-  padding: 5px;
-  border: 1px solid rgb(255 255 255 / 55%);
+/* Nav links: the glass pill materialises under the cursor rather than being
+   painted permanently, so the header reads as a single pane. */
+.nav-link {
+  position: relative;
   border-radius: 999px;
-  background: rgb(255 255 255 / 45%);
+  isolation: isolate;
+  transition: color 200ms ease;
+}
+
+.nav-link::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border: 1px solid rgb(255 255 255 / 0%);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 92%) 0%,
+    rgb(255 255 255 / 62%) 100%
+  );
   box-shadow:
-    0 1px 0 0 rgb(255 255 255 / 70%) inset,
-    0 6px 16px -8px rgb(4 16 126 / 14%);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
+    0 1px 0 0 rgb(255 255 255 / 0%) inset,
+    0 10px 20px -10px rgb(4 16 126 / 0%);
+  opacity: 0;
+  content: "";
+  transform: scale(0.86);
+  transition:
+    opacity 260ms ease,
+    transform 320ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    border-color 260ms ease,
+    box-shadow 260ms ease;
+  backdrop-filter: blur(12px) saturate(170%);
+  -webkit-backdrop-filter: blur(12px) saturate(170%);
+}
+
+.nav-link:hover::before {
+  border-color: rgb(255 255 255 / 75%);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 95%) inset,
+    0 10px 20px -10px rgb(4 16 126 / 26%);
+  opacity: 1;
+  transform: scale(1);
+}
+
+.nav-link--active {
+  color: #fff;
+}
+
+.nav-link--active::before {
+  border-color: transparent;
+  background: var(--color-astra-primary);
+  opacity: 1;
+  transform: scale(1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .glass-button {

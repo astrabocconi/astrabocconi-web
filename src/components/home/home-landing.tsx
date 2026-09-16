@@ -74,15 +74,15 @@ function SiteHeader() {
           />
         </a>
 
-        <nav className="glass-nav hidden items-center gap-1 lg:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {NAV.map((item, i) => (
             <a
               key={item}
               href="#"
-              className={`rounded-full px-4 py-2 text-[0.8rem] font-semibold transition-colors ${
+              className={`nav-link px-4 py-2 text-[0.8rem] font-semibold ${
                 i === 0
-                  ? "bg-astra-primary text-white"
-                  : "text-[#51586b] hover:bg-white/70 hover:text-astra-primary"
+                  ? "nav-link--active"
+                  : "text-[#51586b] hover:text-astra-primary"
               }`}
             >
               {item}
@@ -112,9 +112,6 @@ function Hero() {
       <HeroCarousel />
 
       <div className="relative z-10 mx-auto w-[min(1180px,calc(100%-48px))] text-center">
-        <p className="mb-5 font-mono text-[0.7rem] font-semibold tracking-[0.15em] text-astra-primary uppercase">
-          Associazione studentesca · Università Bocconi
-        </p>
         <h1 className="mx-auto max-w-4xl text-[clamp(2.6rem,5.6vw,5.4rem)] leading-[0.92] font-semibold tracking-[-0.05em] text-astra-primary">
           Tutto quello che serve per studiare in Bocconi.
         </h1>
@@ -150,9 +147,6 @@ function Association() {
     >
       <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-20">
         <div className="lg:sticky lg:top-32">
-          <p className="mb-5 font-mono text-[0.7rem] font-semibold tracking-[0.15em] text-astra-primary uppercase">
-            01 · L&apos;associazione
-          </p>
           <h2 className="text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
             Una rete di studenti che si passa il testimone.
           </h2>
@@ -236,9 +230,6 @@ function Handouts() {
     <section id="dispense" className="overflow-hidden py-24 lg:py-32">
       <div className="mx-auto mb-12 flex w-[min(1280px,calc(100%-48px))] flex-wrap items-end justify-between gap-6">
         <div>
-          <p className="mb-5 font-mono text-[0.7rem] font-semibold tracking-[0.15em] text-astra-primary uppercase">
-            02 · Dispense
-          </p>
           <h2 className="max-w-2xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
             Centinaia di dispense, raccolte corso per corso.
           </h2>
@@ -287,14 +278,11 @@ function Calculators() {
       className="bg-[#f7f8fc] py-24 lg:py-32"
     >
       <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
-        <p className="mb-5 font-mono text-[0.7rem] font-semibold tracking-[0.15em] text-astra-primary uppercase">
-          03 · Calcolatori
-        </p>
         <h2 className="max-w-3xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
           <EncryptedText
             text="Calcola media, voto di laurea e punteggio exchange."
-            revealDelayMs={26}
-            flipDelayMs={38}
+            revealDelayMs={62}
+            flipDelayMs={70}
             encryptedClassName="text-astra-primary/25"
             revealedClassName="text-astra-primary"
           />
@@ -331,9 +319,6 @@ function Partners() {
   return (
     <section id="partner" className="py-24 lg:py-32">
       <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
-        <p className="mb-5 font-mono text-[0.7rem] font-semibold tracking-[0.15em] text-astra-primary uppercase">
-          04 · Partner
-        </p>
         <h2 className="max-w-2xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
           Le realtà che crescono insieme a noi.
         </h2>

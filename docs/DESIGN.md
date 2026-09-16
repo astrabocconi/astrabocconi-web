@@ -99,9 +99,16 @@ Two details make it work, both in `globals.css`:
   whole hero. They face away from the camera, so hiding backfaces leaves
   exactly the far arc.
 
-Radius follows the tile pitch: `chord = 2 * radius * sin(step / 2)`. With 18
-tiles the step is 20 degrees, and a 940px radius gives a 326px chord against a
-318px tile, so the gaps stay even.
+Radius follows the tile pitch: `chord = 2 * radius * sin(step / 2)`. With 16
+tiles the step is 22.5 degrees, and a 1150px radius gives a 449px chord against
+a 420px tile, so the gaps stay even.
+
+**The cards stay upright.** An earlier attempt added `rotateX` to the stage to
+deepen the curve, which tipped the cards toward the viewer and was rejected.
+The dip across the top of the band is a product of perspective on its own: the
+far centre tiles render smaller than the edge tiles, so their top edges sit
+lower. To deepen it, shorten the `perspective` value rather than rotating
+anything.
 
 ## Logo usage
 
@@ -125,3 +132,22 @@ inset hairline along the top edge for the lit rim, a very thin light border,
 and a soft ambient shadow so the slab floats. The header is `sticky top-0` with
 a small gap above, so it reads as a floating pane rather than a bar welded to
 the viewport.
+
+## Header
+
+One container. The header is a single glass pane; the nav links have no
+permanent pill. A liquid glass pill fades and scales in under the cursor
+(`.nav-link::before`), and the active item keeps a solid ASTRA blue pill. A
+pill inside the bar read as two nested containers and was rejected.
+
+## Banner interaction
+
+The cloth answers the pointer. A `mousemove` listener inside the iframe feeds an
+eased pointer value into the wind function and into a slight mesh rotation, so
+the fabric leans toward the cursor. Idle gusting was cut to roughly half its
+authored strength: the banner should mostly respond to the mouse rather than
+flap by itself.
+
+The camera aims at the cloth's visual centre, which sits below the plane origin
+because the sheet hangs from its pinned top edge. Aiming at the origin left it
+stranded high in the frame with the bottom cropped.
