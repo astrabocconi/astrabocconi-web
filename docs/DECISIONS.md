@@ -78,3 +78,33 @@ unchanged: it refreshes the Supabase session and bounces anonymous visitors off
 
 **The proxy uses `getUser()`, not `getSession()`.** `getSession` only reads the
 cookie and can be forged; `getUser` revalidates the token with Supabase.
+
+## 2026-09-16
+
+**Article bodies are stored as sanitised HTML**, not Markdown and not editor
+JSON. HTML renders on the public page with no client side library and no
+conversion step, it survives if TipTap is ever replaced, and the eleven
+migrated articles were already HTML shaped. The tradeoff is that it must be
+sanitised on every write, which `src/lib/sanitize.ts` does with an allowlist.
+
+**TipTap for the editor.** The people publishing are students, not developers,
+and they paste from Word. A textarea of Markdown would have been less code but
+a worse fit for the actual users, which is the whole reason the backoffice
+exists.
+
+**Public pages use a cookieless Supabase client** (`src/lib/supabase/public.ts`).
+Reading cookies would opt every page into dynamic rendering, and a public page
+has no session to read. It also means drafts are invisible publicly, which is
+enforced by RLS rather than by a filter in the query.
+
+**Article select policy is split in two.** A single policy combining
+`status = 'published' OR has_permission(...)` broke every anonymous read:
+Postgres evaluates the whole expression, and `anon` has no EXECUTE on the
+helper, so reads failed with "permission denied for function has_permission".
+Permissive policies are OR'd, so two policies give the same result without
+anonymous readers ever touching the function. Watch for this whenever a policy
+that anon evaluates calls anything in `private`.
+
+**Migrated article dates are inferred**, from the Italian month named in the old
+eyebrow text. They are month accurate at best and flagged in ROADMAP for editors
+to correct, rather than invented precisely.

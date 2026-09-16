@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { AdminUser } from "@/lib/auth/permissions";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { OperatorsEditor } from "./operators-editor";
 
 export const metadata = { title: "Operatori" };
@@ -39,10 +40,12 @@ export default async function OperatorsPage() {
     .order("created_at", { ascending: true });
 
   return (
-    <OperatorsEditor
-      operators={(operators ?? []) as AdminUser[]}
-      currentUserId={user.id}
-      canManage={canManage}
-    />
+    <AdminShell active="/admin/utenti">
+      <OperatorsEditor
+        operators={(operators ?? []) as AdminUser[]}
+        currentUserId={user.id}
+        canManage={canManage}
+      />
+    </AdminShell>
   );
 }

@@ -22,15 +22,23 @@ Generated types are committed at `src/lib/supabase/types.ts`. Regenerate with:
 npx supabase gen types typescript --db-url "$NEON_OR_SUPABASE_DIRECT_URL" --schema public
 ```
 
-22 tables, no views, no functions, no enums. Row counts are from the live
-project.
+26 inherited tables, plus the four this project added. No views, no enums. Row
+counts are from the live project.
+
+### Added by this project
+
+| Table | Rows | Notes |
+| --- | --- | --- |
+| `articles` | 11 | Stella Polare. Replaces the hardcoded `.tsx` pages. Body is sanitised HTML. |
+| `admin_users` | 0 | Backoffice operators and their permissions |
+| `content_audit` | 11 | Append only log, written by a trigger on `articles` |
 
 ### Content people publish
 
 | Table | Rows | Notes |
 | --- | --- | --- |
 | `guides` | 49 | `category`, `file_url`, `thumbnail_url`, `order_index`, `is_active` |
-| `Stella_Polare` | 2 | Only `Title`, `URL`, `category`, `theme`. The actual articles were never in the database; see below. |
+| `Stella_Polare` | 2 | Legacy. Only `Title`, `URL`, `category`, `theme`. Superseded by `articles`; retire once nothing reads it. |
 | `astra_polare_media_content` | 3 | Social posts: platform, media link, views, likes |
 | `representatives` | 16 | `name`, `section`, `url` |
 | `events` | 3 | Largely superseded by Neon's `Event` |
@@ -117,23 +125,42 @@ Still open:
    grants a bare account any write access now that permissions are explicit,
    but signups should still be closed or domain restricted.
 
-### Four tables are invisible to the type generator
+### Four tables have awkward names
 
-The live database has **26** tables in `public`, not 22. These four are missing
-from `src/lib/supabase/types.ts` because their names contain spaces or hyphens:
+The live database has **26** tables in `public`, not the 22 an older type
+generator reported. These four have spaces or hyphens in their names:
 
 `course multipliers estimation`, `minimum CFU required`,
 `cours-subject_MS_exchange`, `course-multiplier_UG`
 
-All four are calculator reference data with public read policies. Anything
-querying them needs raw SQL or a quoted PostgREST call.
+They are in the generated types now, quoted, so `supabase.from("minimum CFU
+required")` type checks. All four are calculator reference data with public
+read policies.
 
 ## Why the old site is being replaced
 
-Beyond the UI, the structural problem: **eleven Stella Polare articles are
+Beyond the UI, the structural problem: **eleven Stella Polare articles were
 hardcoded as individual `.tsx` files with hardcoded routes** in the old repo.
-Publishing an article means a developer, a code change, and a deploy. The
-`Stella_Polare` table exists but only stores a title and a link, so the
-database and the site disagree about what an article even is.
+Publishing an article meant a developer, a code change, and a deploy. The
+`Stella_Polare` table existed but only stored a title and a link, so the
+database and the site disagreed about what an article even was.
 
-Fixing that is the whole point of the backoffice.
+That is fixed. All eleven live in `articles`, with their cover art in the
+`stella_polare` bucket, and `/admin/stella-polare` publishes without a deploy.
+The same treatment is still owed to guides, dispense and representatives.
+
+## Content model
+
+`articles.body_html` is HTML, sanitised with an allowlist in
+`src/lib/sanitize.ts` on every write. The editor is TipTap; the public page
+renders the stored HTML directly with no client side JavaScript.
+
+Drafts are invisible publicly because RLS says so, not because a query filters
+them: public pages use a cookieless client (`src/lib/supabase/public.ts`) that
+carries no session, and the select policy only exposes `status = 'published'`
+to `anon`. A draft URL returns 404 to the public and renders in the backoffice.
+
+Every insert, update and delete on `articles` writes a `content_audit` row
+through a trigger, capturing the actor's id and email and any draft to
+published transition. Migration rows show a null actor because the seed script
+ran with the secret key.

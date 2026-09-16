@@ -9,39 +9,87 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      // Hand written until 20260915_001_roles_and_rls.sql is applied, after
-      // which this file should be regenerated and this block will come back
-      // from the database like everything else.
       admin_users: {
         Row: {
-          user_id: string
-          email: string
-          full_name: string | null
-          role: string
-          permissions: string[]
-          disabled: boolean
           created_at: string
           created_by: string | null
+          disabled: boolean
+          email: string
+          full_name: string | null
+          permissions: string[]
+          role: string
+          user_id: string
         }
         Insert: {
-          user_id: string
+          created_at?: string
+          created_by?: string | null
+          disabled?: boolean
           email: string
           full_name?: string | null
-          role?: string
           permissions?: string[]
-          disabled?: boolean
-          created_at?: string
-          created_by?: string | null
+          role?: string
+          user_id: string
         }
         Update: {
-          user_id?: string
-          email?: string
-          full_name?: string | null
-          role?: string
-          permissions?: string[]
-          disabled?: boolean
           created_at?: string
           created_by?: string | null
+          disabled?: boolean
+          email?: string
+          full_name?: string | null
+          permissions?: string[]
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      articles: {
+        Row: {
+          author: string | null
+          body_html: string
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          author?: string | null
+          body_html?: string
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          author?: string | null
+          body_html?: string
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -171,6 +219,39 @@ export type Database = {
           cfu?: number | null
           course?: string
           id?: number
+        }
+        Relationships: []
+      }
+      content_audit: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          changed_at: string
+          id: number
+          record_id: string
+          summary: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          changed_at?: string
+          id?: number
+          record_id: string
+          summary?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          changed_at?: string
+          id?: number
+          record_id?: string
+          summary?: string | null
+          table_name?: string
         }
         Relationships: []
       }

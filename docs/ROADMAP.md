@@ -3,13 +3,14 @@
 Working state of the ASTRA website rebuild. **Keep this file current.** It is
 the first thing to read when picking the project up on another machine.
 
-> **You are here:** Phases 0 and 1 are done. The database has a real role
-> model, the backoffice shell is deployed, and secrets are set. The one
-> remaining step is creating the first owner account through the gate at
-> `/admin`. After that, Phase 2 is the editorial schema and the content CRUD,
-> which is where the rebuild actually starts paying off.
+> **You are here:** Phases 0, 1 and the Stella Polare half of Phase 2 are
+> done. Articles are data, the backoffice publishes them, and the 11 old
+> hardcoded ones are migrated and live. The one manual step still outstanding
+> is creating the first owner account through the gate at `/admin`; the
+> throwaway account used for testing was deleted, so bootstrap is still armed.
+> Next: the same CRUD treatment for guides, dispense and representatives.
 
-Last updated: 2026-09-15
+Last updated: 2026-09-16
 
 ---
 
@@ -46,8 +47,9 @@ Database, **applied to production on 2026-09-15**:
       (guides 49, handouts 162, representatives 16, and the rest)
 - [x] `Document` now returns 0 rows to the publishable key, and still returns
       all 27,769 to the secret key, so astra-app's RAG is unaffected
-- [ ] Regenerate `src/lib/supabase/types.ts` and drop the hand written
-      `admin_users` block
+- [x] Regenerated `src/lib/supabase/types.ts`; the hand written `admin_users`
+      block is gone, and the newer CLI also picks up the four tables whose
+      names contain spaces or hyphens
 
 Backoffice shell, built:
 
@@ -79,16 +81,32 @@ Still open:
 
 The point of the rebuild. Nobody should need a developer to publish anything.
 
-- [ ] Design the editorial schema: `articles` (Stella Polare), with slug,
-      title, cover, body, author, status, published_at. Migrate the 11
-      hardcoded articles into it.
-- [ ] Decide the body format (portable text / MDX-in-DB / rich text JSON) and
-      record it in DECISIONS.
-- [ ] Backoffice shell at `/admin`, behind Supabase Auth with roles.
-- [ ] CRUD for Stella Polare articles, with draft and publish states.
-- [ ] CRUD for guides and dispense, including file upload to Storage.
-- [ ] CRUD for representatives (16 rows today).
-- [ ] Audit trail: who changed what, when.
+Stella Polare, done:
+
+- [x] `articles` table with slug, title, category, excerpt, author, cover,
+      body, status and published_at (`20260915_002_articles.sql`)
+- [x] Body stored as sanitised HTML; see DECISIONS for why
+- [x] **All 11 hardcoded articles migrated**, with their cover art uploaded to
+      the `stella_polare` bucket and excerpts recovered from the old index page
+- [x] Audit trail: `content_audit` plus a trigger, recording who changed what
+      and every draft to published transition
+- [x] Backoffice CRUD at `/admin/stella-polare`: list, create, rich text edit,
+      cover upload, draft and publish, delete, with history shown per article
+- [x] Public `/stella-polare` index and `/stella-polare/[slug]`, statically
+      prerendered with a 5 minute revalidate
+- [x] Verified end to end in a browser: drafts return 404 publicly, publishing
+      makes them live, and the audit trail records the actor
+
+Still to do:
+
+- [ ] CRUD for guides (49 rows) and dispense, including upload to Storage
+- [ ] CRUD for representatives (16 rows)
+- [ ] Retire the legacy `Stella_Polare` table (2 rows of external links) once
+      nothing reads it
+- [ ] Article dates are inferred from the Italian month in the old eyebrow
+      text, so they are month accurate at best. Editors should set real ones.
+- [ ] Cover images are the originals and some are large (capaci is 1.4 MB).
+      Resize on upload, or put them behind an image CDN.
 - [ ] Consolidate the document tables. There are currently six overlapping
       ones (`handouts`, `clmg_handouts`, `magistrali_handouts`,
       `dispense_uploads`, `extracted_dispense`, `pdf_files`). Decide whether to
@@ -105,7 +123,7 @@ Page inventory carried over from the old site. UI is a rebuild, not a port.
 - [ ] `/rappresentanti` (16 rows)
 - [ ] `/dispense` and nested course/year routes
 - [ ] `/guide` and `/guide/:category` (49 rows)
-- [ ] `/stella-polare` index and `/stella-polare/:slug`, database driven
+- [x] `/stella-polare` index and `/stella-polare/:slug`, database driven
 - [ ] `/exchange`
 - [ ] Events and news, reading from Neon so the site and the app agree
 - [ ] SEO: metadata, sitemap, Open Graph images

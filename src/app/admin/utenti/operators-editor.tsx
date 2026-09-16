@@ -8,8 +8,7 @@ import {
   effectivePermissions,
   type AdminUser,
 } from "@/lib/auth/permissions";
-import { AstraLogo } from "@/components/ui/logo";
-import { createOperator, setDisabled, signOut, updatePermissions } from "./actions";
+import { createOperator, setDisabled, updatePermissions } from "./actions";
 
 export function OperatorsEditor({
   operators,
@@ -50,24 +49,7 @@ export function OperatorsEditor({
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-gray-50">
-      <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
-        <div className="flex items-center gap-2.5">
-          <AstraLogo className="h-6 w-6 text-astra-primary" />
-          <span className="text-sm font-semibold text-gray-900">
-            Backoffice
-          </span>
-          <span className="rounded-full bg-astra-light px-2 py-0.5 text-xs font-medium text-astra-primary">
-            Operatori
-          </span>
-        </div>
-        <form action={signOut}>
-          <button className="text-xs font-medium text-gray-500 hover:text-gray-900">
-            Esci
-          </button>
-        </form>
-      </header>
-
+    <>
       <div className="flex flex-1 flex-col gap-6 p-6 lg:flex-row">
         <aside className="w-full shrink-0 lg:w-72">
           <h2 className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
@@ -173,7 +155,7 @@ export function OperatorsEditor({
           )}
         </section>
       </div>
-    </div>
+    </>
   );
 }
 

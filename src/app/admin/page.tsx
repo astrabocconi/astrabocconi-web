@@ -10,18 +10,14 @@ const CLICKS_TO_REVEAL = 7;
 export default function AdminGate() {
   const router = useRouter();
   const [clicks, setClicks] = useState(0);
-  const [revealed, setRevealed] = useState(false);
   const [needsBootstrap, setNeedsBootstrap] = useState<boolean | null>(null);
+  const revealed = clicks >= CLICKS_TO_REVEAL;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secret, setSecret] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (clicks >= CLICKS_TO_REVEAL) setRevealed(true);
-  }, [clicks]);
 
   useEffect(() => {
     if (!revealed) return;
@@ -45,7 +41,7 @@ export default function AdminGate() {
       setBusy(false);
       return;
     }
-    router.replace("/admin/utenti");
+    router.replace("/admin/stella-polare");
     router.refresh();
   }
 
