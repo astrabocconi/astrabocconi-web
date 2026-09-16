@@ -18,6 +18,8 @@ The new website for **ASTRA**, a student association at Università Bocconi
 1. `docs/ROADMAP.md` — what is done, what is next. **This is the handover file.**
 2. `docs/ARCHITECTURE.md` — the two databases, the schema, the content model.
 3. `docs/DECISIONS.md` — choices already made, and why. Do not relitigate them.
+4. `docs/DESIGN.md` — the public site's visual direction, and where incoming
+   design references collide with the fixed brand palette.
 
 ## Keeping the docs current is part of the job
 

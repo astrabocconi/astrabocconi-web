@@ -140,6 +140,8 @@ Still to do:
 ## Phase 3 — Public site
 
 Page inventory carried over from the old site. UI is a rebuild, not a port.
+Visual direction is tracked in `docs/DESIGN.md`; Michele is supplying a fuller
+design system before this phase starts.
 
 - [ ] Layout: header (check `~/component-library` pill nav first), footer, i18n
       scaffolding (the old site had an IT/EN `LanguageContext`)

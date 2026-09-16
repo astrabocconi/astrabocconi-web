@@ -37,6 +37,7 @@ docs/                 read these before writing code
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | **Start here.** Current state, phases, what is next. |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | The two databases, full schema, inherited security issues. |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | Choices already made, and why. |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | Visual direction for the public site. |
 | [`AGENTS.md`](AGENTS.md) | Conventions and reference repos, for coding agents. |
 
 `docs/ROADMAP.md` is the handover file and is kept current on every meaningful
