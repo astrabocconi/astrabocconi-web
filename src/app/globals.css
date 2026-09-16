@@ -101,63 +101,93 @@ body {
   }
 }
 
-/* Hero ring. A 3D carousel of blank tiles that turns continuously. */
-.hero-ring {
+/* Hero cylinder. Tiles sit on the inside of a vertical-axis cylinder, so the
+   centre of the band recedes and the edges swing toward the viewer. Tiles use
+   translateZ(-R): at 0deg a tile is pushed to the far wall, at +/-90deg it
+   comes level with the camera plane, which is what produces the concave read. */
+.hero-cylinder {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  perspective: 2900px;
+  perspective: 1150px;
+  perspective-origin: 50% 52%;
   pointer-events: none;
 }
 
-.hero-ring__stage {
-  position: relative;
+.hero-cylinder__stage {
+  position: absolute;
+  top: 76%;
+  left: 50%;
   width: 1px;
   height: 1px;
   transform-style: preserve-3d;
-  transform: rotateX(-7deg) translateZ(-260px);
-  animation: hero-ring-spin 46s linear infinite;
+  animation: hero-cylinder-spin 54s linear infinite;
 }
 
-.hero-ring__tile {
+.hero-cylinder__tile {
   position: absolute;
   top: 0;
   left: 0;
-  width: 208px;
-  height: 274px;
-  margin-top: -137px;
-  margin-left: -104px;
-  transform: rotateY(var(--tile-angle)) translateZ(var(--tile-radius));
+  width: 318px;
+  height: 452px;
+  margin-top: -226px;
+  margin-left: -159px;
+  transform: rotateY(var(--tile-angle)) translateZ(calc(-1 * var(--tile-radius)));
+
+  /* Tiles on the near half of the cylinder face away from the camera and would
+     otherwise render enormous, right on top of the lens. Hiding backfaces
+     leaves only the far arc, which is the curved wall we want to see. */
+  backface-visibility: hidden;
 }
 
-.hero-ring__card {
+.hero-cylinder__card {
   width: 100%;
   height: 100%;
-  border: 1px solid rgb(4 16 126 / 10%);
-  border-radius: 22px;
+  border: 1px solid rgb(4 16 126 / 12%);
+  border-radius: 26px;
   background: #fff;
   box-shadow:
-    0 34px 70px rgb(4 16 126 / 10%),
-    0 8px 20px rgb(4 16 126 / 6%);
+    0 40px 80px rgb(4 16 126 / 12%),
+    0 10px 24px rgb(4 16 126 / 7%);
 }
 
-@keyframes hero-ring-spin {
+@keyframes hero-cylinder-spin {
   from {
-    transform: rotateX(-7deg) translateZ(-260px) rotateY(0deg);
+    transform: rotateY(0deg);
   }
 
   to {
-    transform: rotateX(-7deg) translateZ(-260px) rotateY(-360deg);
+    transform: rotateY(-360deg);
   }
 }
 
+/* Soften where the band runs off the sides. */
+.hero-cylinder__edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 16%;
+}
+
+.hero-cylinder__edge--left {
+  left: 0;
+  background: linear-gradient(90deg, #fff 8%, rgb(255 255 255 / 0%) 100%);
+}
+
+.hero-cylinder__edge--right {
+  right: 0;
+  background: linear-gradient(270deg, #f7f8fc 8%, rgb(247 248 252 / 0%) 100%);
+}
+
 @media (width <= 900px) {
-  .hero-ring__tile {
-    width: 148px;
-    height: 194px;
-    margin-top: -97px;
-    margin-left: -74px;
+  .hero-cylinder {
+    perspective: 760px;
+  }
+
+  .hero-cylinder__tile {
+    width: 196px;
+    height: 274px;
+    margin-top: -137px;
+    margin-left: -98px;
   }
 }
 
@@ -180,8 +210,63 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-ring__stage,
+  .hero-cylinder__stage,
   .infinite-slider__track {
     animation: none !important;
   }
+}
+
+/* Liquid glass. A thick translucent slab: heavy blur plus saturation so colour
+   from behind bleeds through, a bright hairline on top for the lit edge, and a
+   soft ambient shadow so it floats rather than sits flat. */
+.glass-bar {
+  border: 1px solid rgb(255 255 255 / 60%);
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 84%) 0%,
+    rgb(255 255 255 / 68%) 100%
+  );
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 85%) inset,
+    0 -1px 0 0 rgb(4 16 126 / 4%) inset,
+    0 18px 40px -12px rgb(4 16 126 / 16%),
+    0 2px 8px -2px rgb(4 16 126 / 8%);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+}
+
+.glass-nav {
+  padding: 5px;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 45%);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 70%) inset,
+    0 6px 16px -8px rgb(4 16 126 / 14%);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+}
+
+.glass-button {
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 85%) 0%,
+    rgb(255 255 255 / 62%) 100%
+  );
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 90%) inset,
+    0 10px 24px -10px rgb(4 16 126 / 18%);
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.glass-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 90%) inset,
+    0 16px 30px -10px rgb(4 16 126 / 22%);
 }

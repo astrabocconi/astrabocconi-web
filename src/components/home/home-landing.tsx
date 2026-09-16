@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { AstraLogo } from "@/components/ui/logo";
 import { EncryptedText } from "@/components/ui/encrypted-text";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import CircularSplitRoll from "@/components/ui/circular-split-roll";
@@ -61,16 +61,20 @@ export function HomeLanding() {
 
 function SiteHeader() {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-astra-primary/8 bg-white/82 backdrop-blur-xl">
-      <div className="mx-auto flex h-[74px] w-[min(1280px,calc(100%-48px))] items-center justify-between">
-        <a href="#top" className="flex items-center gap-2.5">
-          <AstraLogo className="h-7 w-7 text-astra-primary" />
-          <span className="text-[1.05rem] font-bold tracking-[0.16em] text-astra-primary">
-            ASTRA
-          </span>
+    <header className="sticky top-0 z-50 pt-3">
+      <div className="glass-bar mx-auto flex h-[68px] w-[min(1280px,calc(100%-32px))] items-center justify-between px-4 sm:px-5">
+        <a href="#top" className="flex items-center">
+          <Image
+            src="/astra-logo-horizontal.png"
+            alt="ASTRA Bocconi"
+            width={1400}
+            height={377}
+            priority
+            className="h-8 w-auto"
+          />
         </a>
 
-        <nav className="hidden items-center gap-1 rounded-full border border-astra-primary/10 bg-white/80 p-1.5 lg:flex">
+        <nav className="glass-nav hidden items-center gap-1 lg:flex">
           {NAV.map((item, i) => (
             <a
               key={item}
@@ -78,7 +82,7 @@ function SiteHeader() {
               className={`rounded-full px-4 py-2 text-[0.8rem] font-semibold transition-colors ${
                 i === 0
                   ? "bg-astra-primary text-white"
-                  : "text-[#51586b] hover:bg-astra-light hover:text-astra-primary"
+                  : "text-[#51586b] hover:bg-white/70 hover:text-astra-primary"
               }`}
             >
               {item}
@@ -102,22 +106,23 @@ function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-b from-white to-[#f7f8fc] pt-[74px]"
+      className="relative -mt-[80px] min-h-screen overflow-hidden bg-linear-to-b from-white to-[#f7f8fc] pt-[104px]"
     >
+      {/* The band sits low in the section, so the copy reads clear above it. */}
       <HeroCarousel />
 
       <div className="relative z-10 mx-auto w-[min(1180px,calc(100%-48px))] text-center">
-        <p className="mb-6 font-mono text-[0.7rem] font-semibold tracking-[0.15em] text-astra-primary uppercase">
+        <p className="mb-5 font-mono text-[0.7rem] font-semibold tracking-[0.15em] text-astra-primary uppercase">
           Associazione studentesca · Università Bocconi
         </p>
-        <h1 className="mx-auto max-w-4xl text-[clamp(3rem,7vw,7rem)] leading-[0.88] font-semibold tracking-[-0.055em] text-astra-primary">
+        <h1 className="mx-auto max-w-4xl text-[clamp(2.6rem,5.6vw,5.4rem)] leading-[0.92] font-semibold tracking-[-0.05em] text-astra-primary">
           Tutto quello che serve per studiare in Bocconi.
         </h1>
-        <p className="mx-auto mt-8 max-w-xl text-[clamp(1rem,1.2vw,1.15rem)] leading-relaxed text-[#545d70]">
+        <p className="mx-auto mt-6 max-w-xl text-[clamp(0.98rem,1.1vw,1.1rem)] leading-relaxed text-[#545d70]">
           Dispense, guide, calcolatori e rappresentanza. Costruiti dagli
           studenti, per gli studenti.
         </p>
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <a
             href="#dispense"
             className="inline-flex h-12 items-center gap-2 rounded-full bg-astra-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-astra-dark"
@@ -127,7 +132,7 @@ function Hero() {
           </a>
           <a
             href="#chi-siamo"
-            className="inline-flex h-12 items-center rounded-full border border-astra-primary/15 bg-white px-6 text-sm font-semibold text-astra-primary transition-colors hover:border-astra-accent"
+            className="glass-button inline-flex h-12 items-center px-6 text-sm font-semibold text-astra-primary"
           >
             Chi siamo
           </a>
@@ -363,7 +368,7 @@ function Partners() {
 
 function Banner() {
   return (
-    <section className="relative h-[560px] w-full overflow-hidden bg-astra-dark">
+    <section className="relative h-[380px] w-full overflow-hidden bg-astra-dark sm:h-[420px]">
       <WovenCloth className="absolute inset-0 h-full w-full" />
     </section>
   );
@@ -374,13 +379,14 @@ function SiteFooter() {
     <footer className="border-t border-astra-primary/10 bg-white">
       <div className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col gap-8 py-14 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="flex items-center gap-2.5">
-            <AstraLogo className="h-6 w-6 text-astra-primary" />
-            <span className="text-[0.95rem] font-bold tracking-[0.16em] text-astra-primary">
-              ASTRA
-            </span>
-          </div>
-          <p className="mt-3 max-w-xs text-sm text-[#6b7280]">
+          <Image
+            src="/astra-logo-horizontal.png"
+            alt="ASTRA Bocconi"
+            width={1400}
+            height={377}
+            className="h-8 w-auto"
+          />
+          <p className="mt-4 max-w-xs text-sm text-[#6b7280]">
             Associazione studentesca dell&apos;Università Bocconi.
           </p>
         </div>

@@ -80,3 +80,48 @@ rotating hero ring (`home/hero-carousel.tsx`).
 **`pinSpacing` must stay on** for the circular split roll. With it off the
 pinned stage reserves no scroll space, outlives its section and floats over the
 next one.
+
+## Hero motion, corrected from the reference recording
+
+The first attempt was a ring of tiles seen from **outside**, which curves the
+wrong way: centre near, edges far. The screen recording Michele supplied of the
+Bending Spoons hero shows the opposite, and it is the whole character of the
+effect. Tiles sit on the **inside** of a vertical-axis cylinder, so the middle
+of the band recedes and the tiles toward the left and right edges swing forward
+and grow.
+
+Two details make it work, both in `globals.css`:
+
+- Tiles are placed with `rotateY(angle) translateZ(-radius)`. The negative Z is
+  what pushes the centre of the band to the far wall.
+- `backface-visibility: hidden` on the tile. Without it, the tiles on the near
+  half of the cylinder sit almost on the lens, render enormous and cover the
+  whole hero. They face away from the camera, so hiding backfaces leaves
+  exactly the far arc.
+
+Radius follows the tile pitch: `chord = 2 * radius * sin(step / 2)`. With 18
+tiles the step is 20 degrees, and a 940px radius gives a 326px chord against a
+318px tile, so the gaps stay even.
+
+## Logo usage
+
+The header and footer use the **long horizontal lockup**, `ASTRA BOCCONI`, from
+`public/astra-logo-horizontal.png`. Do not rebuild it as a monogram beside a
+text span; that was explicitly rejected. A white variant is in
+`astra-logo-horizontal-white.png` for dark surfaces.
+
+The woven cloth banner carries the **name-only wordmark**, inlined into the
+iframe as an SVG path taken from `brand/vectors/1.svg`. It is drawn onto the
+cloth canvas after the slub-noise pass, because that pass calls `getImageData`
+and an image drawn earlier would complicate it; a `data:` URI keeps the canvas
+untainted so WebGL can still read it. The banner is 380px tall (420 from `sm`)
+so the 5:1 wordmark is not stranded in a tall panel.
+
+## Liquid glass
+
+`.glass-bar`, `.glass-nav` and `.glass-button` in `globals.css`. The recipe is
+a heavy `backdrop-filter: blur() saturate()` so colour bleeds through, a bright
+inset hairline along the top edge for the lit rim, a very thin light border,
+and a soft ambient shadow so the slab floats. The header is `sticky top-0` with
+a small gap above, so it reads as a floating pane rather than a bar welded to
+the viewport.
