@@ -69,7 +69,8 @@ logic intact; only the palette, the copy and the placeholder imagery changed.
 
 | Component | Source | What was adapted |
 | --- | --- | --- |
-| `circular-split-roll.tsx` | brief, GSAP + ScrollTrigger | Ten embedded base64 photos replaced with blank white cards; the `w-[50vw]` internal columns became `w-[50%]` so it can sit inside a grid column; added `stageClassName` so the stage does not have to be full viewport height |
+| ~~`circular-split-roll.tsx`~~ | brief, GSAP + ScrollTrigger | **Removed.** It was pinned inside the chi siamo column, which reserved well over a screen of scroll and left a long empty run before the next section. Replaced by `display-cards.tsx`. The `gsap` package went with it; the woven cloth loads its own copy from a CDN inside its iframe. |
+| `display-cards.tsx` | later brief | A hover-out stack of six cards, standing in for the chi siamo visual. Palette moved to ASTRA, the shadcn theme tokens it assumed (`bg-muted`, `text-muted-foreground`, `outline-border`, `bg-background`) do not exist here so they became explicit whites and greys, the Sparkles icon became the ASTRA monogram, and the third text row was dropped because every card except the top one hides it |
 | `encrypted-text.tsx` | brief, motion | Starts fully revealed so server and client agree, then scrambles on mount. Seeding random characters during render broke hydration |
 | `woven-cloth.tsx` | brief, three.js in an iframe | Crimson and Kyoto palette swapped for ASTRA blue throughout: page gradient, cloth ground, hem, typography, rim light. The cloth now weaves "ASTRA BOCCONI". External aura image and icon font dropped |
 
