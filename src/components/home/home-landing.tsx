@@ -308,7 +308,9 @@ function PartnerBar() {
   return (
     // Height matches the Forbes bar above it: py-7 around an 80px plate.
     <section className="flex min-h-[136px] items-center bg-astra-primary text-white">
-      <div className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col gap-1.5">
+      {/* Full bleed: the rows run the whole viewport and the mask fades them
+          at the edges, rather than stopping at the page gutter. */}
+      <div className="flex w-full flex-col gap-1.5">
         <BrandScroller items={PARTNER_BRANDS} />
         {/* Second row runs the other way and starts halfway through the list,
             so the two rows never show the same plate at the same point. */}
