@@ -31,7 +31,7 @@ counts are from the live project.
 | --- | --- | --- |
 | `articles` | 11 | Stella Polare. Replaces the hardcoded `.tsx` pages. Body is sanitised HTML. |
 | `admin_users` | 0 | Backoffice operators and their permissions |
-| `content_audit` | 11 | Append only log, written by a trigger on `articles` |
+| `content_audit` | 11 | Append only log, written by a trigger on `articles`, `guides` and `representatives` |
 
 ### Content people publish
 
@@ -40,7 +40,7 @@ counts are from the live project.
 | `guides` | 49 | `category`, `file_url`, `thumbnail_url`, `order_index`, `is_active` |
 | `Stella_Polare` | 2 | Legacy. Only `Title`, `URL`, `category`, `theme`. Superseded by `articles`; retire once nothing reads it. |
 | `astra_polare_media_content` | 3 | Social posts: platform, media link, views, likes |
-| `representatives` | 16 | `name`, `section`, `url` |
+| `representatives` | 16 | `name`, `section`, `url`. Every `url` is a dead link; see below. |
 | `events` | 3 | Largely superseded by Neon's `Event` |
 | `event_registrations` | 0 | Holds `user_email`, `user_name`. See security. |
 
@@ -96,8 +96,9 @@ exist in production, because later migrations removed them.
 Not real, despite what the old repo suggests:
 
 - `tmp_guides_upload`, which granted anonymous INSERT on the `guides` bucket,
-  **is not present**. `storage.objects` has exactly three policies, all scoped
-  to `dispense-uploads` and all requiring an authenticated user.
+  **is not present**. At audit time `storage.objects` carried only three
+  policies, all scoped to `dispense-uploads`. Migrations 004 and 005 added
+  permission gated policies for `stella_polare`, `guides` and `images`.
 - `event_registrations` is **not** anon-readable. Its live SELECT policy limits
   rows to the owning user by `user_id` or `auth.email()`.
 
@@ -115,13 +116,18 @@ Real, and addressed by `supabase/migrations/20260915_001_roles_and_rls.sql`:
 
 Still open:
 
-5. **Credentials.** The old repo is public and contains the anon key, which is
+5. **Representative photos are gone.** All 16 `representatives.url` values are
+   signed URLs on `cdn.astrabocconi.com`, which is NXDOMAIN, pointing at a
+   bucket `rappresentnati` that does not exist on this project. They were
+   presumably on an earlier Supabase project. Not recoverable from here; the
+   backoffice can upload replacements into `images/rappresentanti/`.
+6. **Credentials.** The old repo is public and contains the anon key, which is
    fine by design. The database password and secret key, however, sit in
    cleartext in `~/astra-app/apps/web/.env` and should be rotated.
-6. **All five storage buckets are public** (`dispense-uploads`, `guides`,
+7. **All five storage buckets are public** (`dispense-uploads`, `guides`,
    `images`, `stella_polare`, `gpt knowledge`). For published course material
    that is intended, but `gpt knowledge` deserves a look.
-7. **Open signups.** Supabase Auth currently allows anyone to register. Nothing
+8. **Open signups.** Supabase Auth currently allows anyone to register. Nothing
    grants a bare account any write access now that permissions are explicit,
    but signups should still be closed or domain restricted.
 
@@ -147,7 +153,8 @@ database and the site disagreed about what an article even was.
 
 That is fixed. All eleven live in `articles`, with their cover art in the
 `stella_polare` bucket, and `/admin/stella-polare` publishes without a deploy.
-The same treatment is still owed to guides, dispense and representatives.
+Guides and representatives have the same treatment at `/admin/guide` and
+`/admin/rappresentanti`. Dispense does not, on purpose: see DECISIONS.
 
 ## Content model
 
@@ -160,7 +167,9 @@ them: public pages use a cookieless client (`src/lib/supabase/public.ts`) that
 carries no session, and the select policy only exposes `status = 'published'`
 to `anon`. A draft URL returns 404 to the public and renders in the backoffice.
 
-Every insert, update and delete on `articles` writes a `content_audit` row
-through a trigger, capturing the actor's id and email and any draft to
-published transition. Migration rows show a null actor because the seed script
+Every insert, update and delete on `articles`, `guides` and `representatives`
+writes a `content_audit` row through a trigger, capturing the actor's id and
+email, any draft to published transition, and any change to `is_active`. The
+trigger function reads columns through `to_jsonb`, so it works on any table
+whose rows have an id and a title or name. Migration rows show a null actor because the seed script
 ran with the secret key.

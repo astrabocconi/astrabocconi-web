@@ -108,3 +108,19 @@ that anon evaluates calls anything in `private`.
 **Migrated article dates are inferred**, from the Italian month named in the old
 eyebrow text. They are month accurate at best and flagged in ROADMAP for editors
 to correct, rather than invented precisely.
+
+**Storage policies are gated on the same permission as the matching table.**
+An editor who cannot publish guides also cannot drop files into the guides
+bucket. Uploads go to `stella_polare` for article covers, `guides` for guide
+PDFs, and `images/rappresentanti/` for representative photos.
+
+**Guides are edited inline in one grouped list**, not on a route per guide like
+articles. There are 49 of them across 18 categories and the common task is
+scanning and toggling rather than long-form writing, so a page load per edit
+would be the wrong shape. Articles keep their own route because writing one is
+a sitting-down job.
+
+**Dispense CRUD is deliberately not built.** The data is spread across
+`handouts`, `clmg_handouts`, `magistrali_handouts`, `pdf_files`, `resources`
+and two dead upload tables, with different column names for the same ideas.
+Building a backoffice over that would cement it. Decide the consolidation first.

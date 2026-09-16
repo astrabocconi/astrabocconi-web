@@ -4,6 +4,8 @@ import { signOut } from "@/app/admin/utenti/actions";
 
 const SECTIONS = [
   { href: "/admin/stella-polare", label: "Stella Polare" },
+  { href: "/admin/guide", label: "Guide" },
+  { href: "/admin/rappresentanti", label: "Rappresentanti" },
   { href: "/admin/utenti", label: "Operatori" },
 ];
 

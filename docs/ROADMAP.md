@@ -3,12 +3,13 @@
 Working state of the ASTRA website rebuild. **Keep this file current.** It is
 the first thing to read when picking the project up on another machine.
 
-> **You are here:** Phases 0, 1 and the Stella Polare half of Phase 2 are
-> done. Articles are data, the backoffice publishes them, and the 11 old
-> hardcoded ones are migrated and live. The one manual step still outstanding
-> is creating the first owner account through the gate at `/admin`; the
-> throwaway account used for testing was deleted, so bootstrap is still armed.
-> Next: the same CRUD treatment for guides, dispense and representatives.
+> **You are here:** Phases 0 and 1 are done, and Phase 2 covers Stella Polare,
+> guides and representatives. Dispense is deliberately not built yet, because
+> its six overlapping tables need a decision first. The one manual step still
+> outstanding is creating the first owner account through the gate at `/admin`;
+> the throwaway accounts used for testing were deleted, so bootstrap is still
+> armed. Next is Phase 3, the public site, for which Michele is supplying a
+> design system.
 
 Last updated: 2026-09-16
 
@@ -97,10 +98,34 @@ Stella Polare, done:
 - [x] Verified end to end in a browser: drafts return 404 publicly, publishing
       makes them live, and the audit trail records the actor
 
+Guides and representatives, done:
+
+- [x] `/admin/guide`: 49 guides grouped by category, inline edit, PDF upload to
+      the `guides` bucket, activate and deactivate, delete
+- [x] `/admin/rappresentanti`: 16 people grouped by section, inline edit, photo
+      upload, delete
+- [x] Storage policies for the `stella_polare`, `guides` and `images` buckets,
+      each gated on the matching permission. **This was a live bug**: RLS was on
+      for `storage.objects` with policies only for `dispense-uploads`, so the
+      Stella Polare cover upload shipped in the previous commit could never have
+      worked. The seeded covers went in with the secret key, which bypasses RLS,
+      so it did not surface until a real upload was attempted.
+- [x] `guides_select_writers` policy, so the backoffice can see deactivated
+      guides in order to reactivate them. Same shape as the drafts problem.
+- [x] Audit trigger generalised to any content table and attached to guides and
+      representatives
+- [x] Data fix: one guide's category was `"exchange_triennale\n"`, which split
+      it into a phantom 19th category. Now 18 real categories.
+
 Still to do:
 
-- [ ] CRUD for guides (49 rows) and dispense, including upload to Storage
-- [ ] CRUD for representatives (16 rows)
+- [ ] **All 16 representative photos are dead links.** They point at
+      `cdn.astrabocconi.com`, which is NXDOMAIN, and the `rappresentnati` bucket
+      they reference does not exist on this project. The originals are not
+      recoverable from here. The backoffice can now upload replacements into the
+      `images` bucket; someone needs to re-upload 16 photos.
+- [ ] CRUD for dispense. Blocked on the six table consolidation below; building
+      UI over that shape first would cement it.
 - [ ] Retire the legacy `Stella_Polare` table (2 rows of external links) once
       nothing reads it
 - [ ] Article dates are inferred from the Italian month in the old eyebrow
