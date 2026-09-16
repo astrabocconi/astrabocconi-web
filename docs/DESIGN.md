@@ -134,7 +134,7 @@ so the 5:1 wordmark is not stranded in a tall panel.
 
 ## Liquid glass
 
-`.glass-bar`, `.glass-nav` and `.glass-button` in `globals.css`. The recipe is
+`.glass-bar` and `.nav-link` in `globals.css`. The recipe is
 a heavy `backdrop-filter: blur() saturate()` so colour bleeds through, a bright
 inset hairline along the top edge for the lit rim, a very thin light border,
 and a soft ambient shadow so the slab floats. The header is `sticky top-0` with

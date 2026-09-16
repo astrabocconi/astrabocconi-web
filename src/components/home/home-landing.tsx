@@ -119,21 +119,6 @@ function Hero() {
           Dispense, guide, calcolatori e rappresentanza. Costruiti dagli
           studenti, per gli studenti.
         </p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href="#dispense"
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-astra-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-astra-dark"
-          >
-            Esplora le dispense
-            <ArrowRight className="h-4 w-4" />
-          </a>
-          <a
-            href="#chi-siamo"
-            className="glass-button inline-flex h-12 items-center px-6 text-sm font-semibold text-astra-primary"
-          >
-            Chi siamo
-          </a>
-        </div>
       </div>
     </section>
   );
