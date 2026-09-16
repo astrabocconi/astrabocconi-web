@@ -2,10 +2,9 @@
 
 import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { AstraLogo } from "@/components/ui/logo";
 import { EncryptedText } from "@/components/ui/encrypted-text";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
-import DisplayCards from "@/components/ui/display-cards";
+import { HoverExpand_001 } from "@/components/ui/expand-on-hover";
 import WovenCloth from "@/components/ui/woven-cloth";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 
@@ -13,48 +12,15 @@ import { HeroCarousel } from "@/components/home/hero-carousel";
 // yet: every link is inert and every image is a blank white placeholder.
 const NAV = ["Chi siamo", "Dispense", "Calcolatori", "Stella Polare", "Partner"];
 
-// The lower five cards are greyed and veiled; hovering lifts one out.
-const STACK_BASE =
-  "[grid-area:stack] before:absolute before:left-0 before:top-0 before:h-[100%] before:w-[100%] before:rounded-xl before:bg-white/50 before:bg-blend-overlay before:outline-1 before:outline-astra-primary/10 before:transition-opacity before:duration-700 before:content-[''] grayscale-[100%] hover:grayscale-0 hover:before:opacity-0";
-
-// Offsets are written out rather than generated, because Tailwind only ships
-// classes it can see in the source.
-const ASSOCIATION_CARDS = [
-  {
-    title: "Dispense e materiali",
-    description: "Appunti e materiali per ogni corso",
-    className: `${STACK_BASE} hover:-translate-y-8`,
-  },
-  {
-    title: "Exchange",
-    description: "Scambi e opportunità all'estero",
-    className: `${STACK_BASE} translate-x-[42px] translate-y-[30px] hover:translate-y-[6px]`,
-  },
-  {
-    title: "Rappresentanza",
-    description: "La tua voce negli organi di ateneo",
-    className: `${STACK_BASE} translate-x-[84px] translate-y-[60px] hover:translate-y-[36px]`,
-  },
-  {
-    title: "Innovazione didattica",
-    description: "Nuovi metodi e tecnologie",
-    className: `${STACK_BASE} translate-x-[126px] translate-y-[90px] hover:translate-y-[66px]`,
-  },
-  {
-    title: "Orientamento carriera",
-    description: "Costruisci il tuo percorso",
-    className: `${STACK_BASE} translate-x-[168px] translate-y-[120px] hover:translate-y-[96px]`,
-  },
-  {
-    title: "Benessere studenti",
-    description: "Equilibrio fra studio e vita",
-    className:
-      "[grid-area:stack] translate-x-[210px] translate-y-[150px] hover:translate-y-[126px]",
-  },
-].map((card) => ({
-  ...card,
-  icon: <AstraLogo className="size-3.5 text-white" />,
-}));
+// Placeholder panels for the association strip. Blank white while scaffolding.
+const ASSOCIATION_PANELS = [
+  { alt: "Dispense" },
+  { alt: "Guide" },
+  { alt: "Exchange" },
+  { alt: "Rappresentanza" },
+  { alt: "Orientamento" },
+  { alt: "Community" },
+];
 
 const HANDOUT_COLUMNS = 6;
 const HANDOUTS_PER_COLUMN = 5;
@@ -192,8 +158,8 @@ function Association() {
           </a>
         </div>
 
-        <div className="flex justify-center pt-4 pb-28 lg:-ml-16 lg:justify-start lg:pt-8">
-          <DisplayCards cards={ASSOCIATION_CARDS} />
+        <div className="pt-4 lg:pt-0">
+          <HoverExpand_001 items={ASSOCIATION_PANELS} />
         </div>
 
       </div>
