@@ -108,14 +108,14 @@ body {
 .hero-cylinder {
   position: absolute;
   inset: 0;
-  perspective: 880px;
+  perspective: 560px;
   perspective-origin: 50% 52%;
   pointer-events: none;
 }
 
 .hero-cylinder__stage {
   position: absolute;
-  top: 80%;
+  top: 70%;
   left: 50%;
   width: 1px;
   height: 1px;
@@ -127,10 +127,12 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 420px;
-  height: 590px;
-  margin-top: -295px;
-  margin-left: -210px;
+  /* Width must equal the ring's chord (2 * R * sin(pi / N)) or the tiles stop
+     meeting edge to edge. With 12 tiles on a 1500px radius that is 776px. */
+  width: 776px;
+  height: 1100px;
+  margin-top: -550px;
+  margin-left: -388px;
   transform: rotateY(var(--tile-angle)) translateZ(calc(-1 * var(--tile-radius)));
 
   /* Tiles on the near half of the cylinder face away from the camera and would
@@ -180,14 +182,14 @@ body {
 
 @media (width <= 900px) {
   .hero-cylinder {
-    perspective: 760px;
+    perspective: 320px;
   }
 
   .hero-cylinder__tile {
-    width: 196px;
-    height: 274px;
-    margin-top: -137px;
-    margin-left: -98px;
+    width: 776px;
+    height: 1100px;
+    margin-top: -550px;
+    margin-left: -388px;
   }
 }
 

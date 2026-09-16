@@ -281,8 +281,8 @@ function Calculators() {
         <h2 className="max-w-3xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
           <EncryptedText
             text="Calcola media, voto di laurea e punteggio exchange."
-            revealDelayMs={62}
-            flipDelayMs={70}
+            revealDelayMs={34}
+            flipDelayMs={42}
             encryptedClassName="text-astra-primary/25"
             revealedClassName="text-astra-primary"
           />

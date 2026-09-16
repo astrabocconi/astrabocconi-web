@@ -99,9 +99,17 @@ Two details make it work, both in `globals.css`:
   whole hero. They face away from the camera, so hiding backfaces leaves
   exactly the far arc.
 
-Radius follows the tile pitch: `chord = 2 * radius * sin(step / 2)`. With 16
-tiles the step is 22.5 degrees, and a 1150px radius gives a 449px chord against
-a 420px tile, so the gaps stay even.
+**Tile width must equal the ring's chord**, `2 * radius * sin(pi / count)`, or
+the tiles stop meeting edge to edge. 12 tiles on a 1500px radius gives 776px.
+Change the count or the radius and the width has to be recomputed.
+
+**The cone comes from a short perspective, not from a custom scale curve.** A
+hand-rolled curve keyed to the tile's angle was tried and rejected: scale then
+varies independently of position, so the tiles visibly pulse and overlap instead
+of turning steadily. Real cylinder geometry keeps the motion even. To deepen the
+cone, shorten `perspective` (currently 560px) and widen the radius, which makes
+the edge tiles flare tall while `rotateY` foreshortens them horizontally. That
+combination is what produces the funnel silhouette.
 
 **The cards stay upright.** An earlier attempt added `rotateX` to the stage to
 deepen the curve, which tipped the cards toward the viewer and was rejected.

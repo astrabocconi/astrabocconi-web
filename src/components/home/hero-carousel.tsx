@@ -7,10 +7,10 @@
 //
 // Every tile is a blank white placeholder; the real media drops in later.
 
-const TILE_COUNT = 16;
+const TILE_COUNT = 12;
 const STEP_DEG = 360 / TILE_COUNT;
 // Radius follows from the tile pitch: chord = 2 * R * sin(step / 2).
-const RADIUS = 1150;
+const RADIUS = 1500;
 
 export function HeroCarousel() {
   return (
