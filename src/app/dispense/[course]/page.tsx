@@ -42,7 +42,7 @@ export default async function CoursePage({
       <SiteHeader active="/dispense" />
 
       <main className="flex-1 bg-white">
-      <header className="bg-linear-to-b from-astra-light to-white px-6 pt-14 pb-10">
+      <header className="bg-linear-to-b from-astra-light to-white px-6 pt-[120px] pb-10">
         <div className="mx-auto w-[min(1400px,calc(100%-48px))]">
           <Link
             href="/dispense"

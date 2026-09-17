@@ -199,3 +199,11 @@ Their data lives in `course_subjects` (375 rows), `course_subjects_UG` (151),
 - **Typeface.** astra-app deliberately loads no web font and uses the system
   stack. This scaffold currently uses Geist. Either is defensible, but pick
   one on purpose and write it down.
+
+- Header is now a true floating overlay: `SiteHeader` carries `-mb-20` so the
+  sticky bar reserves no space in flow, and pages pad their first section with
+  `pt-[104px]`/`pt-[120px]` instead. Fixes the white band above page content.
+- Hero and the section below share one white surface; the colour comes from
+  `.hero-cylinder__hue`, a masked radial glow behind the rotating cards. The
+  mask matters: clipped by the hero's `overflow-hidden`, an unmasked glow ends
+  as a hard horizontal line.

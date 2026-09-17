@@ -113,21 +113,26 @@ body {
   pointer-events: none;
 }
 
+/* The glow is clipped by the hero's overflow, so without a mask its edge lands
+   as a hard horizontal line wherever the section happens to end. Fading it out
+   on all sides means it can never terminate abruptly, whatever the height. */
 .hero-cylinder__hue {
   position: absolute;
-  top: 70%;
+  top: 58%;
   left: 50%;
-  width: min(1600px, 130vw);
-  height: min(900px, 90vh);
+  width: min(1500px, 120vw);
+  height: min(620px, 64vh);
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
     rgb(59 74 208 / 20%) 0%,
-    rgb(4 16 126 / 10%) 48%,
+    rgb(4 16 126 / 9%) 46%,
     rgb(255 255 255 / 0%) 100%
   );
+  mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
   transform: translate(-50%, -50%);
-  filter: blur(36px);
+  filter: blur(28px);
 }
 
 .hero-cylinder__stage {

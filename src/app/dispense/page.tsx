@@ -60,7 +60,7 @@ export default async function DispensePage() {
       <SiteHeader active="/dispense" />
 
       <main className="flex-1 bg-white">
-        <header className="bg-linear-to-b from-astra-light to-white px-6 pt-16 pb-16">
+        <header className="bg-linear-to-b from-astra-light to-white px-6 pt-[128px] pb-16">
           <div className="mx-auto w-[min(1400px,calc(100%-48px))]">
             <h1 className="text-[clamp(3rem,6.4vw,6rem)] leading-[1.04] font-semibold tracking-[-0.05em] text-astra-primary">
               Handouts to study <RotatingWords words={ROTATING} />

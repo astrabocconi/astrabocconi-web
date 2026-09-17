@@ -48,7 +48,10 @@ function NavLink({
 
 export function SiteHeader({ active }: { active?: string }) {
   return (
-    <header className="sticky top-0 z-50 pt-3">
+    // -mb-20 cancels the 80px the sticky bar would otherwise reserve in flow,
+    // so the page paints its own background all the way to the top and the
+    // floating glass pill sits over it. Pages compensate with pt-[104px].
+    <header className="sticky top-0 z-50 -mb-20 pt-3">
       <div className="glass-bar mx-auto flex h-[68px] w-[min(1280px,calc(100%-32px))] items-center justify-between px-4 sm:px-5">
         <Link href="/" className="flex items-center">
           <Image
