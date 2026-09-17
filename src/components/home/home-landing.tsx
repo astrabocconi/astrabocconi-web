@@ -170,13 +170,14 @@ function ForbesBar() {
 }
 
 function Handouts({ previews }: { previews: string[] }) {
-  // Deal the covers out column by column so neighbouring columns never show
-  // the same one at the same height.
+  // Deal distinct covers out column by column. Duplicates only appear if the
+  // database has fewer than HANDOUT_COLUMNS * HANDOUTS_PER_COLUMN of them.
+  const unique = [...new Set(previews.filter(Boolean))];
   const columns = Array.from({ length: HANDOUT_COLUMNS }, (_, c) =>
-    Array.from(
-      { length: HANDOUTS_PER_COLUMN },
-      (_, r) => previews[(c * HANDOUTS_PER_COLUMN + r) % (previews.length || 1)],
-    ),
+    Array.from({ length: HANDOUTS_PER_COLUMN }, (_, r) => {
+      const i = c * HANDOUTS_PER_COLUMN + r;
+      return unique.length ? unique[i % unique.length] : undefined;
+    }),
   );
 
   return (

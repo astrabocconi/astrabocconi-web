@@ -33,7 +33,10 @@ export function RotatingWords({
 
   return (
     <span
-      className={`relative inline-block h-[1.1em] overflow-hidden align-bottom ${className}`}
+      // No explicit height: the sizer below sets it to exactly one line box, so
+      // aligning the bottom edge lines the word up with the headline's baseline.
+      // A fixed em height drifts as soon as the headline's line-height changes.
+      className={`relative inline-block overflow-hidden align-bottom ${className}`}
     >
       {/* Sizer: sets the width, never seen, never read out. */}
       <span aria-hidden="true" className="invisible block">
