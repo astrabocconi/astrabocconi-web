@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { EncryptedText } from "@/components/ui/encrypted-text";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import {
   BrandScroller,
@@ -248,13 +247,7 @@ function Calculators() {
     >
       <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
         <h2 className="max-w-3xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
-          <EncryptedText
-            text="Calcola media, voto di laurea e punteggio exchange."
-            revealDelayMs={34}
-            flipDelayMs={42}
-            encryptedClassName="text-astra-primary/25"
-            revealedClassName="text-astra-primary"
-          />
+          Calcola media, voto di laurea e punteggio exchange.
         </h2>
         <p className="mt-6 max-w-xl text-[1.02rem] leading-relaxed text-[#545d70]">
           Gli stessi strumenti che usiamo noi, con le formule ufficiali
