@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import { getHandouts, getMagistrali, normaliseCode, findCourse } from "@/lib/handouts";
+import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 import { HandoutsBrowser } from "./handouts-browser";
 
 export const revalidate = 300;
@@ -37,9 +38,12 @@ export default async function CoursePage({
   const handouts = await getHandouts(found.code);
 
   return (
-    <main className="flex-1 bg-white">
-      <header className="bg-linear-to-b from-astra-light to-white px-6 pt-16 pb-10">
-        <div className="mx-auto w-[min(1000px,calc(100%-48px))]">
+    <>
+      <SiteHeader active="/dispense" />
+
+      <main className="flex-1 bg-white">
+      <header className="bg-linear-to-b from-astra-light to-white px-6 pt-14 pb-10">
+        <div className="mx-auto w-[min(1400px,calc(100%-48px))]">
           <Link
             href="/dispense"
             className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-astra-primary"
@@ -47,17 +51,13 @@ export default async function CoursePage({
             <ArrowLeft className="h-4 w-4" />
             Tutti i corsi
           </Link>
-          <h1 className="mt-6 text-[clamp(2.2rem,4.4vw,3.6rem)] leading-[1] font-semibold tracking-[-0.04em] text-astra-primary">
+          <h1 className="mt-6 text-[clamp(2.6rem,5vw,4.4rem)] leading-[1] font-semibold tracking-[-0.045em] text-astra-primary">
             {found.name}
           </h1>
-          <p className="mt-3 text-[1.02rem] text-[#545d70]">
-            {handouts.length}{" "}
-            {handouts.length === 1 ? "dispensa" : "dispense"} disponibili
-          </p>
         </div>
       </header>
 
-      <div className="mx-auto w-[min(1000px,calc(100%-48px))] pb-24">
+      <div className="mx-auto w-[min(1400px,calc(100%-48px))] pb-28">
         {handouts.length === 0 ? (
           <p className="text-sm text-gray-500">
             Non ci sono ancora dispense per questo corso.
@@ -66,6 +66,9 @@ export default async function CoursePage({
           <HandoutsBrowser handouts={handouts} />
         )}
       </div>
-    </main>
+      </main>
+
+      <SiteFooter />
+    </>
   );
 }

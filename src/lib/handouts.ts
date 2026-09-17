@@ -13,10 +13,19 @@ export type Handout = {
   id: string;
   name: string;
   url: string;
+  /** Pre-rendered first page of the PDF. Generated ahead of time and stored in
+   *  Supabase, so the grid serves plain JPEGs instead of rasterising PDFs. */
+  thumbUrl: string;
   year: number | null;
   semester: Semester | null;
   examType: ExamType | null;
 };
+
+const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/dispense-uploads/thumbs`;
+
+function thumbFor(kind: "handouts" | "clmg" | "magistrali", id: string) {
+  return `${STORAGE_BASE}/${kind}/${id}.jpg`;
+}
 
 export type CourseLevel = "triennale" | "magistrale";
 
@@ -153,6 +162,7 @@ export async function getHandouts(code: string): Promise<Handout[]> {
       id: String(r.id),
       name: String(r.name ?? "").trim(),
       url: r.url,
+      thumbUrl: thumbFor("clmg", String(r.id)),
       year: normaliseYear(r.course_year),
       semester: normaliseSemester(r.semester),
       examType: normaliseExamType(r.exam_type),
@@ -170,6 +180,7 @@ export async function getHandouts(code: string): Promise<Handout[]> {
       id: String(r.id),
       name: String(r.name ?? "").trim(),
       url: r.url,
+      thumbUrl: thumbFor("magistrali", String(r.id)),
       year: null,
       semester: normaliseSemester(r.semester),
       examType: normaliseExamType(r.exam_type),
@@ -185,8 +196,52 @@ export async function getHandouts(code: string): Promise<Handout[]> {
       id: String(r.id),
       name: String(r.filename ?? "").trim(),
       url: r.file_url,
+      thumbUrl: thumbFor("handouts", String(r.id)),
       year: normaliseYear(r.year),
       semester: normaliseSemester(r.semester),
       examType: normaliseExamType(r.exam_type),
     }));
+}
+
+
+/** A flat sample of handouts, used for folder covers and the landing marquee. */
+export async function getHandoutPreviews(limit = 30): Promise<Handout[]> {
+  const supabase = createPublicClient();
+  const { data } = await supabase
+    .from("handouts")
+    .select("id, filename, file_url, subject, year, semester, exam_type")
+    .limit(limit);
+  return (data ?? []).map((r) => ({
+    id: String(r.id),
+    name: String(r.filename ?? "").trim(),
+    url: r.file_url,
+    thumbUrl: thumbFor("handouts", String(r.id)),
+    year: normaliseYear(r.year),
+    semester: normaliseSemester(r.semester),
+    examType: normaliseExamType(r.exam_type),
+  }));
+}
+
+/** Covers grouped by course code, for the folder faces on the index. */
+export async function getCoversByCourse(): Promise<Record<string, string[]>> {
+  const supabase = createPublicClient();
+  const out: Record<string, string[]> = {};
+
+  const [general, clmg] = await Promise.all([
+    supabase.from("handouts").select("id, subject"),
+    supabase.from("clmg_handouts").select("id"),
+  ]);
+
+  for (const row of general.data ?? []) {
+    const code = normaliseCode(row.subject);
+    if (!code) continue;
+    (out[code] ??= []).push(thumbFor("handouts", String(row.id)));
+  }
+  for (const row of clmg.data ?? []) {
+    (out.CLMG ??= []).push(thumbFor("clmg", String(row.id)));
+  }
+
+  // Five covers per folder is all the stack shows.
+  for (const code of Object.keys(out)) out[code] = out[code].slice(0, 5);
+  return out;
 }

@@ -4,130 +4,95 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion } from "motion/react";
 
-// Adapted from the supplied interactive-folder-gallery. Three changes:
+// A fanned stack of handout covers per course. There is no folder body behind
+// them any more: the cards themselves are the object, and hovering spreads them.
 //
-// 1. It imported `framer-motion`; this project ships `motion`, the same library
-//    renamed, so it imports `motion/react` rather than a duplicate copy.
-// 2. The original was a single dark folder on a black page. Here it is one
-//    folder per course on a white page, so the palette is ASTRA's and the
-//    component takes a name, a count and a href.
-// 3. Opening is a navigation, not an in-place expand, so the drag-to-close
-//    interaction is gone. Hovering still lifts the lid and fans the contents.
-//
-// Photos are blank white cards until the real covers are uploaded.
-
-export interface GalleryPhoto {
-  id: string | number;
-  image?: string;
-}
+// Covers are pre-rendered JPEGs served straight from Supabase, so this paints
+// as fast as any other image grid.
 
 export interface InteractiveFolderProps {
-  photos?: GalleryPhoto[];
+  covers?: string[];
   folderName: string;
-  caption?: string;
   href: string;
   /** Renders muted and unclickable when the course has nothing in it yet. */
   empty?: boolean;
-  className?: string;
+  /** Load the covers eagerly for the first row. */
+  priority?: boolean;
 }
 
-const PLACEHOLDERS: GalleryPhoto[] = [
-  { id: 1 },
-  { id: 2 },
-  { id: 3 },
-  { id: 4 },
-  { id: 5 },
-];
+const SLOTS = 4;
 
 export function InteractiveFolder({
-  photos = PLACEHOLDERS,
+  covers = [],
   folderName,
-  caption,
   href,
   empty = false,
-  className,
+  priority = false,
 }: InteractiveFolderProps) {
   const [hover, setHover] = useState(false);
   const open = hover && !empty;
 
+  // Always draw the same number of slots so every folder is the same size,
+  // whether or not it has that many covers yet.
+  const slots = Array.from({ length: SLOTS }, (_, i) => covers[i] ?? null);
+
   const body = (
     <div
-      className={`relative flex h-[230px] w-full items-end justify-center ${
-        empty ? "opacity-45" : ""
+      className={`relative flex h-[300px] w-full items-center justify-center ${
+        empty ? "opacity-40" : ""
       }`}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {/* Back wall of the folder */}
-      <motion.div
-        className="absolute bottom-6 h-36 w-52"
-        animate={{ y: open ? -6 : 0 }}
-        transition={{ type: "spring", stiffness: 320, damping: 28 }}
-      >
-        <div className="absolute top-0 left-0 h-6 w-20 rounded-t-lg border-t border-r border-l border-astra-primary/12 bg-astra-light" />
-        <div className="absolute top-5 right-0 bottom-0 left-0 rounded-tr-lg rounded-b-lg border border-astra-primary/12 bg-astra-light" />
-      </motion.div>
+      {slots.map((cover, i) => {
+        const offset = i - (SLOTS - 1) / 2;
+        return (
+          <motion.div
+            key={i}
+            className="absolute h-[252px] w-[189px] overflow-hidden rounded-2xl border border-astra-primary/12 bg-white shadow-[0_18px_44px_rgba(4,16,126,0.16)]"
+            animate={{
+              x: open ? offset * 62 : offset * 11,
+              y: open ? -Math.abs(offset) * 7 : 0,
+              rotate: open ? offset * 7 : offset * 3,
+              scale: open ? 1 : 1 - Math.abs(offset) * 0.02,
+            }}
+            style={{ zIndex: SLOTS - Math.abs(Math.round(offset)) }}
+            transition={{ type: "spring", stiffness: 300, damping: 26 }}
+          >
+            {cover ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={cover}
+                alt=""
+                loading={priority ? "eager" : "lazy"}
+                decoding="async"
+                width={480}
+                height={640}
+                className="h-full w-full object-cover object-top"
+              />
+            ) : (
+              <span className="block h-full w-full bg-astra-light" />
+            )}
+          </motion.div>
+        );
+      })}
 
-      {/* Contents */}
-      <div className="absolute bottom-8 z-10 flex justify-center">
-        {photos.map((photo, i) => {
-          const offset = i - Math.floor(photos.length / 2);
-          return (
-            <motion.div
-              key={photo.id}
-              className="absolute bottom-0 h-28 w-20 overflow-hidden rounded-lg border border-astra-primary/12 bg-white shadow-[0_10px_24px_rgba(4,16,126,0.12)]"
-              animate={{
-                y: open ? offset * -4 - 26 : offset * -2,
-                x: open ? offset * 26 : offset * 2,
-                rotate: open ? offset * 7 : offset * 2,
-                scale: 1 - Math.abs(offset) * 0.03,
-                zIndex: 10 + i,
-              }}
-              transition={{ type: "spring", stiffness: 350, damping: 30 }}
-            >
-              {photo.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={photo.image}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : null}
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Front flap, carrying the course name */}
-      <motion.div
-        className="absolute bottom-0 z-20 h-24 w-56"
-        style={{ transformOrigin: "bottom" }}
-        animate={{ rotateX: open ? -26 : 0, y: open ? 6 : 0 }}
-        transition={{ type: "spring", stiffness: 320, damping: 28 }}
+      <motion.span
+        className="pointer-events-none absolute z-20 rounded-xl bg-astra-primary px-5 py-2 text-base font-semibold tracking-wide text-white shadow-[0_10px_28px_rgba(4,16,126,0.35)]"
+        animate={{ y: open ? 130 : 96 }}
+        transition={{ type: "spring", stiffness: 300, damping: 26 }}
       >
-        <div className="relative flex h-full w-full items-end justify-center overflow-hidden rounded-xl border border-astra-primary/15 bg-linear-to-b from-white to-astra-light pb-4 shadow-[0_18px_36px_rgba(4,16,126,0.12)]">
-          <span className="absolute top-0 right-0 left-0 h-px bg-linear-to-r from-transparent via-white to-transparent" />
-          <span className="rounded-lg bg-astra-primary px-4 py-1.5 text-sm font-semibold tracking-wide text-white">
-            {folderName}
-          </span>
-        </div>
-      </motion.div>
+        {folderName}
+      </motion.span>
     </div>
   );
 
+  if (empty) return <div aria-disabled="true">{body}</div>;
+
   return (
-    <div className={className}>
-      {empty ? (
-        <div aria-disabled="true">{body}</div>
-      ) : (
-        <Link href={href} className="block">
-          {body}
-        </Link>
-      )}
-      <p className="mt-3 text-center text-xs text-gray-500">
-        {empty ? "Nessuna dispensa" : caption}
-      </p>
-    </div>
+    <Link href={href} className="block">
+      {body}
+    </Link>
   );
 }
 

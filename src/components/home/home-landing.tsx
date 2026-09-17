@@ -13,17 +13,10 @@ import {
 import { HoverExpand_001 } from "@/components/ui/expand-on-hover";
 import WovenCloth from "@/components/ui/woven-cloth";
 import { HeroCarousel } from "@/components/home/hero-carousel";
+import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 
 // Imagery is still blank placeholder. Dispense and Stella Polare are wired to
 // real pages; the remaining links are inert until those pages exist.
-const NAV = [
-  { label: "Chi siamo", href: "#chi-siamo" },
-  { label: "Dispense", href: "/dispense" },
-  { label: "Calcolatori", href: "#calcolatori" },
-  { label: "Stella Polare", href: "/stella-polare" },
-  { label: "Partner", href: "#partner" },
-];
-
 // Placeholder panels for the association strip. Blank white while scaffolding.
 const ASSOCIATION_PANELS = [
   { alt: "Dispense" },
@@ -68,38 +61,15 @@ const PARTNERS = [
   { name: "Partner media", span: "lg:col-span-4" },
 ];
 
-function NavLink({
-  href,
-  className,
-  children,
-}: {
-  href: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  // In-page hashes stay plain anchors; anything routable goes through Link.
-  if (href.startsWith("/")) {
-    return (
-      <Link href={href} className={className}>
-        {children}
-      </Link>
-    );
-  }
-  return (
-    <a href={href} className={className}>
-      {children}
-    </a>
-  );
-}
 
-export function HomeLanding() {
+export function HomeLanding({ previews = [] }: { previews?: string[] }) {
   return (
     <div className="bg-white">
-      <SiteHeader />
+      <SiteHeader active="/" />
       <Hero />
       <Association />
       <ForbesBar />
-      <Handouts />
+      <Handouts previews={previews} />
       <Calculators />
       <PartnerBar />
       <Partners />
@@ -109,48 +79,6 @@ export function HomeLanding() {
   );
 }
 
-function SiteHeader() {
-  return (
-    <header className="sticky top-0 z-50 pt-3">
-      <div className="glass-bar mx-auto flex h-[68px] w-[min(1280px,calc(100%-32px))] items-center justify-between px-4 sm:px-5">
-        <a href="#top" className="flex items-center">
-          <Image
-            src="/astra-logo-horizontal.png"
-            alt="ASTRA Bocconi"
-            width={1400}
-            height={377}
-            priority
-            className="h-8 w-auto"
-          />
-        </a>
-
-        <nav className="hidden items-center gap-1 lg:flex">
-          {NAV.map((item, i) => (
-            <NavLink
-              key={item.label}
-              href={item.href}
-              className={`nav-link px-4 py-2 text-[0.8rem] font-semibold ${
-                i === 0
-                  ? "nav-link--active"
-                  : "text-[#51586b] hover:text-astra-primary"
-              }`}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <a
-          href="#"
-          className="inline-flex h-10 items-center gap-2 rounded-full bg-astra-primary px-5 text-[0.8rem] font-semibold text-white transition-colors hover:bg-astra-dark"
-        >
-          Unisciti
-          <ArrowRight className="h-3.5 w-3.5" />
-        </a>
-      </div>
-    </header>
-  );
-}
 
 function Hero() {
   return (
@@ -241,7 +169,16 @@ function ForbesBar() {
   );
 }
 
-function Handouts() {
+function Handouts({ previews }: { previews: string[] }) {
+  // Deal the covers out column by column so neighbouring columns never show
+  // the same one at the same height.
+  const columns = Array.from({ length: HANDOUT_COLUMNS }, (_, c) =>
+    Array.from(
+      { length: HANDOUTS_PER_COLUMN },
+      (_, r) => previews[(c * HANDOUTS_PER_COLUMN + r) % (previews.length || 1)],
+    ),
+  );
+
   return (
     <section id="dispense" className="overflow-hidden py-24 lg:py-32">
       <div className="mx-auto mb-12 flex w-[min(1280px,calc(100%-48px))] flex-wrap items-end justify-between gap-6">
@@ -261,7 +198,7 @@ function Handouts() {
 
       <div className="relative">
         <div className="mx-auto grid w-[min(1280px,calc(100%-48px))] grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-          {Array.from({ length: HANDOUT_COLUMNS }).map((_, column) => (
+          {columns.map((covers, column) => (
             <InfiniteSlider
               key={column}
               duration={30 + column * 5}
@@ -269,11 +206,24 @@ function Handouts() {
               gap={12}
               className="h-[430px]"
             >
-              {Array.from({ length: HANDOUTS_PER_COLUMN }).map((__, row) => (
+              {covers.map((cover, row) => (
                 <div
                   key={row}
-                  className="aspect-3/4 w-full rounded-xl border border-astra-primary/10 bg-white shadow-[0_10px_30px_rgba(4,16,126,0.07)]"
-                />
+                  className="aspect-3/4 w-full overflow-hidden rounded-xl border border-astra-primary/10 bg-white shadow-[0_10px_30px_rgba(4,16,126,0.07)]"
+                >
+                  {cover ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={cover}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      width={480}
+                      height={640}
+                      className="h-full w-full object-cover object-top"
+                    />
+                  ) : null}
+                </div>
               ))}
             </InfiniteSlider>
           ))}
@@ -396,48 +346,5 @@ function Banner() {
   );
 }
 
-function SiteFooter() {
-  return (
-    <footer className="border-t border-astra-primary/10 bg-white">
-      <div className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col gap-8 py-14 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <Image
-            src="/astra-logo-horizontal.png"
-            alt="ASTRA Bocconi"
-            width={1400}
-            height={377}
-            className="h-8 w-auto"
-          />
-          <p className="mt-4 max-w-xs text-sm text-[#6b7280]">
-            Associazione studentesca dell&apos;Università Bocconi.
-          </p>
-        </div>
-
-        <nav className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm text-[#545d70] sm:grid-cols-3">
-          {[
-            ...NAV,
-            { label: "Rappresentanti", href: "#" },
-            { label: "Exchange", href: "#" },
-            { label: "Contatti", href: "#" },
-          ].map((item) => (
-            <NavLink
-              key={item.label}
-              href={item.href}
-              className="hover:text-astra-primary"
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-      </div>
-
-      <div className="border-t border-astra-primary/8">
-        <div className="mx-auto w-[min(1280px,calc(100%-48px))] py-5 text-xs text-[#8a90a2]">
-          © {new Date().getFullYear()} ASTRA Bocconi
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 export default HomeLanding;

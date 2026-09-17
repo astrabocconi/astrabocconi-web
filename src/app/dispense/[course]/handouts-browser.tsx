@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowUpRight, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import { HandoutCard } from "@/components/ui/handout-card";
 import type { ExamType, Handout, Semester } from "@/lib/handouts";
 
 const YEAR_LABEL: Record<number, string> = {
@@ -135,30 +136,11 @@ export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
         {results.length} {results.length === 1 ? "dispensa" : "dispense"}
       </p>
 
-      <ul className="mt-3 flex flex-col gap-2">
-        {results.map((h) => (
+      <ul className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {results.map((h, i) => (
           <li key={h.id}>
-            <a
-              href={h.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-astra-primary/10 bg-white px-4 py-3 transition-colors hover:border-astra-accent/50"
-            >
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-gray-900">
-                {h.name}
-              </span>
-              {h.semester && (
-                <span className="rounded-full bg-astra-light px-2 py-0.5 text-xs font-medium text-astra-primary">
-                  {h.semester}º sem
-                </span>
-              )}
-              {h.examType && (
-                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 capitalize">
-                  {h.examType}
-                </span>
-              )}
-              <ArrowUpRight className="h-4 w-4 shrink-0 text-astra-primary/30 transition-colors group-hover:text-astra-accent" />
-            </a>
+            {/* The first row is fetched eagerly so the grid paints immediately. */}
+            <HandoutCard handout={h} priority={i < 5} />
           </li>
         ))}
       </ul>
