@@ -134,10 +134,6 @@ function Hero() {
         <h1 className="mx-auto max-w-4xl text-[clamp(2.6rem,5.6vw,5.4rem)] leading-[0.92] font-semibold tracking-[-0.05em] text-astra-primary">
           Tutto quello che serve per studiare in Bocconi.
         </h1>
-        <p className="mx-auto mt-6 max-w-xl text-[clamp(0.98rem,1.1vw,1.1rem)] leading-relaxed text-[#545d70]">
-          Dispense, guide, calcolatori e rappresentanza. Costruiti dagli
-          studenti, per gli studenti.
-        </p>
       </div>
     </section>
   );
