@@ -124,8 +124,3 @@ a sitting-down job.
 `handouts`, `clmg_handouts`, `magistrali_handouts`, `pdf_files`, `resources`
 and two dead upload tables, with different column names for the same ideas.
 Building a backoffice over that would cement it. Decide the consolidation first.
-
-- `/secret` is an unlinked route holding a Spline scene, kept out of the index
-  with `robots: { index: false }`. It is the placeholder for the game that will
-  live there; nothing in the nav or footer points to it, so the only way in is
-  typing the URL.
