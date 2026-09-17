@@ -36,7 +36,8 @@ export const HoverExpand_001 = ({
   restWidth?: string;
   height?: string;
 }) => {
-  const [activeImage, setActiveImage] = useState<number | null>(1);
+  // Opens on the first panel. The supplied source started on the second.
+  const [activeImage, setActiveImage] = useState<number | null>(0);
 
   return (
     <motion.div
