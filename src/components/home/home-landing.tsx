@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { EncryptedText } from "@/components/ui/encrypted-text";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
@@ -13,9 +14,15 @@ import { HoverExpand_001 } from "@/components/ui/expand-on-hover";
 import WovenCloth from "@/components/ui/woven-cloth";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 
-// Scaffolding only. Nothing here is wired to the database or to other pages
-// yet: every link is inert and every image is a blank white placeholder.
-const NAV = ["Chi siamo", "Dispense", "Calcolatori", "Stella Polare", "Partner"];
+// Imagery is still blank placeholder. Dispense and Stella Polare are wired to
+// real pages; the remaining links are inert until those pages exist.
+const NAV = [
+  { label: "Chi siamo", href: "#chi-siamo" },
+  { label: "Dispense", href: "/dispense" },
+  { label: "Calcolatori", href: "#calcolatori" },
+  { label: "Stella Polare", href: "/stella-polare" },
+  { label: "Partner", href: "#partner" },
+];
 
 // Placeholder panels for the association strip. Blank white while scaffolding.
 const ASSOCIATION_PANELS = [
@@ -61,6 +68,30 @@ const PARTNERS = [
   { name: "Partner media", span: "lg:col-span-4" },
 ];
 
+function NavLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  // In-page hashes stay plain anchors; anything routable goes through Link.
+  if (href.startsWith("/")) {
+    return (
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a href={href} className={className}>
+      {children}
+    </a>
+  );
+}
+
 export function HomeLanding() {
   return (
     <div className="bg-white">
@@ -95,17 +126,17 @@ function SiteHeader() {
 
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV.map((item, i) => (
-            <a
-              key={item}
-              href="#"
+            <NavLink
+              key={item.label}
+              href={item.href}
               className={`nav-link px-4 py-2 text-[0.8rem] font-semibold ${
                 i === 0
                   ? "nav-link--active"
                   : "text-[#51586b] hover:text-astra-primary"
               }`}
             >
-              {item}
-            </a>
+              {item.label}
+            </NavLink>
           ))}
         </nav>
 
@@ -219,13 +250,13 @@ function Handouts() {
             Centinaia di dispense, raccolte corso per corso.
           </h2>
         </div>
-        <a
-          href="#"
+        <Link
+          href="/dispense"
           className="inline-flex h-12 items-center gap-2 rounded-full bg-astra-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-astra-dark"
         >
           Vedi tutte le dispense
           <ArrowRight className="h-4 w-4" />
-        </a>
+        </Link>
       </div>
 
       <div className="relative">
@@ -383,10 +414,19 @@ function SiteFooter() {
         </div>
 
         <nav className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm text-[#545d70] sm:grid-cols-3">
-          {[...NAV, "Rappresentanti", "Exchange", "Contatti"].map((item) => (
-            <a key={item} href="#" className="hover:text-astra-primary">
-              {item}
-            </a>
+          {[
+            ...NAV,
+            { label: "Rappresentanti", href: "#" },
+            { label: "Exchange", href: "#" },
+            { label: "Contatti", href: "#" },
+          ].map((item) => (
+            <NavLink
+              key={item.label}
+              href={item.href}
+              className="hover:text-astra-primary"
+            >
+              {item.label}
+            </NavLink>
           ))}
         </nav>
       </div>
