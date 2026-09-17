@@ -15,6 +15,9 @@ const RADIUS = 1500;
 export function HeroCarousel() {
   return (
     <div className="hero-cylinder" aria-hidden="true">
+      {/* Tinted glow behind the band; the cards will hold video later. */}
+      <div className="hero-cylinder__hue" />
+
       <div className="hero-cylinder__stage">
         {Array.from({ length: TILE_COUNT }).map((_, index) => (
           <div

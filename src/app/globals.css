@@ -113,6 +113,23 @@ body {
   pointer-events: none;
 }
 
+.hero-cylinder__hue {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  width: min(1600px, 130vw);
+  height: min(900px, 90vh);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(59 74 208 / 20%) 0%,
+    rgb(4 16 126 / 10%) 48%,
+    rgb(255 255 255 / 0%) 100%
+  );
+  transform: translate(-50%, -50%);
+  filter: blur(36px);
+}
+
 .hero-cylinder__stage {
   position: absolute;
   top: 70%;
@@ -177,7 +194,7 @@ body {
 
 .hero-cylinder__edge--right {
   right: 0;
-  background: linear-gradient(270deg, #f7f8fc 8%, rgb(247 248 252 / 0%) 100%);
+  background: linear-gradient(270deg, #fff 8%, rgb(255 255 255 / 0%) 100%);
 }
 
 @media (width <= 900px) {

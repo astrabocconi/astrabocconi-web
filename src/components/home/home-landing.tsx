@@ -84,7 +84,9 @@ function Hero() {
   return (
     <section
       id="top"
-      className="relative -mt-[80px] min-h-screen overflow-hidden bg-linear-to-b from-white to-[#f7f8fc] pt-[104px]"
+      // Same white as the section below, so there is no seam between them; the
+      // hero's colour comes from the glow behind the cards instead.
+      className="relative -mt-[80px] min-h-screen overflow-hidden bg-white pt-[104px]"
     >
       {/* The band sits low in the section, so the copy reads clear above it. */}
       <HeroCarousel />
