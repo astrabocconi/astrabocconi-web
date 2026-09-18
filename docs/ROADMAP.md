@@ -3,15 +3,16 @@
 Working state of the ASTRA website rebuild. **Keep this file current.** It is
 the first thing to read when picking the project up on another machine.
 
-> **You are here:** Phases 0 and 1 are done, and Phase 2 covers Stella Polare,
-> guides and representatives. Dispense is deliberately not built yet, because
-> its six overlapping tables need a decision first. The one manual step still
-> outstanding is creating the first owner account through the gate at `/admin`;
-> the throwaway accounts used for testing were deleted, so bootstrap is still
-> armed. Next is Phase 3, the public site, for which Michele is supplying a
-> design system.
+> **You are here:** Phases 0 to 2 are done, the first owner account exists, and
+> the public landing page plus the whole dispense section are built and wired
+> to the database. What remains in Phase 3 is the other public pages, then
+> Phase 4, the calculators, which is the biggest single chunk left.
+>
+> **This project changed machines on 2026-09-17.** Read `docs/HANDOVER.md`
+> before anything else: it covers the credentials, accounts and assets that
+> were never in git.
 
-Last updated: 2026-09-16
+Last updated: 2026-09-17
 
 ---
 
@@ -67,9 +68,8 @@ Backoffice shell, built:
       bootstrap, sign in, operator list, permission graph. The throwaway was
       deleted afterwards, so `needsBootstrap` is true again and the first real
       owner is still to be created.
-- [ ] **Create the first owner account.** Open `/admin`, click the "t" seven
-      times, and fill the form. The activation code is
-      `ADMIN_BOOTSTRAP_SECRET` from `.env.local` or Vercel.
+- [x] **First owner account created.** Bootstrap is therefore disarmed: the
+      gate at `/admin` now only signs in, it no longer offers to create.
 
 Still open:
 
@@ -124,8 +124,11 @@ Still to do:
       they reference does not exist on this project. The originals are not
       recoverable from here. The backoffice can now upload replacements into the
       `images` bucket; someone needs to re-upload 16 photos.
-- [ ] CRUD for dispense. Blocked on the six table consolidation below; building
-      UI over that shape first would cement it.
+- [ ] CRUD for dispense in the backoffice. Still blocked on the six table
+      consolidation below; building an editor over that shape would cement it.
+      Note the public read side is already built and normalises the mess on
+      read instead (`src/lib/handouts.ts`), which is a pattern the editor
+      cannot reuse, since it has to write somewhere specific.
 - [ ] Retire the legacy `Stella_Polare` table (2 rows of external links) once
       nothing reads it
 - [ ] Article dates are inferred from the Italian month in the old eyebrow
@@ -143,17 +146,25 @@ Page inventory carried over from the old site. UI is a rebuild, not a port.
 Visual direction is tracked in `docs/DESIGN.md`; Michele is supplying a fuller
 design system before this phase starts.
 
-- [x] `/` home scaffold, built to Michele's September 2026 brief: rotating
-      hero ring, chi siamo with the compact circular split roll, Forbes bar,
-      six column handout marquee, calculator grid with the encrypted heading,
-      partner bento, and the woven cloth banner. All imagery is blank white
-      placeholder and no link is wired: this is skeleton only.
-- [x] Header and footer for the landing page
+- [x] `/` home, built to Michele's September 2026 brief: rotating hero
+      cylinder, chi siamo, Forbes bar, six column handout marquee showing real
+      PDF covers, calculator grid, partner bento, and the woven cloth banner.
+      The calculator cards and the partner logos are still placeholders; the
+      marquee is real data.
+- [x] Shared header and footer for every page (`src/components/site/`). The
+      header is a floating glass pill; see HANDOVER for the `-mb-20` trick.
+- [x] Umami analytics, as plain `<script>` tags in `<head>`
 - [ ] i18n scaffolding (the old site had an IT/EN `LanguageContext`)
 - [ ] `/chi-siamo`
 - [ ] `/rappresentanti` (16 rows)
-- [ ] `/dispense` and nested course/year routes
-- [ ] `/guide` and `/guide/:category` (49 rows)
+- [x] `/dispense` index: rotating title, course folders in Michele's fixed
+      order, fanned cover cards per course
+- [x] `/dispense/[course]`: year pills, semester and exam type filters that
+      disable themselves when unsatisfiable, liquid glass search, five across
+      card grid with PDF cover previews
+- [x] Pre-rendered PDF covers, 201 of 203 (`scripts/make-thumbs.mjs`)
+- [ ] `/guide` and `/guide/:category` (49 rows). The backoffice for these is
+      already built, so this is the public read side only.
 - [x] `/stella-polare` index and `/stella-polare/:slug`, database driven
 - [ ] `/exchange`
 - [ ] Events and news, reading from Neon so the site and the app agree
@@ -200,10 +211,15 @@ Their data lives in `course_subjects` (375 rows), `course_subjects_UG` (151),
   stack. This scaffold currently uses Geist. Either is defensible, but pick
   one on purpose and write it down.
 
-- Header is now a true floating overlay: `SiteHeader` carries `-mb-20` so the
-  sticky bar reserves no space in flow, and pages pad their first section with
-  `pt-[104px]`/`pt-[120px]` instead. Fixes the white band above page content.
-- Hero and the section below share one white surface; the colour comes from
-  `.hero-cylinder__hue`, a masked radial glow behind the rotating cards. The
-  mask matters: clipped by the hero's `overflow-hidden`, an unmasked glow ends
-  as a hard horizontal line.
+---
+
+## Layout conventions worth not breaking
+
+Both of these look like mistakes and are not. They are spelled out in
+`docs/HANDOVER.md` too.
+
+- `SiteHeader` carries `-mb-20` so the sticky bar reserves no space in flow;
+  pages pad their own first section instead. Without it every page grows a
+  white band above its content and the glass bar has nothing to blur.
+- `.hero-cylinder__hue` is masked radially. It is clipped by the hero's
+  `overflow-hidden`, so an unmasked glow terminates as a hard horizontal line.

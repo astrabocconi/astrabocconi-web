@@ -15,6 +15,8 @@ The new website for **ASTRA**, a student association at Università Bocconi
 
 ## Read these first, every session
 
+0. `docs/HANDOVER.md` — machine setup, credentials, and the non-obvious traps.
+   Read this first on a new machine.
 1. `docs/ROADMAP.md` — what is done, what is next. **This is the handover file.**
 2. `docs/ARCHITECTURE.md` — the two databases, the schema, the content model.
 3. `docs/DECISIONS.md` — choices already made, and why. Do not relitigate them.
