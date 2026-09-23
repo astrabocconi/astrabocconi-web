@@ -240,27 +240,3 @@ export async function getHandoutPreviews(limit = 30): Promise<Handout[]> {
     examType: normaliseExamType(r.exam_type),
   }));
 }
-
-/** Covers grouped by course code, for the folder faces on the index. */
-export async function getCoversByCourse(): Promise<Record<string, string[]>> {
-  const supabase = createPublicClient();
-  const out: Record<string, string[]> = {};
-
-  const [general, clmg] = await Promise.all([
-    supabase.from("handouts").select("id, subject"),
-    supabase.from("clmg_handouts").select("id"),
-  ]);
-
-  for (const row of general.data ?? []) {
-    const code = normaliseCode(row.subject);
-    if (!code) continue;
-    (out[code] ??= []).push(thumbFor("handouts", String(row.id)));
-  }
-  for (const row of clmg.data ?? []) {
-    (out.CLMG ??= []).push(thumbFor("clmg", String(row.id)));
-  }
-
-  // Five covers per folder is all the stack shows.
-  for (const code of Object.keys(out)) out[code] = out[code].slice(0, 5);
-  return out;
-}

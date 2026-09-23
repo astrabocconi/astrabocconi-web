@@ -150,3 +150,15 @@ breaking the home page. Start and end times are Milan wall-clock time.
 
 **`site:write` is the permission for home page content.** Its image uploads are
 confined to `images/site/` rather than widening the representatives' bucket policy.
+
+**Reversed: the old site's dispense course cards were reused, graphics and layout,
+on Michele's explicit instruction.** `AGENTS.md` says not to copy the old site's UI;
+this is a deliberate, requested exception, not a drift back to it. The old
+site's eleven course covers (a bespoke illustrated series, one per triennale
+programme, exact code matches) were resized (960px, ~50-180KB each, down from
+up to 1.7MB) and uploaded to the `images` bucket at `course-covers/<code>.jpg`
+with the secret key, seeded once like the Stella Polare covers were. The
+twelfth cover (Magistrali) was a generic stock photo, not part of that
+illustrated series, so it was left out; that section keeps its icon fallback.
+Column count and container width follow this site's density, not the old
+site's narrower one, since "layout" here means the card style, not the grid math.

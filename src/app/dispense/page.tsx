@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { InteractiveFolder } from "@/components/ui/interactive-folder-gallery";
+import { CourseCard } from "@/components/ui/course-card";
 import { RotatingWords } from "@/components/ui/rotating-words";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
-import {
-  ALTRO,
-  TRIENNALI,
-  getCourseCounts,
-  getCoversByCourse,
-  getMagistrali,
-  type Course,
-} from "@/lib/handouts";
+import { courseCoverUrl } from "@/lib/course-covers";
+import { ALTRO, TRIENNALI, getCourseCounts, getMagistrali, type Course } from "@/lib/handouts";
 
 export const metadata: Metadata = {
   title: "Dispense",
@@ -24,24 +18,22 @@ const ROTATING = ["faster", "better", "smarter", "harder"];
 function CourseGrid({
   courses,
   counts,
-  covers,
   priority = false,
 }: {
   courses: Course[];
   counts: Record<string, number>;
-  covers: Record<string, string[]>;
   priority?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {courses.map((course, i) => (
-        <InteractiveFolder
+        <CourseCard
           key={course.code}
-          folderName={course.name}
+          name={course.name}
           href={`/dispense/${course.code.toLowerCase()}`}
-          covers={covers[course.code] ?? []}
+          cover={courseCoverUrl(course.code)}
           empty={(counts[course.code] ?? 0) === 0}
-          priority={priority && i < 4}
+          priority={priority && i < 5}
         />
       ))}
     </div>
@@ -49,11 +41,7 @@ function CourseGrid({
 }
 
 export default async function DispensePage() {
-  const [counts, covers, magistrali] = await Promise.all([
-    getCourseCounts(),
-    getCoversByCourse(),
-    getMagistrali(),
-  ]);
+  const [counts, magistrali] = await Promise.all([getCourseCounts(), getMagistrali()]);
 
   return (
     <>
@@ -76,12 +64,7 @@ export default async function DispensePage() {
             <h2 className="mb-10 text-sm font-semibold tracking-wide text-gray-500 uppercase">
               Triennali
             </h2>
-            <CourseGrid
-              courses={TRIENNALI}
-              counts={counts}
-              covers={covers}
-              priority
-            />
+            <CourseGrid courses={TRIENNALI} counts={counts} priority />
           </section>
 
           {magistrali.length > 0 && (
@@ -89,11 +72,7 @@ export default async function DispensePage() {
               <h2 className="mb-10 text-sm font-semibold tracking-wide text-gray-500 uppercase">
                 Magistrali
               </h2>
-              <CourseGrid
-                courses={magistrali}
-                counts={counts}
-                covers={covers}
-              />
+              <CourseGrid courses={magistrali} counts={counts} />
             </section>
           )}
 
@@ -101,7 +80,7 @@ export default async function DispensePage() {
             <h2 className="mb-10 text-sm font-semibold tracking-wide text-gray-500 uppercase">
               Altro
             </h2>
-            <CourseGrid courses={ALTRO} counts={counts} covers={covers} />
+            <CourseGrid courses={ALTRO} counts={counts} />
           </section>
         </div>
       </main>
