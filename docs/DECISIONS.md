@@ -120,7 +120,33 @@ scanning and toggling rather than long-form writing, so a page load per edit
 would be the wrong shape. Articles keep their own route because writing one is
 a sitting-down job.
 
-**Dispense CRUD is deliberately not built.** The data is spread across
-`handouts`, `clmg_handouts`, `magistrali_handouts`, `pdf_files`, `resources`
-and two dead upload tables, with different column names for the same ideas.
-Building a backoffice over that would cement it. Decide the consolidation first.
+**Dispense CRUD writes into the three existing tables as they are** (revised
+2026-09-23; originally deferred until the tables were consolidated). astra-app's
+mobile reader parses `handouts` and `clmg_handouts` directly, so consolidating
+would break the app. The editor writes each table in the spellings the app
+understands (`handouts.year` as `"First Year"` text) and an update only touches
+the columns the operator changed, so legacy spellings on untouched fields stay.
+A row never moves between tables; editing only offers courses of the same kind.
+
+## 2026-09-23
+
+**Backoffice UI copied from astra-app's dashboard.** `_ui/` primitives live in
+`src/components/admin/ui/`, and the sidebar layout is `src/app/admin/(panel)/layout.tsx`.
+The route group gives every operator page one auth check and one shell.
+
+**Handout PDFs and covers upload from the browser straight to Storage.** Server
+actions cap request bodies at about 1 MB. Only the row write goes through a
+server action. Covers are rendered in the operator's browser with pdf.js and
+stored at `thumbs/<kind>/<id>.jpg`, the path `thumbFor()` already reads.
+
+**Events are read directly from Neon** with `@neondatabase/serverless`, not
+through astra-app's `/api/events`, which requires a signed-in user. The query
+mirrors that route. Images at `/api/media/:id` are prefixed with `ASTRA_APP_URL`.
+
+**Notices and home sections are data** (`notices`, `site_sections`). No live
+notice means the strip does not render at all. Buttons are validated strictly
+on save and parsed leniently on read, so one bad row hides a button instead of
+breaking the home page. Start and end times are Milan wall-clock time.
+
+**`site:write` is the permission for home page content.** Its image uploads are
+confined to `images/site/` rather than widening the representatives' bucket policy.

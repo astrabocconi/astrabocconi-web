@@ -50,6 +50,18 @@ export const PERMISSION_GROUPS: FlowGroup[] = [
     ],
   },
   {
+    key: "site",
+    label: "Home page",
+    items: [
+      {
+        key: "site:write",
+        label: "Modifica",
+        blurb: "Avvisi e sezione conferenza",
+      },
+      { key: "site:delete", label: "Elimina", blurb: "Rimuove avvisi" },
+    ],
+  },
+  {
     key: "events",
     label: "Eventi",
     items: [

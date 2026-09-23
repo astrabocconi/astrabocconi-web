@@ -2,11 +2,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
-import { getHandouts, getMagistrali, normaliseCode, findCourse } from "@/lib/handouts";
+import {
+  ALTRO,
+  TRIENNALI,
+  getHandouts,
+  getMagistrali,
+  normaliseCode,
+  findCourse,
+} from "@/lib/handouts";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 import { HandoutsBrowser } from "./handouts-browser";
 
 export const revalidate = 300;
+
+// Without this the route rendered on every request (no-store, ~1-2s TTFB).
+// Listing the known courses makes each one a static page refreshed by ISR.
+export async function generateStaticParams() {
+  const courses = [...TRIENNALI, ...ALTRO, ...(await getMagistrali())];
+  return courses.map((c) => ({ course: c.code.toLowerCase() }));
+}
 
 async function resolveCourse(param: string) {
   const code = normaliseCode(param);

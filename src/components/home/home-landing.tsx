@@ -13,6 +13,10 @@ import { HoverExpand_001 } from "@/components/ui/expand-on-hover";
 import WovenCloth from "@/components/ui/woven-cloth";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
+import { NoticeStrip } from "@/components/home/notice-strip";
+import { EventsSection } from "@/components/home/events-section";
+import type { ConferenceData, Notice } from "@/lib/site-content";
+import type { SiteEvent } from "@/lib/events";
 
 // Imagery is still blank placeholder. Dispense and Stella Polare are wired to
 // real pages; the remaining links are inert until those pages exist.
@@ -61,17 +65,29 @@ const PARTNERS = [
 ];
 
 
-export function HomeLanding({ previews = [] }: { previews?: string[] }) {
+export function HomeLanding({
+  previews = [],
+  notices = [],
+  events = [],
+  conference = null,
+}: {
+  previews?: string[];
+  notices?: Notice[];
+  events?: SiteEvent[];
+  conference?: ConferenceData | null;
+}) {
   return (
     <div className="bg-white">
       <SiteHeader active="/" />
       <Hero />
+      <NoticeStrip notices={notices} />
       <Association />
       <ForbesBar />
       <Handouts previews={previews} />
       <Calculators />
       <PartnerBar />
       <Partners />
+      <EventsSection events={events} conference={conference} />
       <Banner />
       <SiteFooter />
     </div>

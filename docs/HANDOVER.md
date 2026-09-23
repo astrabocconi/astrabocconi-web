@@ -87,8 +87,9 @@ handout card shows a JPEG at
 `scripts/make-thumbs.mjs` with `pdftoppm`. 201 of 203 succeeded; handout ids
 `153` and `178` return 400 from storage, so those two PDFs are corrupt in the
 bucket and their cards fall back to "Anteprima non disponibile". Re-upload
-them and re-run the script to fix. **Run the script again whenever new
-dispense are uploaded**, or the new ones will have no cover.
+them and re-run the script to fix. Handouts uploaded through `/admin/dispense`
+get their cover rendered in the operator's browser at upload time, so the
+script is now only for backfilling rows added some other way.
 
 **Handout data is messy and is normalised on read**, in `src/lib/handouts.ts`,
 never by mutating the tables. astra-app reads the same tables, so a migration

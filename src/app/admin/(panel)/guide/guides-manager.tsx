@@ -4,6 +4,9 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, ExternalLink, Plus } from "lucide-react";
 import { deleteGuide, saveGuide, uploadGuideFile, type GuideInput } from "./actions";
+import { Button } from "@/components/admin/ui/button";
+import { Badge } from "@/components/admin/ui/badge";
+import { Field, Input, Textarea, Toggle } from "@/components/admin/ui/field";
 
 export type Guide = {
   id: string;
@@ -59,34 +62,34 @@ export function GuidesManager({
   const inactive = guides.filter((g) => g.is_active === false).length;
 
   return (
-    <div className="p-6">
+    <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <p className="text-xs text-gray-500">
+        <p className="text-sm text-gray-500">
           {guides.length} guide in {grouped.length} categorie
           {inactive > 0 && `, ${inactive} non attive`}
         </p>
         {canWrite && (
-          <button
+          <Button
             onClick={() => {
               setCreating((c) => !c);
               setOpenId(null);
             }}
-            className="ml-auto flex items-center gap-1.5 rounded-xl bg-astra-primary px-3.5 py-1.5 text-xs font-medium text-white hover:bg-astra-dark"
+            className="ml-auto"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-4 w-4" />
             Nuova guida
-          </button>
+          </Button>
         )}
       </div>
 
       {message && (
-        <p className="mb-3 rounded-xl bg-astra-light px-3 py-2 text-xs text-astra-primary">
+        <p className="mb-3 rounded-xl bg-astra-light px-4 py-2.5 text-sm text-astra-primary">
           {message}
         </p>
       )}
 
       {creating && (
-        <div className="mb-4 rounded-2xl border border-astra-accent bg-white p-4">
+        <div className="mb-6 rounded-2xl border border-astra-accent/40 bg-white p-5 shadow-sm">
           <GuideForm
             initial={BLANK}
             categories={categories}
@@ -99,23 +102,21 @@ export function GuidesManager({
         </div>
       )}
 
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-8">
         {grouped.map(([category, items]) => (
           <section key={category}>
-            <h2 className="mb-1.5 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-              {category}
-              <span className="ml-1.5 font-normal text-gray-400">
-                {items.length}
-              </span>
-            </h2>
+            <div className="mb-2 flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold text-gray-800">{category}</h2>
+              <span className="text-xs text-gray-400">{items.length}</span>
+            </div>
 
             <ul className="flex flex-col gap-1.5">
               {items.map((g) => (
                 <li
                   key={g.id}
-                  className="rounded-xl border border-gray-200 bg-white"
+                  className="rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:border-astra-light"
                 >
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
                     <button
                       onClick={() => setOpenId(openId === g.id ? null : g.id)}
                       disabled={!canWrite}
@@ -128,15 +129,13 @@ export function GuidesManager({
                           }`}
                         />
                       )}
-                      <span className="truncate text-sm font-medium text-gray-900">
+                      <span className="truncate font-medium text-gray-900">
                         {g.title}
                       </span>
                     </button>
 
                     {g.is_active === false && (
-                      <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
-                        Non attiva
-                      </span>
+                      <Badge tone="neutral">Non attiva</Badge>
                     )}
 
                     <a
@@ -146,12 +145,12 @@ export function GuidesManager({
                       className="text-gray-400 hover:text-astra-primary"
                       title="Apri il file"
                     >
-                      <ExternalLink className="h-3.5 w-3.5" />
+                      <ExternalLink className="h-4 w-4" />
                     </a>
                   </div>
 
                   {openId === g.id && canWrite && (
-                    <div className="border-t border-gray-100 p-4">
+                    <div className="border-t border-gray-100 p-5">
                       <GuideForm
                         initial={{
                           id: g.id,
@@ -204,86 +203,74 @@ function GuideForm({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Titolo" value={form.title} onChange={(v) => set("title", v)} />
-        <label className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-gray-600">Categoria</span>
-          <input
-            list="guide-categories"
-            value={form.category}
-            onChange={(e) => set("category", e.target.value)}
-            className="rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-astra-accent"
-          />
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Titolo" required>
+          <Input value={form.title} onChange={(e) => set("title", e.target.value)} />
+        </Field>
+        <Field label="Categoria" required hint="Scegli una esistente o scrivine una nuova.">
+          <Input list="guide-categories" value={form.category} onChange={(e) => set("category", e.target.value)} />
           <datalist id="guide-categories">
             {categories.map((c) => (
               <option key={c} value={c} />
             ))}
           </datalist>
-        </label>
+        </Field>
       </div>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-gray-600">Descrizione</span>
-        <textarea
+      <Field label="Descrizione">
+        <Textarea
           value={form.description ?? ""}
           rows={2}
+          className="min-h-0"
           onChange={(e) => set("description", e.target.value || null)}
-          className="resize-y rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-astra-accent"
         />
-      </label>
+      </Field>
 
-      <div className="grid gap-3 sm:grid-cols-[1fr_7rem]">
-        <Field
-          label="Link al file"
-          value={form.file_url}
-          onChange={(v) => set("file_url", v)}
-        />
-        <Field
-          label="Ordine"
-          value={form.order_index === null ? "" : String(form.order_index)}
-          onChange={(v) => set("order_index", v === "" ? null : Number(v))}
-        />
+      <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
+        <Field label="Link al file" required>
+          <Input value={form.file_url} onChange={(e) => set("file_url", e.target.value)} />
+        </Field>
+        <Field label="Ordine">
+          <Input
+            inputMode="numeric"
+            value={form.order_index === null ? "" : String(form.order_index)}
+            onChange={(e) => set("order_index", e.target.value === "" ? null : Number(e.target.value))}
+          />
+        </Field>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="text-xs text-gray-500">
-          <span className="mr-2 font-medium text-gray-600">Carica un PDF</span>
-          <input
-            type="file"
-            disabled={uploading || pending}
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              setUploading(true);
-              setError(null);
-              const fd = new FormData();
-              fd.set("file", file);
-              const res = await uploadGuideFile(fd);
-              setUploading(false);
-              if (res.ok) set("file_url", res.data);
-              else setError(res.error);
-            }}
-            className="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-gray-100 file:px-2.5 file:py-1.5 file:text-xs file:font-medium"
-          />
-        </label>
-        {uploading && <span className="text-xs text-gray-500">Caricamento…</span>}
-
-        <label className="ml-auto flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={form.is_active}
-            onChange={(e) => set("is_active", e.target.checked)}
-            className="h-4 w-4 accent-astra-primary"
-          />
-          Visibile sul sito
-        </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 px-4 py-3">
+          <label className="cursor-pointer text-sm font-medium text-astra-primary hover:text-astra-accent">
+            {uploading ? "Caricamento…" : "Carica un PDF"}
+            <input
+              type="file"
+              hidden
+              disabled={uploading || pending}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setUploading(true);
+                setError(null);
+                const fd = new FormData();
+                fd.set("file", file);
+                const res = await uploadGuideFile(fd);
+                setUploading(false);
+                if (res.ok) set("file_url", res.data);
+                else setError(res.error);
+              }}
+            />
+          </label>
+          <span className="text-xs text-gray-400">Sostituisce il link qui sopra.</span>
+        </div>
+        <Toggle label="Visibile sul sito" checked={form.is_active} onChange={(v) => set("is_active", v)} />
       </div>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex items-center gap-2">
-        <button
+        <Button
           disabled={pending || uploading}
           onClick={() =>
             startTransition(async () => {
@@ -294,14 +281,18 @@ function GuideForm({
               } else setError(res.error);
             })
           }
-          className="rounded-xl bg-astra-primary px-4 py-2 text-sm font-medium text-white hover:bg-astra-dark disabled:opacity-60"
         >
           {pending ? "Salvataggio…" : "Salva"}
-        </button>
+        </Button>
+        <Button variant="secondary" disabled={pending} onClick={() => onDone(null)}>
+          Annulla
+        </Button>
 
         {form.id && canDelete && (
-          <button
+          <Button
+            variant="danger"
             disabled={pending}
+            className="ml-auto"
             onClick={() => {
               if (!confirm(`Eliminare "${form.title}"?`)) return;
               startTransition(async () => {
@@ -312,33 +303,11 @@ function GuideForm({
                 } else setError(res.error);
               });
             }}
-            className="ml-auto rounded-xl border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
           >
             Elimina
-          </button>
+          </Button>
         )}
       </div>
     </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-gray-600">{label}</span>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-astra-accent"
-      />
-    </label>
   );
 }

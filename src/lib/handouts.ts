@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
 
 // The handout tables were filled in by hand over several years, so the same
@@ -23,7 +24,9 @@ export type Handout = {
 
 const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/dispense-uploads/thumbs`;
 
-function thumbFor(kind: "handouts" | "clmg" | "magistrali", id: string) {
+export type HandoutKind = "handouts" | "clmg" | "magistrali";
+
+export function thumbFor(kind: HandoutKind, id: string) {
   return `${STORAGE_BASE}/${kind}/${id}.jpg`;
 }
 
@@ -70,7 +73,7 @@ const YEAR_WORDS: Record<string, number> = {
   "fifth year": 5,
 };
 
-function normaliseYear(value: unknown): number | null {
+export function normaliseYear(value: unknown): number | null {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
   const text = String(value ?? "").trim().toLowerCase();
   if (!text || text === "null") return null;
@@ -79,12 +82,12 @@ function normaliseYear(value: unknown): number | null {
   return Number.isFinite(digits) ? digits : null;
 }
 
-function normaliseSemester(value: unknown): Semester | null {
+export function normaliseSemester(value: unknown): Semester | null {
   const n = typeof value === "number" ? value : Number.parseInt(String(value ?? ""), 10);
   return n === 1 || n === 2 ? n : null;
 }
 
-function normaliseExamType(value: unknown): ExamType | null {
+export function normaliseExamType(value: unknown): ExamType | null {
   const text = String(value ?? "").trim().toLowerCase();
   if (text === "generale") return "generale";
   if (text === "parziale") return "parziale";
@@ -102,11 +105,28 @@ export function findCourse(code: string): Course | undefined {
   );
 }
 
+/** Which table a course lives in. Anything not in the fixed lists is a magistrale. */
+export function kindFor(code: string): HandoutKind | null {
+  if (code === "CLMG") return "clmg";
+  if ([...TRIENNALI, ...ALTRO].some((c) => c.code === code)) return "handouts";
+  return /^[A-Z0-9]{2,20}$/.test(code) ? "magistrali" : null;
+}
+
+/** Years an editor may pick. `handouts.year` is NOT NULL and the app reads
+ *  only First to Third Year, so courses with no fixed years get 1 to 3. */
+export function yearsFor(kind: HandoutKind, code: string): number[] {
+  if (kind === "magistrali") return [];
+  if (kind === "clmg") return [1, 2, 3, 4, 5];
+  const years = findCourse(code)?.years ?? [];
+  return years.length ? years.filter((y) => y <= 3) : [1, 2, 3];
+}
+
 // magistrali_handouts currently holds a single programme; the list is derived
 // at runtime so new ones appear without a code change.
 const MAGISTRALI_FALLBACK: Course[] = [];
 
-export async function getMagistrali(): Promise<Course[]> {
+// cache() so generateMetadata and the page share one query per render.
+export const getMagistrali = cache(async (): Promise<Course[]> => {
   const supabase = createPublicClient();
   const { data } = await supabase.from("magistrali_handouts").select("program");
   const codes = [...new Set((data ?? []).map((r) => normaliseCode(r.program)))]
@@ -118,7 +138,7 @@ export async function getMagistrali(): Promise<Course[]> {
     level: "magistrale" as const,
     years: [],
   }));
-}
+});
 
 /** How many handouts each course code has, keyed by normalised code. */
 export async function getCourseCounts(): Promise<Record<string, number>> {
@@ -150,7 +170,7 @@ export async function getCourseCounts(): Promise<Record<string, number>> {
   return counts;
 }
 
-export async function getHandouts(code: string): Promise<Handout[]> {
+export const getHandouts = cache(async (code: string): Promise<Handout[]> => {
   const supabase = createPublicClient();
   const wanted = normaliseCode(code);
 
@@ -201,8 +221,7 @@ export async function getHandouts(code: string): Promise<Handout[]> {
       semester: normaliseSemester(r.semester),
       examType: normaliseExamType(r.exam_type),
     }));
-}
-
+});
 
 /** A flat sample of handouts, used for folder covers and the landing marquee. */
 export async function getHandoutPreviews(limit = 30): Promise<Handout[]> {

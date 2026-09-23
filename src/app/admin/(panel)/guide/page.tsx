@@ -1,31 +1,13 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AdminShell } from "@/components/admin/admin-shell";
+import { requireOperator } from "@/lib/auth/operator";
+import { PageHeader } from "@/components/admin/ui/page-header";
 import { GuidesManager, type Guide } from "./guides-manager";
 
 export const metadata = { title: "Guide" };
 
 export default async function GuidesPage() {
+  const op = await requireOperator();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/admin");
-
-  const { data: me } = await supabase
-    .from("admin_users")
-    .select("role, permissions, disabled")
-    .eq("user_id", user.id)
-    .single();
-
-  const canWrite =
-    !!me &&
-    !me.disabled &&
-    (me.role === "owner" || me.permissions.includes("guides:write"));
-  const canDelete =
-    !!me &&
-    !me.disabled &&
-    (me.role === "owner" || me.permissions.includes("guides:delete"));
 
   // Deactivated guides come back only for holders of guides:write, via the
   // second select policy added in migration 004.
@@ -36,12 +18,13 @@ export default async function GuidesPage() {
     .order("order_index", { ascending: true, nullsFirst: false });
 
   return (
-    <AdminShell active="/admin/guide">
+    <>
+      <PageHeader title="Guide" subtitle="PDF raggruppati per categoria, pubblicati su /guide." />
       <GuidesManager
         guides={(guides ?? []) as Guide[]}
-        canWrite={canWrite}
-        canDelete={canDelete}
+        canWrite={op.can("guides:write")}
+        canDelete={op.can("guides:delete")}
       />
-    </AdminShell>
+    </>
   );
 }

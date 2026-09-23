@@ -3,16 +3,29 @@
 Working state of the ASTRA website rebuild. **Keep this file current.** It is
 the first thing to read when picking the project up on another machine.
 
-> **You are here:** Phases 0 to 2 are done, the first owner account exists, and
-> the public landing page plus the whole dispense section are built and wired
-> to the database. What remains in Phase 3 is the other public pages, then
-> Phase 4, the calculators, which is the biggest single chunk left.
+> **You are here (2026-09-23):** the backoffice was rebuilt on astra-app's
+> dashboard UI and now covers dispense, notices, the conference block and a
+> read-only events mirror. Dispense course pages are prerendered. **None of it
+> has run against real data yet**, blocked on credentials on the new machine:
+>
+> 1. Apply `supabase/migrations/20260923_006_home_content_and_dispense_crud.sql`
+>    (dry run first with `scripts/migrate.mjs`, needs `DIRECT_DATABASE_URL`).
+>    Until then `/admin/avvisi`, `/admin/conferenza` and uploads to
+>    `dispense-uploads` fail, and the home page hides those sections.
+> 2. Set `NEON_DATABASE_URL` (read-only role) locally and on Vercel, or the
+>    events section stays hidden.
+> 3. Log the Vercel CLI in as `astrabocconidev`, `vercel env pull`, deploy.
+> 4. Browser test: upload a handout (checks the pdf.js worker under Turbopack),
+>    create a notice, fill the conference block, write an article with an
+>    inline image.
+>
+> Then Phase 3's remaining public pages, then Phase 4, the calculators.
 >
 > **This project changed machines on 2026-09-17.** Read `docs/HANDOVER.md`
 > before anything else: it covers the credentials, accounts and assets that
 > were never in git.
 
-Last updated: 2026-09-17
+Last updated: 2026-09-23
 
 ---
 
@@ -124,11 +137,22 @@ Still to do:
       they reference does not exist on this project. The originals are not
       recoverable from here. The backoffice can now upload replacements into the
       `images` bucket; someone needs to re-upload 16 photos.
-- [ ] CRUD for dispense in the backoffice. Still blocked on the six table
-      consolidation below; building an editor over that shape would cement it.
-      Note the public read side is already built and normalises the mess on
-      read instead (`src/lib/handouts.ts`), which is a pattern the editor
-      cannot reuse, since it has to write somewhere specific.
+- [x] CRUD for dispense at `/admin/dispense`: filters by course, year,
+      semester and exam type; multi-PDF upload sharing the same selectors;
+      covers rendered in the browser with pdf.js. Writes the existing tables
+      in the app's formats (see DECISIONS). **Untested until migration 006.**
+- [ ] Old covers were uploaded with a 1 hour cache; a regenerated cover keeps
+      its URL, so it can take an hour to show. New uploads use 1 year.
+- [x] Backoffice shell rebuilt on astra-app's `_ui/` primitives, with a
+      sidebar, `/admin/panoramica` overview (counts and recent activity), and
+      guides, representatives and operators restyled
+- [x] Stella Polare editor reworked: category picker, editable publication
+      date, back to draft, inline body images, preview, unsaved changes guard,
+      Ctrl+S, list with search and filters
+- [x] `/admin/avvisi`: notice builder (tone, up to 3 buttons, schedule, order)
+      with live preview. The home strip does not render when nothing is live.
+- [x] `/admin/conferenza`: conference block editor with image and buttons
+- [x] `/admin/eventi`: read-only mirror of astra-app's Neon events
 - [ ] Retire the legacy `Stella_Polare` table (2 rows of external links) once
       nothing reads it
 - [ ] Article dates are inferred from the Italian month in the old eyebrow
@@ -167,7 +191,14 @@ design system before this phase starts.
       already built, so this is the public read side only.
 - [x] `/stella-polare` index and `/stella-polare/:slug`, database driven
 - [ ] `/exchange`
-- [ ] Events and news, reading from Neon so the site and the app agree
+- [x] Events section before the footer, reading Neon so the site and the
+      app agree, side by side with the conference block. Needs
+      `NEON_DATABASE_URL`.
+- [x] `/dispense/[course]` prerendered via `generateStaticParams`. It was
+      rendering on every request (0.9 to 2.3 s), which was the slowness.
+- [ ] News from Neon
+- [ ] Hero videos. Parked by Michele; plan is to play only the front arc of
+      the cylinder and show posters on the rest, so twelve decodes never run.
 - [ ] SEO: metadata, sitemap, Open Graph images
 
 ## Phase 4 — Calculators
@@ -200,11 +231,6 @@ Their data lives in `course_subjects` (375 rows), `course_subjects_UG` (151),
 
 ## Open questions
 
-- **Events and news** live in astra-app's Neon database, not Supabase. Michele
-  wants both databases kept in sync so the app and the site agree. Decide
-  whether the site reads Neon directly (read-only client) or calls an API on
-  astra-app web. Note that cover images are served by astra-app's
-  `/api/media/:id`, which argues for the API route.
 - **Ask ASTRA / RAG.** The `Document` table holds 27,769 embedded chunks and
   powers the mobile app's chat. Decide whether the website exposes it too.
 - **Typeface.** astra-app deliberately loads no web font and uses the system

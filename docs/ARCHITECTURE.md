@@ -10,9 +10,10 @@ are live and owned by different products.
 | **Supabase** `jsuzhbspinevkzmhibop` (eu-central-2) | Guides, dispense/handouts, representatives, exchange destinations, study plans, Stella Polare, and the RAG corpus | The old website, this website, and astra-app's RAG |
 | **Neon** (Prisma, in `astra-app/packages/db`) | Users, points, partners, rewards, **events**, **news**, tickets | The mobile app and its web admin |
 
-The website reads Supabase for academic content and Neon for events and news,
-so that the site and the app never show different things. The Neon access path
-is still an open question in `ROADMAP.md`.
+The website reads Supabase for academic content and Neon for events, so that
+the site and the app never show different things. Events are read directly
+from Neon (`src/lib/events.ts`, `NEON_DATABASE_URL`, read only) and edited only
+in the astra-app dashboard; `/admin/eventi` here is a read-only mirror.
 
 ## Supabase schema (live, verified 2026-09-15)
 
@@ -31,7 +32,9 @@ counts are from the live project.
 | --- | --- | --- |
 | `articles` | 11 | Stella Polare. Replaces the hardcoded `.tsx` pages. Body is sanitised HTML. |
 | `admin_users` | 0 | Backoffice operators and their permissions |
-| `content_audit` | 11 | Append only log, written by a trigger on `articles`, `guides` and `representatives` |
+| `content_audit` | 11 | Append only log, written by a trigger on `articles`, `guides`, `representatives`, the three handout tables, `notices` and `site_sections` |
+| `notices` | 0 | Strip under the hero. Public RLS hides inactive rows and rows outside `starts_at`/`ends_at`. Migration 006. |
+| `site_sections` | 1 | One editable home block per `key` (`conference` so far), content in `data` jsonb. Shape in `src/lib/site-content.ts`. Migration 006. |
 
 ### Content people publish
 

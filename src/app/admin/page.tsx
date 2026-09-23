@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AstraLogo } from "@/components/ui/logo";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/admin/ui/button";
+import { Field as UiField, Input } from "@/components/admin/ui/field";
 
 const CLICKS_TO_REVEAL = 7;
 
@@ -41,7 +43,7 @@ export default function AdminGate() {
       setBusy(false);
       return;
     }
-    router.replace("/admin/stella-polare");
+    router.replace("/admin/panoramica");
     router.refresh();
   }
 
@@ -83,13 +85,13 @@ export default function AdminGate() {
       <p className="mt-2 text-sm text-gray-500">Il nuovo sito è in costruzione.</p>
 
       {revealed && (
-        <div className="mt-10 w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="mt-10 w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
           {needsBootstrap === null && (
             <p className="text-sm text-gray-500">Verifica in corso…</p>
           )}
 
           {needsBootstrap === true && (
-            <form onSubmit={bootstrap} className="flex flex-col gap-3">
+            <form onSubmit={bootstrap} className="flex flex-col gap-4">
               <div>
                 <h2 className="text-base font-semibold text-gray-900">
                   Primo accesso
@@ -126,8 +128,8 @@ export default function AdminGate() {
           )}
 
           {needsBootstrap === false && (
-            <form onSubmit={signIn} className="flex flex-col gap-3">
-              <h2 className="text-base font-semibold text-gray-900">Accedi</h2>
+            <form onSubmit={signIn} className="flex flex-col gap-4">
+              <h2 className="text-lg font-semibold text-gray-900">Accedi al backoffice</h2>
               <Field
                 label="Email"
                 type="email"
@@ -166,32 +168,20 @@ function Field({
   autoComplete?: string;
 }) {
   return (
-    <label className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-gray-600">{label}</span>
-      <input
-        type={type}
-        value={value}
-        required
-        autoComplete={autoComplete}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-astra-accent"
-      />
-    </label>
+    <UiField label={label}>
+      <Input type={type} value={value} required autoComplete={autoComplete} onChange={(e) => onChange(e.target.value)} />
+    </UiField>
   );
 }
 
 function Submit({ busy, label }: { busy: boolean; label: string }) {
   return (
-    <button
-      type="submit"
-      disabled={busy}
-      className="mt-1 rounded-xl bg-astra-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-astra-dark disabled:opacity-60"
-    >
+    <Button type="submit" disabled={busy} block className="mt-1">
       {busy ? "Attendere…" : label}
-    </button>
+    </Button>
   );
 }
 
 function Error({ message }: { message: string }) {
-  return <p className="text-xs text-red-600">{message}</p>;
+  return <p className="text-sm text-red-600">{message}</p>;
 }
