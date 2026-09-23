@@ -10,6 +10,7 @@ import { ArrowRight } from "lucide-react";
 export const NAV = [
   { label: "Chi siamo", href: "/#chi-siamo" },
   { label: "Dispense", href: "/dispense" },
+  { label: "Guide", href: "/guide" },
   { label: "Calcolatori", href: "/#calcolatori" },
   { label: "Stella Polare", href: "/stella-polare" },
   { label: "Partner", href: "/#partner" },

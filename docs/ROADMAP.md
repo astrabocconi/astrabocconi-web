@@ -187,8 +187,15 @@ design system before this phase starts.
       disable themselves when unsatisfiable, liquid glass search, five across
       card grid with PDF cover previews
 - [x] Pre-rendered PDF covers, 201 of 203 (`scripts/make-thumbs.mjs`)
-- [ ] `/guide` and `/guide/:category` (49 rows). The backoffice for these is
-      already built, so this is the public read side only.
+- [x] `/guide` and `/guide/:category`, database driven, prerendered via
+      `generateStaticParams` from the start (learned from the dispense fix).
+      Illustrated covers reused from the old site for 17 of 18 categories, same
+      treatment as the dispense covers. The `magistrali` category was retired
+      (material now under Dispense) and the synthetic `languages` category was
+      dropped, since it is already reachable at `/dispense/languages`.
+- [ ] Guide PDFs have no `thumbnail_url` yet (all null); the file card falls
+      back to a plain icon. No generation pipeline built for these yet, unlike
+      dispense covers.
 - [x] `/stella-polare` index and `/stella-polare/:slug`, database driven
 - [ ] `/exchange`
 - [x] Events section before the footer, reading Neon so the site and the

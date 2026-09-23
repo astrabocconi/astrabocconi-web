@@ -162,3 +162,13 @@ twelfth cover (Magistrali) was a generic stock photo, not part of that
 illustrated series, so it was left out; that section keeps its icon fallback.
 Column count and container width follow this site's density, not the old
 site's narrower one, since "layout" here means the card style, not the grid math.
+
+**Same exception for `/guide`.** 17 of the old site's 18 category covers were
+reused (resized, reuploaded to `images/guide-covers/`); `graduate` had none in
+the old site either, so it keeps a plain icon tile. The `magistrali` category
+and the synthetic `languages` category (guides pulled from `handouts` where
+`subject = 'languages'`, a code-level special case in the old site) were both
+dropped: that material is already reachable from Dispense, and duplicating it
+under Guide would mean two places to keep in sync. Category titles, descriptions
+and order are a fixed list in `src/lib/guide-categories.ts`, the same pattern as
+the course lists in `handouts.ts` — structural taxonomy, not editor content.
