@@ -114,7 +114,7 @@ function Association() {
       id="chi-siamo"
       className="mx-auto w-[min(1280px,calc(100%-48px))] py-24 lg:py-32"
     >
-      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
           <h2 className="text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
             Una rete di studenti che si passa il testimone.
