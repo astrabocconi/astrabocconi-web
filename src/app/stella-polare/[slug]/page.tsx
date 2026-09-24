@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import { createPublicClient } from "@/lib/supabase/public";
+import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 
 export const revalidate = 300;
 
@@ -54,27 +55,29 @@ export default async function ArticlePage({
   if (!article) notFound();
 
   return (
-    <main className="flex-1 bg-white">
-      <div className="mx-auto max-w-3xl px-6 py-12">
-        <Link
-          href="/stella-polare"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-astra-primary"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Stella Polare
-        </Link>
+    <>
+      <SiteHeader active="/stella-polare" />
 
-        <article className="mt-8">
-          <header>
+      <main className="flex-1 bg-white">
+        <header className="bg-linear-to-b from-astra-light to-white px-6 pt-[120px] pb-10">
+          <div className="mx-auto w-[min(760px,calc(100%-48px))]">
+            <Link
+              href="/stella-polare"
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-astra-primary"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Stella Polare
+            </Link>
+
             {article.category && (
-              <p className="text-xs font-semibold tracking-widest text-astra-accent uppercase">
+              <p className="mt-6 text-xs font-semibold tracking-widest text-astra-accent uppercase">
                 {article.category}
               </p>
             )}
-            <h1 className="mt-2 text-3xl leading-tight font-semibold tracking-tight text-gray-900 sm:text-4xl">
+            <h1 className="mt-2 text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-astra-primary">
               {article.title}
             </h1>
-            <p className="mt-3 flex flex-wrap items-center gap-x-2 text-sm text-gray-500">
+            <p className="mt-4 flex flex-wrap items-center gap-x-2 text-sm text-gray-500">
               {article.author && <span>{article.author}</span>}
               {article.author && article.published_at && <span>·</span>}
               {article.published_at && (
@@ -86,8 +89,10 @@ export default async function ArticlePage({
                 </time>
               )}
             </p>
-          </header>
+          </div>
+        </header>
 
+        <div className="mx-auto w-[min(760px,calc(100%-48px))] pb-28">
           {article.cover_url && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -102,8 +107,10 @@ export default async function ArticlePage({
             className="prose-astra mt-10"
             dangerouslySetInnerHTML={{ __html: article.body_html }}
           />
-        </article>
-      </div>
-    </main>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </>
   );
 }
