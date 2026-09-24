@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
@@ -9,7 +8,7 @@ import {
   BrandScrollerReverse,
   type BrandItem,
 } from "@/components/ui/brand-scoller";
-import { HoverExpand_001 } from "@/components/ui/expand-on-hover";
+import { BoardScroller, type BoardMember } from "@/components/ui/board-scroller";
 import WovenCloth from "@/components/ui/woven-cloth";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
@@ -20,15 +19,9 @@ import type { SiteEvent } from "@/lib/events";
 
 // Imagery is still blank placeholder. Dispense and Stella Polare are wired to
 // real pages; the remaining links are inert until those pages exist.
-// Placeholder panels for the association strip. Blank white while scaffolding.
-const ASSOCIATION_PANELS = [
-  { alt: "Dispense" },
-  { alt: "Guide" },
-  { alt: "Exchange" },
-  { alt: "Rappresentanza" },
-  { alt: "Orientamento" },
-  { alt: "Community" },
-];
+// Board photos are still coming; until then every entry falls back to a
+// silhouette placeholder (see BoardScroller).
+const BOARD_MEMBERS: BoardMember[] = Array.from({ length: 10 }, () => ({}));
 
 const HANDOUT_COLUMNS = 6;
 const HANDOUTS_PER_COLUMN = 5;
@@ -149,7 +142,10 @@ function Association() {
         </div>
 
         <div className="pt-4 lg:pt-0">
-          <HoverExpand_001 items={ASSOCIATION_PANELS} />
+          <p className="mb-4 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+            Il board
+          </p>
+          <BoardScroller members={BOARD_MEMBERS} />
         </div>
 
       </div>
