@@ -8,6 +8,33 @@ import "./globals.css";
 const UMAMI_HOST = "https://umami-analytics-five-rosy.vercel.app";
 const UMAMI_WEBSITE_ID = "5c78b384-2637-4c6e-bf5c-7702adc44f97";
 
+// An easter egg for anyone reading view-source: an 8-bit rendering of the
+// ASTRA star, wrapped in a real HTML comment via dangerouslySetInnerHTML
+// (JSX comments compile away and never reach the output).
+const ASCII_LOGO = `
+                    █
+                   ███
+                ███████
+              █████████████
+                ███████
+                   ███
+                    █
+
+       ███   ████ █████ ████   ███
+      █   █ █       █   █   █ █   █
+      █████  ███    █   ████  █████
+      █   █     █   █   █ █   █   █
+      █   █ ████    █   █  █  █   █
+
+████   ███   ████  ████  ███  █   █ █████
+█   █ █   █ █     █     █   █ ██  █   █
+████  █   █ █     █     █   █ █ █ █   █
+█   █ █   █ █     █     █   █ █  ██   █
+████   ███   ████  ████  ███  █   █ █████
+
+          per aspera, ad astra
+`;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -24,7 +51,7 @@ export const metadata: Metadata = {
     template: "%s | ASTRA Bocconi",
   },
   description:
-    "ASTRA Bocconi — dispense, guide, calcolatori e risorse per gli studenti dell'Università Bocconi.",
+    "ASTRA Bocconi: dispense, guide, calcolatori e risorse per gli studenti dell'Università Bocconi.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -45,7 +72,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           data-website-id={UMAMI_WEBSITE_ID}
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <div aria-hidden="true" dangerouslySetInnerHTML={{ __html: `<!--${ASCII_LOGO}-->` }} />
+        {children}
+      </body>
     </html>
   );
 }
