@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ASTRA_8BIT_LOGO } from "@/lib/astra-8bit-logo";
 
 // Umami analytics. Written as plain tags in <head> rather than next/script:
 // its beforeInteractive strategy emits a preload plus its own client loader,
@@ -74,6 +75,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <div aria-hidden="true" dangerouslySetInnerHTML={{ __html: `<!--${ASCII_LOGO}-->` }} />
+        {/* The real thing, not just ASCII: same easter egg, an actual 8-bit
+            ASTRA wordmark, invisible on the page but sitting in the source
+            and inline-previewable from devtools. */}
+        {/* next/image would proxy this through the optimiser for no benefit:
+            it's already a tiny inline data URI, not a network request. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={ASTRA_8BIT_LOGO} alt="" aria-hidden="true" width={512} height={131} className="sr-only" />
         {children}
       </body>
     </html>
