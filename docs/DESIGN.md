@@ -1,3 +1,13 @@
+# Current update: 2026-10-03
+
+Alte Haas Grotesk regular/bold is the sitewide typeface, explicitly supplied by
+Michele. Hero tiles have no labels; their original blue scrim remains. The
+woven cloth banner has been removed entirely from the homepage. References to
+its visual treatment below are historical. Board cards are 256px wide on mobile
+and 320px from sm, looping over 240s with hover pause. The calculator section
+contains only Bachelor, Master and CLMG, with the existing standalone AstraLogo
+monogram over concentric line graphics. No replacement logo was drawn.
+
 # Design direction
 
 Holding file for the public site's visual language. Michele is supplying a
@@ -49,9 +59,7 @@ the glass treatment.** So glass surfaces and generous radii, but tinted with
 `--color-astra-light` and accented with `--color-astra-primary` rather than iOS
 blue.
 
-**Its typeface.** The brief says SF Pro. The site uses Geist, which is already
-loaded and is a live open question in ROADMAP rather than something to settle by
-importing an iOS brief.
+**Its typeface.** The brief says SF Pro. The site now uses the supplied Alte Haas Grotesk font.
 
 ## Open question for Michele
 
@@ -119,6 +127,44 @@ The dip across the top of the band is a product of perspective on its own: the
 far centre tiles render smaller than the edge tiles, so their top edges sit
 lower. To deepen it, shorten the `perspective` value rather than rotating
 anything.
+
+## Hero video tiles
+
+**One video, many canvases.** All clips are packed into one 4x2 grid video,
+`public/hero/atlas.mp4` (1920x1360, 480x680 cells), by
+`scripts/make-hero-atlas.sh`. A single hidden `<video>` decodes it and each
+tile paints its cell onto a canvas via `requestVideoFrameCallback`. Rebuild the
+atlas whenever a clip changes; the clip order must match the seven atlas cells in
+`hero-carousel.tsx`.
+
+Why, since it looks like over-engineering and is not:
+
+- One `<video>` per tile was tried first. Twelve hardware decoders inside a 3D
+  transformed layer froze on Michele's Intel Iris Xe laptop in Chrome and Edge:
+  not paused, but clock and picture stuck. Blob URLs, waiting for load, and a
+  stall watchdog each reduced it; none removed it.
+- **The root trigger was the WebGL cloth** (`woven-cloth.tsx`). Its iframe was
+  `loading="eager"`, so three.js created a GPU context during the hero's first
+  seconds, and that wedged the video decoder. Blocking the iframe alone made
+  Chrome solid. The cloth now mounts only within 600px of the viewport. Do not
+  make it eager again.
+- Test hero video in a **headed** browser with frame or paint counts.
+  Headless decodes in software and never shows any of this, and `currentTime`
+  keeps advancing while the picture is frozen.
+
+Media notes:
+
+- The atlas is re-encoded at CRF 23 with light `hqdn3d`, which is visually
+  identical to the WhatsApp sources, about 10 MB for all seven clips. The
+  atlas runs as long as the longest clip; shorter ones loop inside it.
+- Two sources are stored sideways with a `rotate=90` tag. The script needs a
+  modern ffmpeg (the `imageio-ffmpeg` pip package ships one), which honours the
+  tag. The old local ffmpeg does not, so do not "fix" those pixels.
+- The poster is frame 0 of the atlas, set as each canvas's CSS background and
+  positioned to its cell, so poster-to-playback is seamless.
+- Paint state follows the CSS spin's `currentTime`, so the motion stays on the
+  compositor. `SPIN_MS` must match the keyframe duration in `globals.css`.
+- Tile labels were removed on 2026-10-03.
 
 ## Logo usage
 

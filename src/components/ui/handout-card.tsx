@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Download } from "lucide-react";
 import type { Handout } from "@/lib/handouts";
 
-// The cover is a pre-rendered JPEG sitting in Supabase, so this is a plain
-// <img> with no work to do on the client. next/image is skipped on purpose:
-// it would proxy every cover through the optimiser on first request, which is
-// slower than serving the already-small file straight from storage.
+// Responsive covers are cached by the image optimiser on the website's CDN.
 export function HandoutCard({
   handout,
   priority = false,
@@ -30,8 +28,7 @@ export function HandoutCard({
             Anteprima non disponibile
           </span>
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={handout.thumbUrl}
             alt=""
             loading={priority ? "eager" : "lazy"}
@@ -39,6 +36,7 @@ export function HandoutCard({
             decoding="async"
             width={480}
             height={640}
+            sizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 260px"
             onError={() => setFailed(true)}
             className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
           />

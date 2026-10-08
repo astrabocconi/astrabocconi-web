@@ -1,4 +1,6 @@
-import { useMemo, type CSSProperties } from "react";
+"use client";
+
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 type EffectMode = "dark" | "light";
 type FocusRole = "background" | "ui";
@@ -495,14 +497,31 @@ function WovenCloth({
       ? undefined
       : `hue-rotate(${safeHue}deg) saturate(${safeSaturation}) brightness(${safeBrightness})`;
 
+  // The WebGL context is created only once the cloth is about to scroll into
+  // view, and then kept. Starting it on page load wedged the hero's hardware
+  // video decoder on Intel GPUs in Chrome (see "Hero video tiles" in
+  // docs/DESIGN.md).
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || near) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting && setNear(true),
+      { rootMargin: "600px 0px" },
+    );
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [near]);
+
   return (
     <iframe
+      ref={frameRef}
       className={className}
       data-mode={safeMode}
       title={WOVEN_CLOTH_TITLE}
-      srcDoc={source}
+      srcDoc={near ? source : undefined}
       sandbox="allow-scripts"
-      loading="eager"
       style={{
         display: "block",
         width: "100%",

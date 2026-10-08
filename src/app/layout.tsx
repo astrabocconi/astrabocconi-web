@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ASTRA_8BIT_LOGO } from "@/lib/astra-8bit-logo";
 import { ASTRA_8BIT_ASCII } from "@/lib/astra-8bit-ascii";
@@ -10,14 +10,13 @@ import { ASTRA_8BIT_ASCII } from "@/lib/astra-8bit-ascii";
 const UMAMI_HOST = "https://umami-analytics-five-rosy.vercel.app";
 const UMAMI_WEBSITE_ID = "5c78b384-2637-4c6e-bf5c-7702adc44f97";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const alteHaas = localFont({
+  src: [
+    { path: "./fonts/AlteHaasGroteskRegular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/AlteHaasGroteskBold.ttf", weight: "700", style: "normal" },
+  ],
+  variable: "--font-alte-haas",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -33,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="it"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${alteHaas.variable} h-full antialiased`}
     >
       <head>
         <script

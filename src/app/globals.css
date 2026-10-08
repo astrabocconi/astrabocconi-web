@@ -10,9 +10,9 @@
   --color-astra-light: #edeff9;
   --color-astra-gold: #ffcc00;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+  --font-sans: var(--font-alte-haas), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: var(--font-geist-mono), "SF Mono", Menlo, Consolas, monospace;
+  --font-mono: var(--font-alte-haas), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -164,14 +164,47 @@ body {
 }
 
 .hero-cylinder__card {
+  position: relative;
   width: 100%;
   height: 100%;
-  border: 1px solid rgb(4 16 126 / 12%);
+  overflow: hidden;
   border-radius: 26px;
-  background: #fff;
+  /* Shows for the instant before a poster decodes, so tiles never flash white. */
+  background: var(--color-astra-dark);
   box-shadow:
     0 40px 80px rgb(4 16 126 / 12%),
     0 10px 24px rgb(4 16 126 / 7%);
+}
+
+/* A tile's canvas. Its background is the atlas poster, positioned inline on
+   the element to show this tile's cell until the first frame is painted. */
+.hero-cylinder__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/hero/atlas.jpg");
+  background-size: 400% 200%;
+}
+
+/* The decoder the canvases read from. Kept in the viewport rather than
+   display:none so the browser never treats it as hidden and stops decoding. */
+.hero-cylinder__source {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+/* Preserve the brand wash over the footage. */
+.hero-cylinder__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgb(2 10 82 / 88%) 0%, rgb(2 10 82 / 0%) 55%),
+    rgb(4 16 126 / 34%);
 }
 
 @keyframes hero-cylinder-spin {

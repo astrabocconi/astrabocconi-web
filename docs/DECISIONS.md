@@ -25,9 +25,9 @@ it is the real brand blue. The old site used `hsl(224 100% 25%)`, roughly
 re-inlining the SVG. It already strips the white backing rects and uses
 `currentColor`.
 
-**Geist as the typeface, for now.** astra-app deliberately loads no web font and
-uses the system stack, so there is no established ASTRA typeface to match.
-Flagged as an open question in ROADMAP rather than silently settled.
+**Alte Haas Grotesk for all page text (updated 2026-10-03).** Michele supplied
+the regular and bold font files; next/font/local self-hosts them and the
+distribution licence stays beside the fonts.
 
 **`lucide-react` for icons.** astra-app mobile uses Ionicons, which is not a web
 option, and its web app hand-rolls a small icon file. lucide is the convention
@@ -172,3 +172,18 @@ dropped: that material is already reachable from Dispense, and duplicating it
 under Guide would mean two places to keep in sync. Category titles, descriptions
 and order are a fixed list in `src/lib/guide-categories.ts`, the same pattern as
 the course lists in `handouts.ts` — structural taxonomy, not editor content.
+
+## 2026-10-03
+
+**Three graduation calculators ported from astra-app.** Reuse its plans,
+transcript model, weighted-average and simulation functions; document verified
+formula corrections and source limitations in CALCULATORS.md.
+
+**Responsive images through next/image.** Same-origin cached WebP variants
+reduce dispense cover transfer sizes. Load all marquee images when the section
+approaches the viewport, because native lazy loading alone leaves entering
+tiles blank. Storage data and upload paths are unchanged.
+
+**Remove the cloth banner and hero labels.** Explicit user request; preserve
+the hero's existing blue scrim and video atlas. Board portraits use a 240s
+cycle with 256px mobile and 320px desktop widths for legibility.

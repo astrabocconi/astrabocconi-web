@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight, FileText } from "lucide-react";
 
 // Replaces the old fanned-stack-of-thumbnails folder: a photographic hero
@@ -24,8 +25,7 @@ export function CourseCard({ name, href, cover, empty = false, priority = false 
     >
       {cover ? (
         <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={cover}
             alt=""
             loading={priority ? "eager" : "lazy"}
@@ -33,6 +33,7 @@ export function CourseCard({ name, href, cover, empty = false, priority = false 
             decoding="async"
             width={960}
             height={960}
+            sizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, (max-width: 1279px) 23vw, 260px"
             className="h-full w-full object-cover object-bottom transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-astra-dark/85 via-astra-dark/25 to-transparent" />

@@ -3,7 +3,7 @@
 Working state of the ASTRA website rebuild. **Keep this file current.** It is
 the first thing to read when picking the project up on another machine.
 
-> **You are here (2026-09-23):** the backoffice was rebuilt on astra-app's
+> **Previous handover (2026-09-23):** the backoffice was rebuilt on astra-app's
 > dashboard UI and now covers dispense, notices, the conference block and a
 > read-only events mirror. Dispense course pages are prerendered. **None of it
 > has run against real data yet**, blocked on credentials on the new machine:
@@ -25,7 +25,22 @@ the first thing to read when picking the project up on another machine.
 > before anything else: it covers the credentials, accounts and assets that
 > were never in git.
 
-Last updated: 2026-09-23
+> **You are here (2026-10-03):** homepage cleanup and the three graduation
+> calculators are implemented and browser checked. Hero tile text and the
+> cloth banner are removed; the blue scrim stays. Board portraits are larger
+> and slower. Alte Haas Grotesk replaces Geist sitewide. Dispense and board
+> images use responsive optimisation; moving images preload near the viewport.
+> Calculator details, official sources and mobile differences are in
+> [CALCULATORS.md](CALCULATORS.md). Next: resolve the older operational items
+> above, remaining public pages, and refresh study plans alongside the app.
+
+> **Local-only delivery (2026-10-06):** Michele requested keeping these changes
+> local because GitHub and Vercel are signed into the wrong accounts. Do not
+> push or deploy this work until requested. Run `npm run dev -- -p 3000` for
+> the local preview. Calculator tests, production build and browser checks
+> passed; lint has only existing warnings.
+
+Last updated: 2026-10-03
 
 ---
 
@@ -172,9 +187,9 @@ design system before this phase starts.
 
 - [x] `/` home, built to Michele's September 2026 brief: rotating hero
       cylinder, chi siamo, Forbes bar, six column handout marquee showing real
-      PDF covers, calculator grid, partner bento, and the woven cloth banner.
-      The calculator cards and the partner logos are still placeholders; the
-      marquee is real data.
+      PDF covers, calculator grid and partner bento (woven cloth removed 2026-10-03).
+      The three graduation calculator cards are live; partner logos remain
+      placeholders and the marquee is real data.
 - [x] Shared header and footer for every page (`src/components/site/`). The
       header is a floating glass pill; see HANDOVER for the `-mb-20` trick.
 - [x] Umami analytics, as plain `<script>` tags in `<head>`
@@ -204,8 +219,21 @@ design system before this phase starts.
 - [x] `/dispense/[course]` prerendered via `generateStaticParams`. It was
       rendering on every request (0.9 to 2.3 s), which was the slowness.
 - [ ] News from Neon
-- [ ] Hero videos. Parked by Michele; plan is to play only the front arc of
-      the cylinder and show posters on the rest, so twelve decodes never run.
+- [x] Hero videos: seven clips packed into one grid video,
+      `public/hero/atlas.mp4`, painted onto the twelve tile canvases under a
+      brand scrim without text. Rebuild with `scripts/make-hero-atlas.sh`.
+      See DESIGN "Hero video tiles" before touching it: the per-tile video
+      approach froze on Intel GPUs, and the eager WebGL cloth was the trigger.
+- [ ] Original hero clips live only in Michele's Downloads (WhatsApp zips
+      from 2026-09-28). Keep them somewhere durable; the atlas cannot be
+      rebuilt with a changed clip set without them.
+- [x] Hero tile labels removed on request; existing scrim opacity preserved.
+- [x] Board photos enlarged to 256px/320px, 240s loop, hover pause.
+- [x] Entire woven cloth banner removed from the homepage.
+- [x] Alte Haas Grotesk regular and bold self-hosted with next/font/local.
+- [x] Responsive dispense/board covers with near-viewport marquee preloading.
+      Sample course cover: 76,477 bytes original vs 14,220 bytes WebP at 384px;
+      cached local image response around 20ms. Cold production cache varies.
 - [ ] SEO: metadata, sitemap, Open Graph images
 
 ## Phase 4 — Calculators
@@ -215,9 +243,9 @@ business logic. Port the logic carefully, rebuild the UI, and add tests before
 touching the formulas.
 
 - [ ] `gpa-calculator`
-- [ ] `graduation-grade-calculator`
-- [ ] `msc-graduation-calculator`
-- [ ] `law-graduation-calculator`
+- [x] `graduation-grade-calculator`: `/calcolatori/bachelor`
+- [x] `msc-graduation-calculator`: `/calcolatori/master`
+- [x] `law-graduation-calculator`: `/calcolatori/clmg`
 - [ ] `study-plan-calculator`
 - [ ] `exchange-calculator` (plus the UG and CLMG variants)
 - [ ] `exchange-planner`
@@ -240,9 +268,8 @@ Their data lives in `course_subjects` (375 rows), `course_subjects_UG` (151),
 
 - **Ask ASTRA / RAG.** The `Document` table holds 27,769 embedded chunks and
   powers the mobile app's chat. Decide whether the website exposes it too.
-- **Typeface.** astra-app deliberately loads no web font and uses the system
-  stack. This scaffold currently uses Geist. Either is defensible, but pick
-  one on purpose and write it down.
+- **Typeface resolved:** Alte Haas Grotesk, supplied by Michele, applied to all
+  page text with its original distribution licence retained.
 
 ---
 

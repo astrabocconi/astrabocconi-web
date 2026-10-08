@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useRef } from "react";
+import { useInView } from "motion/react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import {
@@ -9,7 +12,7 @@ import {
   type BrandItem,
 } from "@/components/ui/brand-scoller";
 import { BoardScroller, type BoardMember } from "@/components/ui/board-scroller";
-import WovenCloth from "@/components/ui/woven-cloth";
+import { CalculatorCards } from "@/components/calculators/calculator-cards";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 import { NoticeStrip } from "@/components/home/notice-strip";
@@ -19,23 +22,28 @@ import type { SiteEvent } from "@/lib/events";
 
 // Imagery is still blank placeholder. Dispense and Stella Polare are wired to
 // real pages; the remaining links are inert until those pages exist.
-// Board photos are still coming; until then every entry falls back to a
-// silhouette placeholder (see BoardScroller).
-const BOARD_MEMBERS: BoardMember[] = Array.from({ length: 10 }, () => ({}));
+// Board cards are the official ASTRA graphics (name, role and department are
+// already part of the image), sourced from public/board/.
+const BOARD_MEMBERS: BoardMember[] = [
+  { photo: "/board/2.jpg", name: "Presidents: Davide Dorigo, Ilaria Mandanici" },
+  { photo: "/board/3.jpg", name: "Executive: Riccardo Lotti (Secretary), Jacopo Sciarappa (Treasurer)" },
+  { photo: "/board/4.jpg", name: "Heads of Representation: Cristiano Moschella, Emma Bisogno" },
+  { photo: "/board/5.jpg", name: "Casa Representative: Carlo Pagliula" },
+  { photo: "/board/6.jpg", name: "Heads of Events: Pietro Cianci, Rachele Giannelli" },
+  { photo: "/board/7.jpg", name: "Heads of Conferences: Cristian Benedetto, Simone Provini" },
+  { photo: "/board/8.jpg", name: "Heads of Media: Nello Cortellessa, Niccolò Pavone" },
+  { photo: "/board/9.jpg", name: "Heads of Partnerships: Giulia Zanini, Ludovica Tiri" },
+  { photo: "/board/10.jpg", name: "Heads of International: Arina Gazina, Mishal Khan" },
+  { photo: "/board/11.jpg", name: "Heads of Student Services: Giorgia Surian, Umberto Frijia" },
+  { photo: "/board/12.jpg", name: "Heads of Career Services: Emanuele Bozzo, Maria Teresa Aiello" },
+  { photo: "/board/13.jpg", name: "Heads of Press: Marco Ferraù, Greta Stacchio" },
+  { photo: "/board/14.jpg", name: "Heads of Legal: Leonardo Barone, Valentina Zandri" },
+  { photo: "/board/15.jpg", name: "Heads of Sport: Claudio Conti, Michele Capotosto" },
+  { photo: "/board/16.jpg", name: "Heads of Tech: Michele Matozza, Antonino Galfo" },
+];
 
 const HANDOUT_COLUMNS = 6;
 const HANDOUTS_PER_COLUMN = 5;
-
-const CALCULATORS = [
-  { name: "Media e GPA", hint: "Converti la media in GPA" },
-  { name: "Voto di laurea", hint: "Triennale" },
-  { name: "Voto di laurea magistrale", hint: "Magistrale" },
-  { name: "Voto di laurea CLMG", hint: "Giurisprudenza" },
-  { name: "Piano di studi", hint: "CFU e opzionali" },
-  { name: "Punteggio exchange", hint: "Triennale e magistrale" },
-  { name: "Exchange planner", hint: "Scegli le destinazioni" },
-  { name: "Crediti liberi", hint: "Simulazione" },
-];
 
 // Placeholder plates until the real partner logos arrive.
 const PARTNER_BRANDS: BrandItem[] = [
@@ -81,7 +89,6 @@ export function HomeLanding({
       <PartnerBar />
       <Partners />
       <EventsSection events={events} conference={conference} />
-      <Banner />
       <SiteFooter />
     </div>
   );
@@ -141,7 +148,7 @@ function Association() {
           </a>
         </div>
 
-        <div className="pt-4 lg:pt-0">
+        <div className="min-w-0 pt-4 lg:pt-0">
           <p className="mb-4 text-xs font-semibold tracking-wide text-gray-400 uppercase">
             Il board
           </p>
@@ -157,8 +164,12 @@ function ForbesBar() {
   return (
     <section className="bg-astra-primary text-white">
       <div className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col items-center gap-6 py-7 sm:flex-row">
-        {/* Static placeholder for the award photograph. */}
-        <div className="h-20 w-32 shrink-0 rounded-xl border border-white/20 bg-white" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/astra-regione-lombardia-next-leaders.jpeg"
+          alt="ASTRA e Regione Lombardia, Next Leaders"
+          className="h-20 w-32 shrink-0 rounded-xl border border-white/20 bg-white object-contain"
+        />
 
         <p className="flex-1 text-center text-[0.98rem] leading-relaxed sm:text-left">
           <span className="font-semibold">Astra Network</span> è una rete
@@ -183,6 +194,8 @@ function ForbesBar() {
 }
 
 function Handouts({ previews }: { previews: string[] }) {
+  const ref = useRef<HTMLElement>(null);
+  const nearby = useInView(ref, { once: true, margin: "800px" });
   // Deal distinct covers out column by column. Duplicates only appear if the
   // database has fewer than HANDOUT_COLUMNS * HANDOUTS_PER_COLUMN of them.
   const unique = [...new Set(previews.filter(Boolean))];
@@ -194,7 +207,7 @@ function Handouts({ previews }: { previews: string[] }) {
   );
 
   return (
-    <section id="dispense" className="overflow-hidden py-24 lg:py-32">
+    <section ref={ref} id="dispense" className="overflow-hidden py-24 lg:py-32">
       <div className="mx-auto mb-12 flex w-[min(1280px,calc(100%-48px))] flex-wrap items-end justify-between gap-6">
         <div>
           <h2 className="max-w-2xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
@@ -226,14 +239,14 @@ function Handouts({ previews }: { previews: string[] }) {
                   className="aspect-3/4 w-full overflow-hidden rounded-xl border border-astra-primary/10 bg-white shadow-[0_10px_30px_rgba(4,16,126,0.07)]"
                 >
                   {cover ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={cover}
                       alt=""
-                      loading="lazy"
+                      loading={nearby ? "eager" : "lazy"}
                       decoding="async"
                       width={480}
                       height={640}
+                      sizes="(max-width: 639px) 30vw, (max-width: 1023px) 23vw, 210px"
                       className="h-full w-full object-cover object-top"
                     />
                   ) : null}
@@ -259,31 +272,14 @@ function Calculators() {
     >
       <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
         <h2 className="max-w-3xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
-          Calcola media, voto di laurea e punteggio exchange.
+          Il tuo prossimo traguardo, voto per voto.
         </h2>
         <p className="mt-6 max-w-xl text-[1.02rem] leading-relaxed text-[#545d70]">
           Gli stessi strumenti che usiamo noi, con le formule ufficiali
           dell&apos;ateneo.
         </p>
 
-        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {CALCULATORS.map((calculator) => (
-            <a
-              key={calculator.name}
-              href="#"
-              className="group flex min-h-[168px] flex-col justify-between rounded-2xl border border-astra-primary/10 bg-white p-5 transition-shadow hover:shadow-[0_18px_40px_rgba(4,16,126,0.1)]"
-            >
-              <div className="h-9 w-9 rounded-full bg-astra-light" />
-              <div>
-                <h3 className="text-[1.02rem] font-semibold text-astra-primary">
-                  {calculator.name}
-                </h3>
-                <p className="mt-1 text-sm text-[#6b7280]">{calculator.hint}</p>
-              </div>
-              <ArrowUpRight className="h-4 w-4 text-astra-primary/30 transition-colors group-hover:text-astra-accent" />
-            </a>
-          ))}
-        </div>
+        <CalculatorCards className="mt-12" />
       </div>
     </section>
   );
@@ -346,13 +342,6 @@ function Partners() {
   );
 }
 
-function Banner() {
-  return (
-    <section className="relative h-[380px] w-full overflow-hidden bg-astra-dark sm:h-[420px]">
-      <WovenCloth className="absolute inset-0 h-full w-full" />
-    </section>
-  );
-}
 
 
 export default HomeLanding;
