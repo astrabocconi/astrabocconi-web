@@ -1,9 +1,13 @@
-import { CalendarDays, ExternalLink } from "lucide-react";
-import { requireOperator } from "@/lib/auth/operator";
-import { ASTRA_APP_EVENTS_URL, getUpcomingEvents, isEventsConfigured } from "@/lib/events";
+import Link from "next/link";
+import { CalendarDays, ChevronRight, Plus } from "lucide-react";
+import { requirePermission } from "@/lib/auth/operator";
+import { isEventsConfigured, ASTRA_APP_URL } from "@/lib/events";
+import { listEvents, type AdminEvent } from "@/lib/events-admin";
+import { romeLocalToIso } from "@/lib/site-content";
 import { PageHeader } from "@/components/admin/ui/page-header";
 import { EmptyState } from "@/components/admin/ui/empty-state";
-import { Card } from "@/components/admin/ui/card";
+import { buttonClass } from "@/components/admin/ui/button";
+import { PublishToggle } from "./publish-toggle";
 
 export const metadata = { title: "Eventi" };
 
@@ -17,79 +21,119 @@ const fmt = new Intl.DateTimeFormat("it-IT", {
   timeZone: "Europe/Rome",
 });
 
-export default async function EventsPage() {
-  await requireOperator();
-  const configured = isEventsConfigured();
-  const events = configured ? await getUpcomingEvents() : [];
-
-  const manage = (
-    <a
-      href={ASTRA_APP_EVENTS_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center justify-center gap-2 rounded-xl bg-astra-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-astra-dark"
+function Row({ e, past }: { e: AdminEvent; past?: boolean }) {
+  const img = e.coverImageKey ? (e.coverImageKey.startsWith("/") ? ASTRA_APP_URL + e.coverImageKey : e.coverImageKey) : null;
+  return (
+    <div
+      className={`group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-3 pr-4 shadow-sm transition-all hover:border-astra-light hover:shadow-md ${
+        past ? "opacity-70 hover:opacity-100" : ""
+      }`}
     >
-      Gestisci nell&apos;app
-      <ExternalLink className="h-4 w-4" />
-    </a>
+      <Link href={`/admin/eventi/${e.id}`} className="flex min-w-0 flex-1 items-center gap-4">
+        {img ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={img} alt="" loading="lazy" className="h-14 w-24 shrink-0 rounded-xl object-cover" />
+        ) : (
+          <div className="flex h-14 w-24 shrink-0 items-center justify-center rounded-xl bg-astra-light text-astra-primary">
+            <CalendarDays className="h-5 w-5" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium text-gray-900">{e.title}</p>
+          <p className="mt-0.5 truncate text-sm text-gray-500">
+            {fmt.format(new Date(e.startsAt))}
+            {e.location ? ` · ${e.location}` : ""}
+          </p>
+        </div>
+      </Link>
+      <PublishToggle id={e.id} published={e.published} />
+      <Link href={`/admin/eventi/${e.id}`} aria-label="Modifica" className="text-gray-300 group-hover:text-astra-accent">
+        <ChevronRight className="h-5 w-5" />
+      </Link>
+    </div>
   );
+}
+
+export default async function EventsPage() {
+  await requirePermission("events:write");
+
+  const newButton = (
+    <Link href="/admin/eventi/nuovo" className={buttonClass()}>
+      <Plus className="h-4 w-4" /> Nuovo evento
+    </Link>
+  );
+
+  if (!isEventsConfigured()) {
+    return (
+      <>
+        <PageHeader title="Eventi" />
+        <EmptyState
+          icon={<CalendarDays className="h-7 w-7" />}
+          title="Collegamento non configurato"
+          description="Manca NEON_DATABASE_URL tra le variabili d'ambiente del sito: senza, gli eventi non si possono leggere né scrivere."
+        />
+      </>
+    );
+  }
+
+  const rows = await listEvents();
+
+  // Past once the end has gone by, or with no end once its start day (in Milan)
+  // is over. Same rule as the home page and the app.
+  const now = new Date().toISOString();
+  const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Rome" }).format(new Date());
+  const dayStart = romeLocalToIso(`${today}T00:00`) ?? now;
+  const isPast = (e: AdminEvent) => (e.endsAt ? e.endsAt < now : e.startsAt < dayStart);
+  const upcoming = rows.filter((e) => !isPast(e));
+  const past = rows.filter(isPast).reverse();
+
+  const count = (n: number) => (n === 1 ? "1 evento" : `${n} eventi`);
 
   return (
     <>
       <PageHeader
         title="Eventi"
-        subtitle="Letti dal dashboard di astra-app: si inseriscono una volta sola, lì, e compaiono nell'app e sul sito."
-        actions={manage}
+        subtitle="Un solo elenco per il sito e per l'app. Quelli pubblicati compaiono sulla home e nella scheda Eventi dell'app."
+        actions={newButton}
       />
 
-      {!configured ? (
+      {rows.length === 0 ? (
         <EmptyState
           icon={<CalendarDays className="h-7 w-7" />}
-          title="Collegamento non configurato"
-          description="Manca NEON_DATABASE_URL tra le variabili d'ambiente del sito, quindi la sezione eventi della home resta nascosta."
-        />
-      ) : events.length === 0 ? (
-        <EmptyState
-          icon={<CalendarDays className="h-7 w-7" />}
-          title="Nessun evento in programma"
-          description="Quando un evento viene pubblicato nel dashboard dell'app, compare qui e sulla home entro 5 minuti."
-          action={manage}
+          title="Nessun evento"
+          description="Crea un evento con il link ai biglietti: compare sulla home e nell'app."
+          action={newButton}
         />
       ) : (
-        <div className="flex flex-col gap-2">
-          {events.map((e) => (
-            <Card key={e.id} className="flex items-center gap-4 p-4">
-              {e.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={e.imageUrl} alt="" loading="lazy" className="h-14 w-20 shrink-0 rounded-xl object-cover" />
-              ) : (
-                <div className="flex h-14 w-20 shrink-0 items-center justify-center rounded-xl bg-astra-light text-astra-primary">
-                  <CalendarDays className="h-5 w-5" />
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-gray-900">{e.title}</p>
-                <p className="mt-0.5 truncate text-sm text-gray-500">
-                  {fmt.format(new Date(e.startsAt))}
-                  {e.location ? ` · ${e.location}` : ""}
-                </p>
+        <div className="flex flex-col gap-8">
+          <section className="flex flex-col gap-2">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold text-gray-800">In programma</h2>
+              <span className="text-xs text-gray-400">{count(upcoming.length)}</span>
+            </div>
+            {upcoming.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-400">
+                Niente in programma. I nuovi eventi compaiono qui, sul sito e nell&apos;app.
+              </p>
+            ) : (
+              upcoming.map((e) => <Row key={e.id} e={e} />)
+            )}
+          </section>
+
+          {past.length > 0 && (
+            <section className="flex flex-col gap-2">
+              <div className="flex items-baseline justify-between">
+                <h2 className="text-sm font-semibold text-gray-800">Passati</h2>
+                <span className="text-xs text-gray-400">{count(past.length)}</span>
               </div>
-              {e.ticketUrl && (
-                <a
-                  href={e.ticketUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="shrink-0 text-sm font-medium text-astra-primary hover:text-astra-accent"
-                >
-                  Biglietti
-                </a>
-              )}
-            </Card>
-          ))}
-          <p className="mt-2 text-xs text-gray-400">
-            La home mostra i primi {events.length} eventi non ancora conclusi. Per modificarli usa il dashboard
-            dell&apos;app.
-          </p>
+              <p className="-mt-1 mb-1 text-xs text-gray-400">
+                Già conclusi, quindi non più visibili al pubblico. Restano modificabili.
+              </p>
+              {past.map((e) => (
+                <Row key={e.id} e={e} past />
+              ))}
+            </section>
+          )}
         </div>
       )}
     </>

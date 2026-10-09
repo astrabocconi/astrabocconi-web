@@ -1,4 +1,5 @@
 // Bocconi graduation-grade maths for the calculators. Pure functions.
+// Synced from astra-app/packages/shared/src (2026-10-08). The app is the source of truth.
 //
 // Rules (Bocconi regulations 2025-26 / 2026-27):
 //   average  credit-weighted over graded exams; 30 e lode counts as 31;
@@ -11,14 +12,13 @@
 //            extras capped at 8; lode: total ≥ 111
 //   clmg     + thesis 0–6 + 1 "excellent curriculum", capped at 6;
 //            lode: thesis + curriculum = 6 and total ≥ 111
-// Ported from astra-app/packages/shared/src/grade-calc.ts (2026-10-02).
-// The university guides specify half-up rounding of the displayed grade.
-// Bachelor honours requires the unrounded sum to reach 111.
+// The regulations don't say how the total is rounded; we round half up, the
+// usual practice, and the screen says so.
 
 import type { PlanKind, PlanRow } from "./grade-plans";
 
 // ── What do I still need? ─────────────────────────────────────────────────
-// "What do I still need?" : pure maths over the exams a student has left.
+// "What do I still need?": pure maths over the exams a student has left.
 //
 // Given the remaining exams (credits each) and how many weighted points they
 // must add up to (Σ credits × grade), find: the average needed, the lowest
@@ -290,8 +290,8 @@ export function graduation(state: CalcState, average: number): Graduation {
   const base = (average / 30) * 110;
   const extras = extraPoints(state);
   const total = base + extras;
-  const rounded = Math.round(total + 1e-9);
-  let lodePossible = (state.type === "bachelor" ? total : rounded) >= 111 - 1e-9;
+  const rounded = Math.round(total);
+  let lodePossible = rounded >= 111;
   if (state.type === "bachelor") lodePossible &&= state.thesis >= 3;
   if (state.type === "clmg") lodePossible &&= extras >= 6;
   return { base, extras, total, grade: Math.min(rounded, 110), lodePossible };
@@ -307,10 +307,11 @@ export interface TargetPlan extends Simulation {
 /** What the remaining exams need for `state.target` (111 = 110 e lode). */
 export function planForTarget(state: CalcState): TargetPlan {
   const avg = weightedAverage(state);
-  // Bachelor honours is checked before rounding, unlike ordinary grades.
-  const threshold = state.target === 111 && state.type === "bachelor" ? 111 : state.target - 0.5;
-  const overallAverage = ((threshold - extraPoints(state)) * 30) / 110;
-  const entered = (avg.average ?? 0) * avg.gradedCredits;
+  // Rounded half up, so the total only has to reach target − 0.5.
+  const overallAverage = ((state.target - 0.5 - extraPoints(state)) * 30) / 110;
+  const entered = state.rows
+    .filter((r) => isGraded(r, state) && r.grade != null)
+    .reduce((n, r) => n + r.credits * r.grade!, 0);
   const neededPoints = overallAverage * avg.totalCredits - entered;
   const sim = simulate(
     avg.remaining.map((r) => ({ id: r.id, credits: r.credits })),

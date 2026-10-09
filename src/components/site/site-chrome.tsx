@@ -14,10 +14,11 @@ export const NAV = [
   { label: "Guide", href: "/guide" },
   { label: "Calcolatori", href: "/calcolatori" },
   { label: "Stella Polare", href: "/stella-polare" },
-  { label: "Partner", href: "/#partner" },
 ];
 
+// Partner left the header nav; the footer still links the homepage section.
 const FOOTER_EXTRA = [
+  { label: "Partner", href: "/#partner" },
   { label: "Rappresentanti", href: "#" },
   { label: "Exchange", href: "#" },
   { label: "Contatti", href: "#" },
@@ -76,8 +77,8 @@ export function SiteHeader({ active }: { active?: string }) {
           <Image
             src="/astra-logo-horizontal.png"
             alt="ASTRA Bocconi"
-            width={1400}
-            height={377}
+            width={119}
+            height={32}
             priority
             className="h-8 w-auto"
           />
@@ -168,8 +169,8 @@ export function SiteFooter() {
           <Image
             src="/astra-logo-horizontal.png"
             alt="ASTRA Bocconi"
-            width={1400}
-            height={377}
+            width={119}
+            height={32}
             className="h-8 w-auto"
           />
           <p className="mt-4 max-w-xs text-sm text-[#6b7280]">

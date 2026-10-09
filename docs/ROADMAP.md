@@ -40,7 +40,41 @@ the first thing to read when picking the project up on another machine.
 > the local preview. Calculator tests, production build and browser checks
 > passed; lint has only existing warnings.
 
-Last updated: 2026-10-03
+> **You are here (2026-10-08):** four pieces landed together, build and
+> calculator tests green, signed-in backoffice click-through done headless.
+>
+> - **Calculators** resynced with `~/Desktop/astra-app` (the newer copy; app
+>   wins on logic), full feature parity with the app screen, plus
+>   `/calcolatori/ammissioni-magistrale`. See CALCULATORS.md for the two old
+>   site-only rules that were dropped in favour of the app's.
+> - **Backoffice** rebuilt on the app's dashboard: team-style operator and
+>   permission editor, `/admin/attivita` log, and **events CRUD** writing
+>   Neon `"Event"` directly (covers go into the app's `ImageAsset` store).
+>   `NEON_DATABASE_URL` is `neondb_owner`, not read-only as HANDOVER says.
+> - **Speed:** routes were already static; the slowness was image optimiser
+>   work (header logo requested at 3840px, 16 sizes per image), the eager
+>   10 MB hero video, and no loading states. Click to `/dispense` with a cold
+>   image cache went from 1.25 s to 0.34 s on a production build. Dev mode is
+>   not representative.
+> - **Home:** conference and events side by side, directly under dispense.
+>   "Partner" removed from the header (still in the footer).
+>
+> Open from this round:
+> 1. Migration `20261008_007_admin_users_owner_guard.sql` is written, not
+>    dry-run, not applied (needs `DIRECT_DATABASE_URL`). Closes a hole where
+>    `users:write` can self-promote to owner via direct API calls.
+> 2. ~~Placeholder conference and notice text~~ removed 2026-10-09; the
+>    conference block is hidden until filled from `/admin/conferenza`.
+> 3. The app's own event form stores times as UTC without a zone, so times
+>    entered there drift by 1 to 2 hours. Fix in astra-app.
+> 4. Hero atlas re-encoded from the existing atlas at CRF 26 (10 MB to 7 MB,
+>    2026-10-09); tiles reordered (`TILE_CELLS`) so similar clips are not
+>    adjacent. Lost generation: rebuild from the originals if they resurface.
+> 5. Operators: `micoshish@gmail.com` is a disabled owner (delete it from
+>    `/admin/utenti`, Elimina removes the login for good); owner
+>    `m.matozza@buildinterest.it` added 2026-10-08.
+
+Last updated: 2026-10-08
 
 ---
 
@@ -167,7 +201,7 @@ Still to do:
 - [x] `/admin/avvisi`: notice builder (tone, up to 3 buttons, schedule, order)
       with live preview. The home strip does not render when nothing is live.
 - [x] `/admin/conferenza`: conference block editor with image and buttons
-- [x] `/admin/eventi`: read-only mirror of astra-app's Neon events
+- [x] `/admin/eventi`: full CRUD on astra-app's Neon events (2026-10-08)
 - [ ] Retire the legacy `Stella_Polare` table (2 rows of external links) once
       nothing reads it
 - [ ] Article dates are inferred from the Italian month in the old eyebrow
@@ -246,6 +280,7 @@ touching the formulas.
 - [x] `graduation-grade-calculator`: `/calcolatori/bachelor`
 - [x] `msc-graduation-calculator`: `/calcolatori/master`
 - [x] `law-graduation-calculator`: `/calcolatori/clmg`
+- [x] Master admissions: `/calcolatori/ammissioni-magistrale` (from the app)
 - [ ] `study-plan-calculator`
 - [ ] `exchange-calculator` (plus the UG and CLMG variants)
 - [ ] `exchange-planner`

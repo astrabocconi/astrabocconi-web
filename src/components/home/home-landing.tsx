@@ -85,10 +85,10 @@ export function HomeLanding({
       <Association />
       <ForbesBar />
       <Handouts previews={previews} />
+      <EventsSection events={events} conference={conference} />
       <Calculators />
       <PartnerBar />
       <Partners />
-      <EventsSection events={events} conference={conference} />
       <SiteFooter />
     </div>
   );

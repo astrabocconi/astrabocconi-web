@@ -141,7 +141,14 @@ stored at `thumbs/<kind>/<id>.jpg`, the path `thumbFor()` already reads.
 
 **Events are read directly from Neon** with `@neondatabase/serverless`, not
 through astra-app's `/api/events`, which requires a signed-in user. The query
-mirrors that route. Images at `/api/media/:id` are prefixed with `ASTRA_APP_URL`.
+mirrors that route. Images at `/api/media/:id` are prefixed with `ASTRA_APP_URL`. (Revised 2026-10-08: events are also
+**written** from `/admin/eventi`, on Michele's instruction that events are managed from the
+site's backoffice, not the app. Same `"Event"` table, same soft delete, and covers go into
+the app's own `"ImageAsset"` store as `/api/media/<id>`, so a site-made event renders in the
+mobile app unchanged. Neon has no RLS for site operators, so the server actions check
+`events:write`/`events:delete` themselves. Times are entered as Milan wall clock and stored
+as real UTC. Columns the site does not edit (Eventbrite discount, coordinates) are never
+touched by an update.)
 
 **Notices and home sections are data** (`notices`, `site_sections`). No live
 notice means the strip does not render at all. Buttons are validated strictly
@@ -187,3 +194,26 @@ tiles blank. Storage data and upload paths are unchanged.
 **Remove the cloth banner and hero labels.** Explicit user request; preserve
 the hero's existing blue scrim and video atlas. Board portraits use a 240s
 cycle with 256px mobile and 320px desktop widths for legibility.
+
+## 2026-10-08
+
+**Backoffice rebuilt on astra-app's dashboard flow.** Overview cards, sidebar and page
+guards all come from `ADMIN_NAV`; `/admin/utenti` copies the app's team page (collapsible
+account cards, role presets, permission flow). Owners can do everything; only an owner may
+create, edit, disable or delete an owner; editors with `users:write` can only grant
+permissions they hold and cannot edit themselves. Migration 007 enforces the owner rule in
+the database too.
+
+**Event and operator changes are logged to `content_audit` by hand** with the secret key
+(no trigger can see Neon, and auth changes happen outside PostgREST). Event changes also go
+to the app's `"AuditLog"` with a null actor and the operator's email in metadata.
+
+**Performance pass.** `next.config.ts` trims `imageSizes`/`deviceSizes` to seven widths:
+nothing renders wider than a ~320px card, and the default sixteen bloated every srcset
+(home HTML 292KB to 235KB) and split the optimiser cache into variants each transformed
+cold. The header logo is declared at its rendered 119x32, not 1400x377, which had made
+every page request a 3840px transform. The hero atlas uses `preload="none"` (play after
+load starts it) and freezes on any click to another page, so its per-frame canvas and 3D
+compositing work stops competing with the route transition. `loading.tsx` on `/dispense`,
+`/dispense/[course]` and `/guide` gives an instant skeleton when a click beats the
+prefetch. Events section sits under Dispense, conference and events side by side from lg.

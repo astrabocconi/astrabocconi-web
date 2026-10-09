@@ -13,8 +13,6 @@ import { useEffect, useRef } from "react";
 // glitched badly: twelve hardware decoders inside a 3D transformed layer
 // wedged and froze on Intel GPUs. One decoder, no play and pause churn.
 
-// Seven clips in atlas cell order.
-const CLIP_COUNT = 7;
 
 // Atlas geometry, fixed by the script.
 const CELL_W = 480;
@@ -23,6 +21,10 @@ const COLS = 4;
 const ROWS = 2;
 
 const TILE_COUNT = 12;
+// Atlas cell shown by each tile, in ring order. Cells 0 to 2 are night crowds
+// and 5 and 6 are both basketball, so they are interleaved to keep similar
+// clips apart (the ring is circular: the last tile touches the first).
+const TILE_CELLS = [0, 3, 1, 5, 2, 4, 0, 6, 1, 3, 2, 4];
 const STEP_DEG = 360 / TILE_COUNT;
 // Radius follows from the tile pitch: chord = 2 * R * sin(step / 2).
 const RADIUS = 1500;
@@ -47,6 +49,7 @@ export function HeroCarousel() {
 
     const contexts = canvasRefs.current.map((canvas) => canvas?.getContext("2d"));
     let onScreen = true;
+    let leaving = false;
     let frame = 0;
     let lastPainted = -1;
 
@@ -75,7 +78,7 @@ export function HeroCarousel() {
         // Signed distance from the far wall, normalised to [-180, 180).
         const deg = ((((STEP_DEG * index + stageDeg) % 360) + 540) % 360) - 180;
         if (Math.abs(deg) > PAINT_ARC_DEG) return;
-        const cell = index % CLIP_COUNT;
+        const cell = TILE_CELLS[index];
         context.drawImage(
           video,
           (cell % COLS) * CELL_W,
@@ -91,7 +94,7 @@ export function HeroCarousel() {
     };
 
     const sync = () => {
-      const run = onScreen && !document.hidden && document.readyState === "complete";
+      const run = onScreen && !leaving && !document.hidden && document.readyState === "complete";
       cancel();
       if (run) {
         // Rejects if a pause lands first; the next sync retries.
@@ -107,6 +110,22 @@ export function HeroCarousel() {
       sync();
     });
     observer.observe(root);
+    // Painting a dozen canvases per video frame competes with React for the
+    // main thread, which measurably slowed the transition to the next page
+    // (about 200ms of a 420ms click to paint). Stop as soon as an internal
+    // link to another page is clicked; the component unmounts right after.
+    const onClick = (e: MouseEvent) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = (e.target as Element | null)?.closest?.("a[href]");
+      if (!(link instanceof HTMLAnchorElement) || link.target || link.origin !== location.origin) return;
+      if (link.pathname === location.pathname) return;
+      leaving = true;
+      // Freeze the spin too: compositing the turning 3D band is the other
+      // half of the per-frame cost.
+      stage.style.animationPlayState = "paused";
+      sync();
+    };
+    document.addEventListener("click", onClick, true);
     document.addEventListener("visibilitychange", sync);
     // Decoding starts after load: decoders opened while the page is still
     // loading (the WebGL cloth spins up its GPU context then) are the ones
@@ -117,6 +136,7 @@ export function HeroCarousel() {
     return () => {
       cancel();
       observer.disconnect();
+      document.removeEventListener("click", onClick, true);
       document.removeEventListener("visibilitychange", sync);
       window.removeEventListener("load", sync);
       video.pause();
@@ -134,14 +154,17 @@ export function HeroCarousel() {
         muted
         loop
         playsInline
-        preload="auto"
+        // "none": the 10MB atlas must not compete with the page's own
+        // requests. play() after window load is what starts the download;
+        // the atlas poster behind each canvas covers the wait.
+        preload="none"
         disablePictureInPicture
         tabIndex={-1}
       />
 
       <div ref={stageRef} className="hero-cylinder__stage">
         {Array.from({ length: TILE_COUNT }).map((_, index) => {
-          const cell = index % CLIP_COUNT;
+          const cell = TILE_CELLS[index];
           return (
             <div
               key={index}

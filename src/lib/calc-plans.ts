@@ -39,7 +39,15 @@ export const PLAN_NAMES: Record<string, string> = {
   CLMG: "CLMG · Giurisprudenza",
 };
 
-
 export function plansFor(type: CalcType): string[] {
   return Object.keys(GRADE_PLANS[type]).sort((a, b) => (PLAN_NAMES[a] ?? a).localeCompare(PLAN_NAMES[b] ?? b));
+}
+
+/**
+ * The plan a calculator opens on. The app picks the student's own programme
+ * from their profile; the website has no profile, so it falls back to the
+ * first plan in the picker, as the app does for a student without one.
+ */
+export function defaultPlan(type: CalcType): string {
+  return plansFor(type)[0]!;
 }

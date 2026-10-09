@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { GraduationCap } from "lucide-react";
 
 export interface GuideCategoryCardProps {
@@ -17,8 +18,9 @@ export function GuideCategoryCard({ title, description, href, cover, priority = 
     >
       {cover ? (
         <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          {/* Same treatment as CourseCard: the source is a 960px JPEG, the
+              card is at most ~260px wide. */}
+          <Image
             src={cover}
             alt=""
             loading={priority ? "eager" : "lazy"}
@@ -26,6 +28,7 @@ export function GuideCategoryCard({ title, description, href, cover, priority = 
             decoding="async"
             width={960}
             height={960}
+            sizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, (max-width: 1279px) 23vw, 260px"
             className="h-full w-full object-cover object-right transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-astra-dark/85 via-astra-dark/25 to-transparent" />

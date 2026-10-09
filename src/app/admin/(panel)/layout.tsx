@@ -3,7 +3,7 @@ import { LogOut } from "lucide-react";
 import { AstraLogo } from "@/components/ui/logo";
 import { Badge } from "@/components/admin/ui/badge";
 import { SidebarNav } from "@/components/admin/sidebar-nav";
-import { ADMIN_NAV } from "@/lib/admin-nav";
+import { visibleSections } from "@/lib/admin-nav";
 import { getOperator } from "@/lib/auth/operator";
 import { signOut } from "./utenti/actions";
 
@@ -34,9 +34,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     );
   }
 
-  const allowed = ADMIN_NAV.flatMap((s) => s.pages)
-    .filter((p) => p.permission === null || op.can(p.permission))
-    .map((p) => p.href);
+  const sections = visibleSections(op.can);
   const who = op.fullName ?? op.email;
 
   return (
@@ -45,11 +43,11 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <Link href="/admin/panoramica" className="mb-8 flex items-center gap-2.5 px-2 text-astra-primary">
           <AstraLogo className="h-7 w-7" />
           <span className="text-lg font-bold tracking-tight">ASTRA</span>
-          <Badge tone="neutral">{op.role === "owner" ? "Owner" : "Editor"}</Badge>
+          <Badge tone="neutral">{op.role === "owner" ? "Proprietario" : "Editor"}</Badge>
         </Link>
 
         <div className="-mr-2 min-h-0 flex-1 overflow-y-auto pr-2">
-          <SidebarNav allowed={allowed} />
+          <SidebarNav sections={sections} />
         </div>
 
         <div className="mt-auto border-t border-gray-100 pt-4">

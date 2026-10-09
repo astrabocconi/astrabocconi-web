@@ -3,8 +3,9 @@ import { newState, type CalcRow, type CalcState, type CalcType } from "./grade-c
 
 /**
  * What a calculator saves: the chosen plan and only what the student changed.
- * Rows are rebuilt from the plan, so the value stays well under SecureStore's
- * ~2 KB comfort zone and picks up plan corrections in later releases.
+ * Rows are rebuilt from the plan, so the value stays small and picks up plan
+ * corrections in later releases. Mirrors astra-app/apps/mobile/lib/calc-state.ts;
+ * the app keeps it in SecureStore, the website in localStorage.
  */
 export interface SavedCalc {
   plan: string;
@@ -14,6 +15,35 @@ export interface SavedCalc {
   removed: string[];
   custom: { id: string; name: string; credits: number; year: number }[];
   settings: Pick<CalcState, "internship" | "thesis" | "bonus" | "thesisType" | "onTime" | "athlete" | "target">;
+  /**
+   * Graduation grade from a typed-in average instead of the exam list, for
+   * students who don't want to fill in every exam. Optional: saves from
+   * before this existed don't have it.
+   */
+  direct?: { on: boolean; average: string };
+}
+
+/** localStorage key of each degree type's saved transcript. */
+export const calcKey = (type: CalcType) => `astra.web.calculator.v1.${type}`;
+
+// localStorage throws in some private modes and when blocked; a calculator
+// that can't save still works for the session.
+export function readSaved<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeSaved(key: string, value: unknown): boolean {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function freshSave(type: CalcType, plan: string): SavedCalc {

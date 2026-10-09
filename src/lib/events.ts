@@ -1,8 +1,9 @@
 import "server-only";
 import { neon } from "@neondatabase/serverless";
 
-// Events live in astra-app's Neon database and are entered once, in the app's
-// dashboard. This is a read-only mirror of its /api/events query.
+// Events live in astra-app's Neon database, shared by the site and the app.
+// This is the public read, mirroring the app's /api/events query; writes from
+// the backoffice go through src/lib/events-admin.ts.
 
 export type SiteEvent = {
   id: string;
@@ -83,3 +84,5 @@ export async function getUpcomingEvents(limit = 6): Promise<SiteEvent[]> {
 }
 
 export const ASTRA_APP_EVENTS_URL = `${APP_URL}/dashboard/events`;
+// Origin that serves stored "/api/media/<id>" images.
+export const ASTRA_APP_URL = APP_URL;

@@ -42,3 +42,11 @@ export async function requireOperator(): Promise<Operator> {
   if (!op) redirect("/admin");
   return op;
 }
+
+// Page guard: hiding a sidebar link is not access control, the URL is still
+// typeable. Bounces to the overview rather than to a dead end.
+export async function requirePermission(permission: string): Promise<Operator> {
+  const op = await requireOperator();
+  if (!op.can(permission)) redirect("/admin/panoramica");
+  return op;
+}

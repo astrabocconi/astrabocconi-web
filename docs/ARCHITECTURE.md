@@ -12,8 +12,8 @@ are live and owned by different products.
 
 The website reads Supabase for academic content and Neon for events, so that
 the site and the app never show different things. Events are read directly
-from Neon (`src/lib/events.ts`, `NEON_DATABASE_URL`, read only) and edited only
-in the astra-app dashboard; `/admin/eventi` here is a read-only mirror.
+from Neon (`src/lib/events.ts`, `NEON_DATABASE_URL`) and edited from
+`/admin/eventi` (`src/lib/events-admin.ts`), writing the same table the app reads.
 
 ## Supabase schema (live, verified 2026-09-15)
 

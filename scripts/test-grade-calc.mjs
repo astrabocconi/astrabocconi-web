@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { newState, weightedAverage, graduation, extraPoints, planForTarget, isGraded } from '../src/lib/grade-calc.ts';
 import { GRADE_PLANS } from '../src/lib/grade-plans.ts';
+// The tests ported from astra-app run with this file, so `npm run test:calculators` covers them.
+import './test-grade-calc-app.mjs';
+import './test-grade-sim.mjs';
+import './test-master-admissions.mjs';
 
 const row = (n, c, k = 'g', m) => ({ n, c, y: 1, k, m });
 test('CFU weighting, honours and pass/fail exclusion', () => {
@@ -23,10 +27,11 @@ test('internship replaces only the last eligible optional', () => {
   assert.equal(isGraded(s.rows[0], s), true);
   assert.equal(isGraded(s.rows[1], s), false);
 });
-test('Bachelor honours requires raw 111 and at least three thesis points', () => {
+test('Bachelor honours needs a rounded 111 (as in the app) and at least three thesis points', () => {
   const s = newState('bachelor', 'test', []);
   s.thesis = 3;
-  assert.equal(graduation(s, (110.6 - 3) * 30 / 110).lodePossible, false);
+  assert.equal(graduation(s, (110.4 - 3) * 30 / 110).lodePossible, false);
+  assert.equal(graduation(s, (110.6 - 3) * 30 / 110).lodePossible, true);
   assert.equal(graduation(s, (111.01 - 3) * 30 / 110).lodePossible, true);
   assert.equal(graduation(s, (111 - 3) * 30 / 110).lodePossible, true);
   s.thesis = 2;
@@ -58,10 +63,10 @@ test('empty transcript, attainable and impossible targets', () => {
   s.rows[1].grade = 30;
   assert.equal(planForTarget(s).noneLeft, true);
 });
-test('Bachelor honours simulation uses the same raw threshold as graduation', () => {
+test('Bachelor honours simulation uses the same rounded threshold as graduation', () => {
   const s = newState('bachelor', 'test', [row('A', 6)]);
   s.target = 111; s.thesis = 3;
-  assert.ok(Math.abs(planForTarget(s).overallAverage - 108 * 30 / 110) < 1e-10);
+  assert.ok(Math.abs(planForTarget(s).overallAverage - 107.5 * 30 / 110) < 1e-10);
 });
 test('all imported plans have valid positive CFU and unique generated row ids', () => {
   for (const [type, plans] of Object.entries(GRADE_PLANS)) {
