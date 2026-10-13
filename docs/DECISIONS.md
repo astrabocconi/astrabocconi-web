@@ -217,3 +217,7 @@ load starts it) and freezes on any click to another page, so its per-frame canva
 compositing work stops competing with the route transition. `loading.tsx` on `/dispense`,
 `/dispense/[course]` and `/guide` gives an instant skeleton when a click beats the
 prefetch. Events section sits under Dispense, conference and events side by side from lg.
+
+## File storage on Cloudflare R2 (2026-10-12)
+
+Uploads and public files moved from Supabase Storage to one R2 bucket, `astra-website-files`, with the old bucket names kept as the first path segment (`images/`, `guides/`, `stella_polare/`, `dispense-uploads/`). Browser uploads go through `POST /api/upload`, which checks the operator's permission and returns a presigned PUT URL; this replaces the `storage.objects` RLS policies. Public reads use the bucket's r2.dev URL (`NEXT_PUBLIC_R2_PUBLIC_URL`), swap for a custom domain when one exists. Postgres and auth stay on Supabase. `scripts/migrate-storage-to-r2.mjs` copied the objects and rewrote stored URLs; old Supabase files were left in place so astra-app keeps working. The RAG `Document` table was deliberately not rewritten.

@@ -7,7 +7,7 @@ import { Button } from "@/components/admin/ui/button";
 import { Card } from "@/components/admin/ui/card";
 import { Field, Input, Textarea, Toggle } from "@/components/admin/ui/field";
 import { ConferenceCard } from "@/components/home/events-section";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/r2-public";
 import { parseConference, type ConferenceData } from "@/lib/site-content";
 import { ButtonsEditor } from "../avvisi/buttons-editor";
 import { saveConference } from "./actions";
@@ -33,15 +33,14 @@ export function ConferenceForm({ initial, initialVisible }: { initial: Form; ini
     if (file.size > 5 * 1024 * 1024) return setMessage({ ok: false, text: "Massimo 5 MB" });
     setUploading(true);
     setMessage(null);
-    const supabase = createClient();
     const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-    const path = `site/conferenza-${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage
-      .from("images")
-      .upload(path, file, { contentType: file.type, cacheControl: "31536000", upsert: false });
-    setUploading(false);
-    if (error) return setMessage({ ok: false, text: error.message });
-    set("imageUrl", supabase.storage.from("images").getPublicUrl(path).data.publicUrl);
+    try {
+      set("imageUrl", await uploadFile("images", `site/conferenza-${crypto.randomUUID()}.${ext}`, file, file.type));
+    } catch (e) {
+      setMessage({ ok: false, text: (e as Error).message });
+    } finally {
+      setUploading(false);
+    }
   }
 
   function submit(e: React.FormEvent) {

@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
       hostname: "jsuzhbspinevkzmhibop.supabase.co",
       pathname: "/storage/v1/object/public/**",
       search: "",
+    }, {
+      protocol: "https",
+      hostname: "pub-c9f01c05b462452bb4406bc48a8f96f6.r2.dev",
+      search: "",
     }],
     // Nothing on the site renders wider than a ~320px card or the 119px logo,
     // so the default 16 widths only bloated every srcset (144KB of the home

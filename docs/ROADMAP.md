@@ -40,6 +40,8 @@ the first thing to read when picking the project up on another machine.
 > the local preview. Calculator tests, production build and browser checks
 > passed; lint has only existing warnings.
 
+> **You are here (2026-10-12):** file storage moved from Supabase Storage to Cloudflare R2 (see DECISIONS). Next: attach a custom domain to the bucket, deploy with the R2_* env vars set in Vercel, then retire the Supabase buckets once astra-app reads the new URLs.
+
 > **You are here (2026-10-08):** four pieces landed together, build and
 > calculator tests green, signed-in backoffice click-through done headless.
 >

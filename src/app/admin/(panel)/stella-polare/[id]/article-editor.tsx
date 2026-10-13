@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { deleteArticle, saveArticle } from "../actions";
 import { slugify } from "@/lib/slug";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/r2-public";
 import { Button } from "@/components/admin/ui/button";
 import { Card } from "@/components/admin/ui/card";
 import { Badge } from "@/components/admin/ui/badge";
@@ -61,14 +61,8 @@ const NEW_CATEGORY = "__nuova__";
 async function uploadImage(file: File, folder: "covers" | "body"): Promise<string> {
   if (!file.type.startsWith("image/")) throw new Error("Il file deve essere un'immagine");
   if (file.size > 8 * 1024 * 1024) throw new Error("Massimo 8 MB");
-  const supabase = createClient();
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage
-    .from("stella_polare")
-    .upload(path, file, { contentType: file.type, upsert: false, cacheControl: "31536000" });
-  if (error) throw new Error(error.message);
-  return supabase.storage.from("stella_polare").getPublicUrl(path).data.publicUrl;
+  return uploadFile("stella_polare", `${folder}/${crypto.randomUUID()}.${ext}`, file, file.type);
 }
 
 export function ArticleEditor({

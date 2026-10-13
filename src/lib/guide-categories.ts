@@ -1,3 +1,4 @@
+import { R2_PUBLIC_URL } from "@/lib/r2-public";
 // Category metadata: title, description and cover art. Structural taxonomy,
 // like the fixed course lists in handouts.ts, not content an editor publishes.
 // Titles and descriptions are carried over from the old site's copy.
@@ -35,7 +36,7 @@ export const GUIDE_CATEGORIES: GuideCategory[] = [
 
 const HAS_COVER = new Set(GUIDE_CATEGORIES.map((c) => c.slug).filter((s) => s !== "graduate"));
 
-const BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/guide-covers`;
+const BASE = `${R2_PUBLIC_URL}/images/guide-covers`;
 
 export function guideCoverUrl(slug: string): string | undefined {
   return HAS_COVER.has(slug) ? `${BASE}/${slug.replace(/\s+/g, "-")}.jpg` : undefined;

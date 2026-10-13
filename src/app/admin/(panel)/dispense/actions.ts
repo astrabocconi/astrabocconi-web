@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { R2_PUBLIC_URL } from "@/lib/r2-public";
+import { deleteObjects } from "@/lib/r2";
 import {
   kindFor,
   normaliseCode,
@@ -13,8 +15,8 @@ import {
 
 type Result<T = void> = { ok: true; data: T } | { ok: false; error: string };
 
-const BUCKET = "dispense-uploads";
-const BUCKET_PREFIX = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET}/`;
+const BUCKET = "dispense-uploads" as const;
+const BUCKET_PREFIX = `${R2_PUBLIC_URL}/${BUCKET}/`;
 
 // astra-app's mobile reader only understands these spellings for `handouts.year`.
 const YEAR_TEXT: Record<number, string> = {
@@ -171,7 +173,7 @@ export async function updateHandout(
 
   // Best effort: the old PDF is unreachable once the row points elsewhere.
   const oldPath = replaceUrl && typeof row[urlCol] === "string" ? objectPath(row[urlCol]) : null;
-  if (oldPath) await supabase.storage.from(BUCKET).remove([oldPath]);
+  if (oldPath) await deleteObjects(BUCKET, [oldPath]);
 
   const oldCode =
     kind === "clmg" ? "CLMG" : normaliseCode(kind === "handouts" ? row.subject : row.program);
@@ -198,7 +200,7 @@ export async function deleteHandout(kind: HandoutKind, id: string, code: string)
   const paths = [`thumbs/${kind}/${id}.jpg`];
   const pdf = typeof url === "string" ? objectPath(url) : null;
   if (pdf) paths.push(pdf);
-  await supabase.storage.from(BUCKET).remove(paths);
+  await deleteObjects(BUCKET, paths);
 
   revalidate(normaliseCode(code));
   return { ok: true, data: undefined };

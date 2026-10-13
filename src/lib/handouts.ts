@@ -1,3 +1,4 @@
+import { R2_PUBLIC_URL } from "@/lib/r2-public";
 import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -22,7 +23,7 @@ export type Handout = {
   examType: ExamType | null;
 };
 
-const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/dispense-uploads/thumbs`;
+const STORAGE_BASE = `${R2_PUBLIC_URL}/dispense-uploads/thumbs`;
 
 export type HandoutKind = "handouts" | "clmg" | "magistrali";
 

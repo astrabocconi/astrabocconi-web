@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { FileText, ImageOff, Pencil, Plus, RefreshCw, Search, Trash2, Upload, X } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/r2-public";
 import {
   ALTRO,
   TRIENNALI,
@@ -41,26 +41,13 @@ function courseLabel(code: string) {
   return [...TRIENNALI, ...ALTRO].find((c) => c.code === code)?.name ?? code;
 }
 
-async function uploadPdf(kind: HandoutKind, file: File) {
-  const supabase = createClient();
-  const path = `${kind}/${crypto.randomUUID()}.pdf`;
-  const { error } = await supabase.storage
-    .from(BUCKET)
-    .upload(path, file, { contentType: "application/pdf", cacheControl: "31536000" });
-  if (error) throw new Error(error.message);
-  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+function uploadPdf(kind: HandoutKind, file: File) {
+  return uploadFile(BUCKET, `${kind}/${crypto.randomUUID()}.pdf`, file, "application/pdf");
 }
 
 async function uploadCover(kind: HandoutKind, id: string, source: File | string) {
   const blob = await renderCover(source);
-  const { error } = await createClient()
-    .storage.from(BUCKET)
-    .upload(`thumbs/${kind}/${id}.jpg`, blob, {
-      contentType: "image/jpeg",
-      cacheControl: "31536000",
-      upsert: true,
-    });
-  if (error) throw new Error(error.message);
+  await uploadFile(BUCKET, `thumbs/${kind}/${id}.jpg`, blob, "image/jpeg");
 }
 
 export function DispenseManager({

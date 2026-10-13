@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { putObject } from "@/lib/r2";
 
 type Result<T = void> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -54,17 +55,12 @@ export async function uploadRepresentativePhoto(
     return { ok: false, error: "Il file deve essere un'immagine" };
   if (file.size > 8 * 1024 * 1024) return { ok: false, error: "Massimo 8 MB" };
 
-  const supabase = await createClient();
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `rappresentanti/${crypto.randomUUID()}.${ext}`;
-
-  const { error } = await supabase.storage
-    .from("images")
-    .upload(path, file, { contentType: file.type, upsert: false });
-  if (error) return { ok: false, error: error.message };
-
-  const { data } = supabase.storage.from("images").getPublicUrl(path);
-  return { ok: true, data: data.publicUrl };
+  try {
+    return { ok: true, data: await putObject("images", `rappresentanti/${crypto.randomUUID()}.${ext}`, file) };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }
 
 export async function deleteRepresentative(id: string): Promise<Result> {

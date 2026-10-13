@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { putObject } from "@/lib/r2";
 
 type Result<T = void> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -69,7 +70,6 @@ export async function uploadGuideFile(formData: FormData): Promise<Result<string
   if (file.size > 40 * 1024 * 1024)
     return { ok: false, error: "Massimo 40 MB" };
 
-  const supabase = await createClient();
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
   const safe = file.name
     .replace(/\.[^.]+$/, "")
@@ -81,16 +81,11 @@ export async function uploadGuideFile(formData: FormData): Promise<Result<string
 
   const path = `${safe || "file"}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
 
-  const { error } = await supabase.storage
-    .from("guides")
-    .upload(path, file, {
-      contentType: file.type || "application/octet-stream",
-      upsert: false,
-    });
-  if (error) return { ok: false, error: error.message };
-
-  const { data } = supabase.storage.from("guides").getPublicUrl(path);
-  return { ok: true, data: data.publicUrl };
+  try {
+    return { ok: true, data: await putObject("guides", path, file) };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }
 
 function revalidate() {
