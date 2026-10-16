@@ -15,7 +15,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
     key: "site",
     label: "Home page",
     items: [
-      { key: "site:write", label: "Modifica", blurb: "Avvisi e sezione conferenza" },
+      { key: "site:write", label: "Modifica", blurb: "Avvisi, conferenza e partner" },
       { key: "site:delete", label: "Elimina", blurb: "Rimuove avvisi" },
     ],
   },

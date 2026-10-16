@@ -1,16 +1,26 @@
+"use client";
+
 import { ArrowUpRight, CalendarDays, MapPin } from "lucide-react";
 import type { ConferenceData } from "@/lib/site-content";
 import type { SiteEvent } from "@/lib/events";
 import { NoticeButtonLink } from "@/components/home/notice-strip";
+import { INTL_LOCALE, type Locale } from "@/i18n/config";
+import { eventsCopy } from "@/i18n/copy/home";
+import { useLang } from "@/i18n/locale-context";
 
 const TZ = "Europe/Rome";
-const day = new Intl.DateTimeFormat("it-IT", { day: "numeric", timeZone: TZ });
-const month = new Intl.DateTimeFormat("it-IT", { month: "short", timeZone: TZ });
-const time = new Intl.DateTimeFormat("it-IT", { weekday: "long", hour: "2-digit", minute: "2-digit", timeZone: TZ });
+const formatters = (lang: Locale) => ({
+  day: new Intl.DateTimeFormat(INTL_LOCALE[lang], { day: "numeric", timeZone: TZ }),
+  month: new Intl.DateTimeFormat(INTL_LOCALE[lang], { month: "short", timeZone: TZ }),
+  time: new Intl.DateTimeFormat(INTL_LOCALE[lang], { weekday: "long", hour: "2-digit", minute: "2-digit", timeZone: TZ }),
+});
 
 // One row of the events list. Rows share a single panel instead of each
 // being its own card, so a short list does not read as scattered boxes.
 function EventRow({ event }: { event: SiteEvent }) {
+  const lang = useLang();
+  const { day, month, time } = formatters(lang);
+  const c = eventsCopy[lang];
   const start = new Date(event.startsAt);
   return (
     <li className="flex gap-4 py-5 first:pt-0 last:pb-0">
@@ -35,7 +45,7 @@ function EventRow({ event }: { event: SiteEvent }) {
             rel="noopener noreferrer"
             className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-astra-primary hover:text-astra-accent"
           >
-            Biglietti
+            {c.tickets}
             <ArrowUpRight className="h-4 w-4" />
           </a>
         )}
@@ -56,10 +66,11 @@ function EventRow({ event }: { event: SiteEvent }) {
 }
 
 function EventsPanel({ events }: { events: SiteEvent[] }) {
+  const c = eventsCopy[useLang()];
   return (
     <div className="flex h-full flex-col rounded-3xl border border-astra-primary/10 bg-white p-6 sm:p-8">
       <div className="flex items-baseline justify-between gap-4">
-        <h3 className="text-xs font-semibold tracking-wide text-gray-500 uppercase">Prossimi eventi</h3>
+        <h3 className="text-xs font-semibold tracking-wide text-gray-500 uppercase">{c.upcoming}</h3>
         {events.length > 0 && (
           <span className="text-xs font-semibold text-astra-primary/60">{events.length}</span>
         )}
@@ -80,10 +91,10 @@ function EventsPanel({ events }: { events: SiteEvent[] }) {
           </span>
           <div>
             <p className="text-[1.3rem] leading-tight font-semibold tracking-[-0.02em] text-astra-primary">
-              Nuove date in arrivo.
+              {c.comingTitle}
             </p>
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-[#6b7280]">
-              Il calendario si aggiorna qui appena pubblichiamo un evento.
+              {c.comingBody}
             </p>
           </div>
         </div>
@@ -167,13 +178,14 @@ export function EventsSection({
   events: SiteEvent[];
   conference: ConferenceData | null;
 }) {
+  const c = eventsCopy[useLang()];
   if (events.length === 0 && !conference) return null;
 
   return (
     <section id="eventi" className="pb-24 lg:pb-32">
       <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
         <h2 className="max-w-2xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
-          {conference ? "Conferenza ed eventi." : "Prossimi eventi."}
+          {conference ? c.conferenceAndEvents : `${c.upcoming}.`}
         </h2>
 
         <div className="mt-12 grid items-stretch gap-4 lg:grid-cols-12">

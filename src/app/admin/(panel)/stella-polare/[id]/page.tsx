@@ -8,7 +8,6 @@ export const metadata = { title: "Articolo" };
 const EMPTY: Article = {
   slug: "",
   title: "",
-  category: "",
   excerpt: "",
   author: "",
   cover_url: "",
@@ -22,22 +21,15 @@ export default async function ArticlePage({ params }: PageProps<"/admin/stella-p
   const op = await requireOperator();
   const supabase = await createClient();
 
-  // Categories already in use, so editors pick one instead of inventing a
-  // near-duplicate spelling.
-  const { data: cats } = await supabase.from("articles").select("category");
-  const categories = [...new Set((cats ?? []).map((c) => c.category?.trim()).filter(Boolean) as string[])].sort(
-    (a, b) => a.localeCompare(b, "it"),
-  );
-
   const perms = { canDelete: op.can("stella_polare:delete") };
 
   if (id === "nuovo") {
-    return <ArticleEditor article={EMPTY} history={[]} categories={categories} {...perms} />;
+    return <ArticleEditor article={EMPTY} history={[]} {...perms} />;
   }
 
   const { data: article } = await supabase
     .from("articles")
-    .select("id, slug, title, category, excerpt, author, cover_url, body_html, status, published_at")
+    .select("id, slug, title, excerpt, author, cover_url, body_html, status, published_at")
     .eq("id", id)
     .single();
 
@@ -58,7 +50,6 @@ export default async function ArticlePage({ params }: PageProps<"/admin/stella-p
         slug: article.slug,
         title: article.title,
         body_html: article.body_html,
-        category: article.category ?? "",
         excerpt: article.excerpt ?? "",
         author: article.author ?? "",
         cover_url: article.cover_url ?? "",
@@ -66,7 +57,6 @@ export default async function ArticlePage({ params }: PageProps<"/admin/stella-p
         published_on: article.published_at ? article.published_at.slice(0, 10) : "",
       }}
       history={history ?? []}
-      categories={categories}
       {...perms}
     />
   );

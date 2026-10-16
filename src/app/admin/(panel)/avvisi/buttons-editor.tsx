@@ -84,7 +84,7 @@ export function ButtonsEditor({
   );
 }
 
-function IconButton({
+export function IconButton({
   label,
   disabled,
   onClick,

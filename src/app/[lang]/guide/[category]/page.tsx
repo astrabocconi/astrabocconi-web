@@ -1,4 +1,6 @@
-import Link from "next/link";
+import Link from "@/i18n/link";
+import { toLocale } from "@/i18n/config";
+import { guideCopy } from "@/i18n/copy/guide";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
@@ -18,21 +20,23 @@ export function generateStaticParams() {
   return GUIDE_CATEGORIES.map((c) => ({ category: categoryToParam(c.slug) }));
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/guide/[category]">): Promise<Metadata> {
-  const { category } = await params;
+type Props = { params: Promise<{ lang: string; category: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang, category } = await params;
+  const c = guideCopy[toLocale(lang)];
   const found = findGuideCategory(paramToCategory(category));
-  if (!found) return { title: "Categoria non trovata" };
-  return { title: found.title, description: found.description };
+  if (!found) return { title: c.categoryNotFound };
+  const t = c.categories[found.slug] ?? found;
+  return { title: t.title, description: t.description };
 }
 
-export default async function GuideCategoryPage({
-  params,
-}: PageProps<"/guide/[category]">) {
-  const { category } = await params;
+export default async function GuideCategoryPage({ params }: Props) {
+  const { lang, category } = await params;
+  const c = guideCopy[toLocale(lang)];
   const found = findGuideCategory(paramToCategory(category));
   if (!found) notFound();
+  const t = c.categories[found.slug] ?? found;
 
   const guides = await getGuides(found.slug);
 
@@ -48,18 +52,18 @@ export default async function GuideCategoryPage({
               className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-astra-primary"
             >
               <ArrowLeft className="h-4 w-4" />
-              Tutte le guide
+              {c.allGuides}
             </Link>
             <h1 className="mt-6 text-[clamp(2.6rem,5vw,4.4rem)] leading-[1] font-semibold tracking-[-0.045em] text-astra-primary">
-              {found.title}
+              {t.title}
             </h1>
-            <p className="mt-3 max-w-xl text-[1.05rem] text-[#545d70]">{found.description}</p>
+            <p className="mt-3 max-w-xl text-[1.05rem] text-[#545d70]">{t.description}</p>
           </div>
         </header>
 
         <div className="mx-auto w-[min(1400px,calc(100%-48px))] pb-28">
           {guides.length === 0 ? (
-            <p className="text-sm text-gray-500">Non ci sono ancora guide in questa categoria.</p>
+            <p className="text-sm text-gray-500">{c.noGuidesYet}</p>
           ) : (
             <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {guides.map((guide, i) => (

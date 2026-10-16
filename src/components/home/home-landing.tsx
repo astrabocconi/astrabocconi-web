@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/link";
 import Image from "next/image";
 import { useRef } from "react";
 import { useInView } from "motion/react";
@@ -19,6 +19,8 @@ import { NoticeStrip } from "@/components/home/notice-strip";
 import { EventsSection } from "@/components/home/events-section";
 import type { ConferenceData, Notice } from "@/lib/site-content";
 import type { SiteEvent } from "@/lib/events";
+import { homeCopy } from "@/i18n/copy/home";
+import { useLang } from "@/i18n/locale-context";
 
 // Imagery is still blank placeholder. Dispense and Stella Polare are wired to
 // real pages; the remaining links are inert until those pages exist.
@@ -45,24 +47,57 @@ const BOARD_MEMBERS: BoardMember[] = [
 const HANDOUT_COLUMNS = 6;
 const HANDOUTS_PER_COLUMN = 5;
 
-// Placeholder plates until the real partner logos arrive.
-const PARTNER_BRANDS: BrandItem[] = [
-  { name: "Partner 01" },
-  { name: "Partner 02" },
-  { name: "Partner 03" },
-  { name: "Partner 04" },
-  { name: "Partner 05" },
-  { name: "Partner 06" },
-  { name: "Partner 07" },
-  { name: "Partner 08" },
-];
+type Partner = {
+  name: keyof (typeof homeCopy)["en"]["partners"];
+  logo: string;
+  /** Tailwind size classes for the logo inside its panel. */
+  logoClass: string;
+  /** Panel background (CSS); matches the logo's own background so no box shows. */
+  panel?: string;
+  href?: string;
+  code?: string;
+  span: string;
+};
 
-const PARTNERS = [
-  { name: "Partner principale", span: "lg:col-span-7" },
-  { name: "Partner accademico", span: "lg:col-span-5" },
-  { name: "Partner carriera", span: "lg:col-span-4" },
-  { name: "Partner community", span: "lg:col-span-4" },
-  { name: "Partner media", span: "lg:col-span-4" },
+const PARTNERS: Partner[] = [
+  {
+    name: "BookFlow",
+    logo: "/partners/bookflow.png",
+    logoClass: "w-[78%]",
+    href: "https://bookflow.it",
+    span: "lg:col-span-7",
+  },
+  {
+    name: "Free@B",
+    logo: "/partners/freeatb.png",
+    logoClass: "w-full h-full",
+    href: "https://freeatb.it",
+    span: "lg:col-span-5",
+  },
+  {
+    name: "UniMarket",
+    logo: "/partners/unimarket.png",
+    logoClass: "w-[68%]",
+    panel: "#0c50c3",
+    href: "https://uni-market.it",
+    span: "lg:col-span-4",
+  },
+  {
+    name: "StudyCheetah",
+    logo: "/partners/studycheetah.svg",
+    logoClass: "h-[92%]",
+    panel: "#fcaa07",
+    code: "ASTRA20",
+    href: "https://studycheetah.com",
+    span: "lg:col-span-4",
+  },
+  {
+    name: "Notion",
+    logo: "/partners/notion.png",
+    logoClass: "h-[62%]",
+    href: "https://notion.so",
+    span: "lg:col-span-4",
+  },
 ];
 
 
@@ -71,11 +106,13 @@ export function HomeLanding({
   notices = [],
   events = [],
   conference = null,
+  partners = [],
 }: {
   previews?: string[];
   notices?: Notice[];
   events?: SiteEvent[];
   conference?: ConferenceData | null;
+  partners?: BrandItem[];
 }) {
   return (
     <div className="bg-white">
@@ -87,7 +124,7 @@ export function HomeLanding({
       <Handouts previews={previews} />
       <EventsSection events={events} conference={conference} />
       <Calculators />
-      <PartnerBar />
+      <PartnerBar items={partners} />
       <Partners />
       <SiteFooter />
     </div>
@@ -96,19 +133,22 @@ export function HomeLanding({
 
 
 function Hero() {
+  const c = homeCopy[useLang()];
   return (
     <section
       id="top"
       // Same white as the section below, so there is no seam between them; the
       // hero's colour comes from the glow behind the cards instead.
-      className="relative min-h-screen overflow-hidden bg-white pt-[104px]"
+      // On phones a full-screen hero left the band floating in empty space, so
+      // it gets a fixed height there and the full viewport from sm up.
+      className="relative h-[510px] overflow-hidden bg-white pt-[104px] sm:h-auto sm:min-h-screen"
     >
       {/* The band sits low in the section, so the copy reads clear above it. */}
       <HeroCarousel />
 
       <div className="relative z-10 mx-auto w-[min(1180px,calc(100%-48px))] text-center">
         <h1 className="mx-auto max-w-4xl text-[clamp(2.6rem,5.6vw,5.4rem)] leading-[0.92] font-semibold tracking-[-0.05em] text-astra-primary">
-          Tutto quello che serve per studiare in Bocconi.
+          {c.hero}
         </h1>
       </div>
     </section>
@@ -116,6 +156,7 @@ function Hero() {
 }
 
 function Association() {
+  const c = homeCopy[useLang()];
   return (
     <section
       id="chi-siamo"
@@ -124,33 +165,24 @@ function Association() {
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
           <h2 className="text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
-            Una rete di studenti che si passa il testimone.
+            {c.associationTitle}
           </h2>
           <div className="mt-7 max-w-lg space-y-5 text-[1.02rem] leading-relaxed text-[#545d70]">
-            <p>
-              ASTRA nasce in Università Bocconi come punto di riferimento per
-              chi studia: raccogliamo dispense, scriviamo guide, costruiamo
-              strumenti e portiamo la voce degli studenti dove si prendono le
-              decisioni.
-            </p>
-            <p>
-              Ogni anno il testimone passa a un nuovo gruppo di rappresentanti.
-              Quello che resta è il materiale: ordinato, accessibile e gratuito
-              per tutti.
-            </p>
+            <p>{c.associationP1}</p>
+            <p>{c.associationP2}</p>
           </div>
           <a
             href="#"
             className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-astra-primary hover:text-astra-accent"
           >
-            Scopri la nostra storia
+            {c.ourStory}
             <ArrowUpRight className="h-4 w-4" />
           </a>
         </div>
 
         <div className="min-w-0 pt-4 lg:pt-0">
           <p className="mb-4 text-xs font-semibold tracking-wide text-gray-400 uppercase">
-            Il board
+            {c.board}
           </p>
           <BoardScroller members={BOARD_MEMBERS} />
         </div>
@@ -161,22 +193,22 @@ function Association() {
 }
 
 function ForbesBar() {
+  const c = homeCopy[useLang()];
   return (
     <section className="bg-astra-primary text-white">
       <div className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col items-center gap-6 py-7 sm:flex-row">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/astra-regione-lombardia-next-leaders.jpeg"
-          alt="ASTRA e Regione Lombardia, Next Leaders"
-          className="h-20 w-32 shrink-0 rounded-xl border border-white/20 bg-white object-contain"
+          alt={c.forbesImgAlt}
+          className="h-20 w-32 shrink-0 rounded-xl border border-white/20 object-cover object-top"
         />
 
         <p className="flex-1 text-center text-[0.98rem] leading-relaxed sm:text-left">
-          <span className="font-semibold">Astra Network</span> è una rete
-          studentesca interuniversitaria italiana in rapida crescita,
-          riconosciuta da{" "}
-          <span className="font-semibold">Forbes Italia</span> come la migliore
-          rete di associazioni universitarie in Italia.
+          <span className="font-semibold">{c.forbesNetwork}</span>
+          {c.forbesMid}
+          <span className="font-semibold">{c.forbesName}</span>
+          {c.forbesAfter}
         </p>
 
         <a
@@ -185,7 +217,7 @@ function ForbesBar() {
           rel="noopener noreferrer"
           className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-astra-primary transition-transform hover:-translate-y-0.5"
         >
-          Leggi l&apos;articolo
+          {c.readArticle}
           <ArrowUpRight className="h-4 w-4" />
         </a>
       </div>
@@ -194,6 +226,7 @@ function ForbesBar() {
 }
 
 function Handouts({ previews }: { previews: string[] }) {
+  const c = homeCopy[useLang()];
   const ref = useRef<HTMLElement>(null);
   const nearby = useInView(ref, { once: true, margin: "800px" });
   // Deal distinct covers out column by column. Duplicates only appear if the
@@ -211,14 +244,14 @@ function Handouts({ previews }: { previews: string[] }) {
       <div className="mx-auto mb-12 flex w-[min(1280px,calc(100%-48px))] flex-wrap items-end justify-between gap-6">
         <div>
           <h2 className="max-w-2xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
-            Centinaia di dispense, raccolte corso per corso.
+            {c.handoutsTitle}
           </h2>
         </div>
         <Link
           href="/dispense"
           className="inline-flex h-12 items-center gap-2 rounded-full bg-astra-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-astra-dark"
         >
-          Vedi tutte le dispense
+          {c.allHandouts}
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
@@ -265,6 +298,7 @@ function Handouts({ previews }: { previews: string[] }) {
 }
 
 function Calculators() {
+  const c = homeCopy[useLang()];
   return (
     <section
       id="calcolatori"
@@ -272,11 +306,10 @@ function Calculators() {
     >
       <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
         <h2 className="max-w-3xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
-          Il tuo prossimo traguardo, voto per voto.
+          {c.calcTitle}
         </h2>
         <p className="mt-6 max-w-xl text-[1.02rem] leading-relaxed text-[#545d70]">
-          Gli stessi strumenti che usiamo noi, con le formule ufficiali
-          dell&apos;ateneo.
+          {c.calcLead}
         </p>
 
         <CalculatorCards className="mt-12" />
@@ -285,20 +318,22 @@ function Calculators() {
   );
 }
 
-function PartnerBar() {
+// Edited from /admin/partner; hidden or empty, the bar is not rendered.
+function PartnerBar({ items }: { items: BrandItem[] }) {
+  if (items.length === 0) return null;
   return (
     // Height matches the Forbes bar above it: py-7 around an 80px plate.
-    <section className="flex min-h-[136px] items-center bg-astra-primary text-white">
+    <section className="flex min-h-[136px] items-center bg-astra-primary py-6 text-white">
       {/* Full bleed: the rows run the whole viewport and the mask fades them
           at the edges, rather than stopping at the page gutter. */}
-      <div className="flex w-full flex-col gap-1.5">
-        <BrandScroller items={PARTNER_BRANDS} />
+      <div className="flex w-full flex-col gap-3">
+        <BrandScroller items={items} />
         {/* Second row runs the other way and starts halfway through the list,
             so the two rows never show the same plate at the same point. */}
         <BrandScrollerReverse
           items={[
-            ...PARTNER_BRANDS.slice(PARTNER_BRANDS.length / 2),
-            ...PARTNER_BRANDS.slice(0, PARTNER_BRANDS.length / 2),
+            ...items.slice(Math.floor(items.length / 2)),
+            ...items.slice(0, Math.floor(items.length / 2)),
           ]}
         />
       </div>
@@ -307,41 +342,67 @@ function PartnerBar() {
 }
 
 function Partners() {
+  const c = homeCopy[useLang()];
   return (
     <section id="partner" className="py-24 lg:py-32">
       <div className="mx-auto w-[min(1280px,calc(100%-48px))]">
         <h2 className="max-w-2xl text-[clamp(2.2rem,3.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.045em] text-astra-primary">
-          Le realtà che crescono insieme a noi.
+          {c.partnersTitle}
         </h2>
 
         <div className="mt-12 grid gap-3 lg:grid-cols-12">
-          {PARTNERS.map((partner, index) => (
-            <div
-              key={partner.name}
-              className={`${partner.span} flex flex-col justify-between rounded-3xl border border-astra-primary/10 bg-white p-6 ${
-                index < 2 ? "min-h-[300px]" : "min-h-[220px]"
-              }`}
-            >
-              {/* Blank logo plate until the real partners are loaded. */}
-              <div
-                className={`rounded-2xl bg-[#f7f8fc] ${index < 2 ? "h-36" : "h-20"}`}
-              />
-              <div className="mt-6">
-                <h3 className="text-[1.02rem] font-semibold text-astra-primary">
-                  {partner.name}
-                </h3>
-                <p className="mt-1 text-sm text-[#6b7280]">
-                  Placeholder, da collegare
-                </p>
-              </div>
-            </div>
-          ))}
+          {PARTNERS.map((partner, index) => {
+            const Card = partner.href ? "a" : "div";
+            return (
+              <Card
+                key={partner.name}
+                {...(partner.href
+                  ? { href: partner.href, target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+                className={`${partner.span} group flex flex-col rounded-3xl border border-astra-primary/10 bg-white p-2.5 ${
+                  partner.href ? "transition-transform hover:-translate-y-0.5" : ""
+                }`}
+              >
+                <div
+                  className={`flex items-center justify-center overflow-hidden rounded-[1.15rem] ${
+                    index < 2 ? "h-56 sm:h-60 lg:h-56" : "h-44 sm:h-48"
+                  }`}
+                  style={{ background: partner.panel }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={partner.logo}
+                    alt={partner.name}
+                    className={`${partner.logoClass} max-h-[90%] object-contain`}
+                  />
+                </div>
+
+                <div className="flex items-start justify-between gap-4 px-3.5 pt-4 pb-3">
+                  <div>
+                    <p className="text-xs font-semibold tracking-wide text-astra-accent uppercase">
+                      {c.partners[partner.name].role}
+                    </p>
+                    <h3 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-astra-primary">
+                      {partner.name}
+                    </h3>
+                    <p className="mt-1 text-sm text-[#6b7280]">{c.partners[partner.name].blurb}</p>
+                    {partner.code && (
+                      <p className="mt-2.5 inline-flex rounded-full bg-astra-light px-3 py-1 text-xs font-semibold text-astra-primary">
+                        {c.code} {partner.code}
+                      </p>
+                    )}
+                  </div>
+                  {partner.href && (
+                    <ArrowUpRight className="mt-1 h-5 w-5 shrink-0 text-astra-primary/50 transition-colors group-hover:text-astra-primary" />
+                  )}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 }
-
-
 
 export default HomeLanding;

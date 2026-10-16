@@ -1,4 +1,6 @@
-import Link from "next/link";
+import Link from "@/i18n/link";
+import type { Locale } from "@/i18n/config";
+import { guideCopy } from "@/i18n/copy/guide";
 import Image from "next/image";
 import { GraduationCap } from "lucide-react";
 
@@ -8,9 +10,10 @@ export interface GuideCategoryCardProps {
   href: string;
   cover?: string;
   priority?: boolean;
+  lang: Locale;
 }
 
-export function GuideCategoryCard({ title, description, href, cover, priority = false }: GuideCategoryCardProps) {
+export function GuideCategoryCard({ title, description, href, cover, priority = false, lang }: GuideCategoryCardProps) {
   return (
     <Link
       href={href}
@@ -49,7 +52,7 @@ export function GuideCategoryCard({ title, description, href, cover, priority = 
             cover ? "border-white/30 text-white" : "border-astra-primary/25 text-astra-primary"
           }`}
         >
-          Esplora
+          {guideCopy[lang].explore}
         </span>
       </div>
     </Link>

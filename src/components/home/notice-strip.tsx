@@ -1,4 +1,8 @@
-import Link from "next/link";
+"use client";
+
+import Link from "@/i18n/link";
+import { noticeCopy } from "@/i18n/copy/home";
+import { useLang } from "@/i18n/locale-context";
 import { ArrowUpRight } from "lucide-react";
 import { isExternal, type Notice, type NoticeButton, type NoticeTone } from "@/lib/site-content";
 
@@ -45,10 +49,11 @@ export function NoticeButtonLink({ button, className }: { button: NoticeButton; 
 
 // Renders nothing at all when there is nothing to say: no wrapper, no spacing.
 export function NoticeStrip({ notices }: { notices: Notice[] }) {
+  const c = noticeCopy[useLang()];
   if (notices.length === 0) return null;
 
   return (
-    <section aria-label="Avvisi" className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col gap-3 pt-6">
+    <section aria-label={c.label} className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col gap-3 pt-6">
       {notices.map((n) => {
         const t = TONE[n.tone];
         return (

@@ -2,18 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
+import { useLang } from "@/i18n/locale-context";
+import { dispenseCopy } from "@/i18n/copy/dispense";
 import { HandoutCard } from "@/components/ui/handout-card";
 import type { ExamType, Handout, Semester } from "@/lib/handouts";
 
-const YEAR_LABEL: Record<number, string> = {
-  1: "1º anno",
-  2: "2º anno",
-  3: "3º anno",
-  4: "4º anno",
-  5: "5º anno",
-};
-
 export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
+  const c = dispenseCopy[useLang()];
   const years = useMemo(() => {
     const found = [...new Set(handouts.map((h) => h.year))]
       .filter((y): y is number => y !== null)
@@ -63,14 +58,14 @@ export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
               year === y ? "glass-pill--on" : "text-astra-primary"
             }`}
           >
-            {y === 0 ? "Senza anno" : YEAR_LABEL[y]}
+            {y === 0 ? c.noYear : c.yearLabel(y)}
           </button>
         ))}
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-          Semestre
+          {c.semester}
         </span>
         {([1, 2] as Semester[]).map((s) => (
           <button
@@ -81,12 +76,12 @@ export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
               semester === s ? "glass-pill--on" : "text-astra-primary"
             }`}
           >
-            {s}º
+            {c.semesterOption(s)}
           </button>
         ))}
 
         <span className="mr-1 ml-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-          Tipo
+          {c.type}
         </span>
         {(["generale", "parziale"] as ExamType[]).map((e) => (
           <button
@@ -97,7 +92,7 @@ export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
               examType === e ? "glass-pill--on" : "text-astra-primary"
             }`}
           >
-            {e}
+            {c.examTypes[e]}
           </button>
         ))}
 
@@ -109,7 +104,7 @@ export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
             }}
             className="ml-2 text-sm font-medium text-gray-500 hover:text-astra-primary"
           >
-            Azzera
+            {c.reset}
           </button>
         )}
       </div>
@@ -119,7 +114,7 @@ export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Cerca una dispensa per nome"
+          placeholder={c.searchPlaceholder}
           className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
         />
         {query && (
@@ -127,13 +122,13 @@ export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
             onClick={() => setQuery("")}
             className="shrink-0 text-xs font-medium text-gray-500 hover:text-astra-primary"
           >
-            Cancella
+            {c.clear}
           </button>
         )}
       </label>
 
       <p className="mt-5 text-xs text-gray-500">
-        {results.length} {results.length === 1 ? "dispensa" : "dispense"}
+        {c.count(results.length)}
       </p>
 
       <ul className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -147,7 +142,7 @@ export function HandoutsBrowser({ handouts }: { handouts: Handout[] }) {
 
       {results.length === 0 && (
         <p className="mt-6 text-sm text-gray-500">
-          Nessuna dispensa con questi filtri.
+          {c.noResults}
         </p>
       )}
     </div>

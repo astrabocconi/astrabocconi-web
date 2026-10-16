@@ -1,28 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
+import { LanguageSwitch } from "@/i18n/language-switch";
+import { siteCopy } from "@/i18n/copy/site";
+import { useLang } from "@/i18n/locale-context";
 import { useEffect, useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
 
 // Shared header and footer for every public page. They used to live inside the
 // landing page component, which is why every other route rendered without them.
 
-export const NAV = [
-  { label: "Chi siamo", href: "/#chi-siamo" },
-  { label: "Dispense", href: "/dispense" },
-  { label: "Guide", href: "/guide" },
-  { label: "Calcolatori", href: "/calcolatori" },
-  { label: "Stella Polare", href: "/stella-polare" },
-];
-
-// Partner left the header nav; the footer still links the homepage section.
-const FOOTER_EXTRA = [
-  { label: "Partner", href: "/#partner" },
-  { label: "Rappresentanti", href: "#" },
-  { label: "Exchange", href: "#" },
-  { label: "Contatti", href: "#" },
-];
+// Nav labels live in src/i18n/copy/site.ts. Partner left the header nav; the
+// footer still links the homepage section.
 
 function NavLink({
   href,
@@ -52,6 +42,8 @@ function NavLink({
 }
 
 export function SiteHeader({ active }: { active?: string }) {
+  const c = siteCopy[useLang()];
+  const NAV = c.nav;
   const [open, setOpen] = useState(false);
 
   // Below lg the pill is the whole nav, so a route change or an escape press
@@ -76,7 +68,7 @@ export function SiteHeader({ active }: { active?: string }) {
         <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
           <Image
             src="/astra-logo-horizontal.png"
-            alt="ASTRA Bocconi"
+            alt={c.logoAlt}
             width={119}
             height={32}
             priority
@@ -100,20 +92,23 @@ export function SiteHeader({ active }: { active?: string }) {
           ))}
         </nav>
 
-        <a
-          href="#"
-          className="hidden h-10 items-center gap-2 rounded-full bg-astra-primary px-5 text-[0.8rem] font-semibold text-white transition-colors hover:bg-astra-dark lg:inline-flex"
-        >
-          Unisciti
-          <ArrowRight className="h-3.5 w-3.5" />
-        </a>
+        <div className="hidden items-center gap-4 lg:flex">
+          <LanguageSwitch className="text-[#51586b]" />
+          <a
+            href="#"
+            className="inline-flex h-10 items-center gap-2 rounded-full bg-astra-primary px-5 text-[0.8rem] font-semibold text-white transition-colors hover:bg-astra-dark"
+          >
+            {c.join}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
 
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-nav"
-          aria-label={open ? "Chiudi il menu" : "Apri il menu"}
+          aria-label={open ? c.closeMenu : c.openMenu}
           className="flex h-10 w-10 items-center justify-center rounded-full text-astra-primary lg:hidden"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -124,7 +119,7 @@ export function SiteHeader({ active }: { active?: string }) {
         <>
           <button
             type="button"
-            aria-label="Chiudi il menu"
+            aria-label={c.closeMenu}
             onClick={() => setOpen(false)}
             className="fixed inset-0 top-[92px] z-40 bg-astra-dark/20 backdrop-blur-[2px] lg:hidden"
           />
@@ -151,9 +146,10 @@ export function SiteHeader({ active }: { active?: string }) {
               onClick={() => setOpen(false)}
               className="mt-2 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-astra-primary px-5 text-[0.9rem] font-semibold text-white"
             >
-              Unisciti
+              {c.join}
               <ArrowRight className="h-3.5 w-3.5" />
             </a>
+            <LanguageSwitch className="mt-1 justify-center py-2 text-[#51586b]" />
           </nav>
         </>
       )}
@@ -162,24 +158,25 @@ export function SiteHeader({ active }: { active?: string }) {
 }
 
 export function SiteFooter() {
+  const c = siteCopy[useLang()];
   return (
     <footer className="border-t border-astra-primary/10 bg-white">
       <div className="mx-auto flex w-[min(1280px,calc(100%-48px))] flex-col gap-8 py-14 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Image
             src="/astra-logo-horizontal.png"
-            alt="ASTRA Bocconi"
+            alt={c.logoAlt}
             width={119}
             height={32}
             className="h-8 w-auto"
           />
           <p className="mt-4 max-w-xs text-sm text-[#6b7280]">
-            Associazione studentesca dell&apos;Università Bocconi.
+            {c.tagline}
           </p>
         </div>
 
         <nav className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm text-[#545d70] sm:grid-cols-3">
-          {[...NAV, ...FOOTER_EXTRA].map((item) => (
+          {[...c.nav, ...c.footerExtra].map((item) => (
             <NavLink
               key={item.label}
               href={item.href}
@@ -192,8 +189,9 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-astra-primary/8">
-        <div className="mx-auto w-[min(1280px,calc(100%-48px))] py-5 text-xs text-[#8a90a2]">
-          © {new Date().getFullYear()} ASTRA Bocconi
+        <div className="mx-auto flex w-[min(1280px,calc(100%-48px))] items-center justify-between py-5 text-xs text-[#8a90a2]">
+          <span>© {new Date().getFullYear()} ASTRA Bocconi</span>
+          <LanguageSwitch />
         </div>
       </div>
     </footer>

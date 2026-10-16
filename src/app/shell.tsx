@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ASTRA_8BIT_LOGO } from "@/lib/astra-8bit-logo";
@@ -19,19 +18,11 @@ const alteHaas = localFont({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "ASTRA Bocconi",
-    template: "%s | ASTRA Bocconi",
-  },
-  description:
-    "ASTRA Bocconi: dispense, guide, calcolatori e risorse per gli studenti dell'Università Bocconi.",
-};
-
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// Shared <html> shell for the two root layouts: the public site ([lang]) and the backoffice.
+export function Shell({ lang, children }: { lang: string; children: React.ReactNode }) {
   return (
     <html
-      lang="it"
+      lang={lang}
       className={`${alteHaas.variable} h-full antialiased`}
     >
       <head>

@@ -17,7 +17,7 @@ export default async function ArticlesPage() {
   // that is what the second select policy checks.
   const { data } = await supabase
     .from("articles")
-    .select("id, slug, title, category, status, published_at, updated_at, author, cover_url")
+    .select("id, slug, title, status, published_at, updated_at, author, cover_url")
     .order("published_at", { ascending: false, nullsFirst: true })
     .order("updated_at", { ascending: false });
   const rows = data ?? [];

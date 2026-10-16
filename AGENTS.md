@@ -71,5 +71,12 @@ server-only; they live in `~/astra-app/apps/web/.env` on Michele's machine.
 
 ## Language
 
-The site is Italian first. UI copy is Italian; code, comments, and docs are
-English.
+The public site is bilingual. **English is the default** and lives at the bare
+paths (`/dispense`); Italian lives under `/it` (`/it/dispense`). Route names stay
+Italian in both. UI copy for both languages sits side by side in
+`src/i18n/copy/*.ts` (typed so the two can never drift); read the locale from
+`params.lang` in server components and `useLang()` in client ones, and use
+`@/i18n/link` instead of `next/link` for internal links. Content from the
+database (articles, events, notices, handout names) is stored once and is not
+translated. The backoffice (`/admin`) stays Italian. Code, comments, and docs
+are English.

@@ -1,22 +1,26 @@
-import Link from "next/link";
+import Link from "@/i18n/link";
 import type { Metadata } from "next";
+import { toLocale } from "@/i18n/config";
+import { stellaCopy } from "@/i18n/copy/stella-polare";
 import { createPublicClient } from "@/lib/supabase/public";
 import { AstraLogo } from "@/components/ui/logo";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 
-export const metadata: Metadata = {
-  title: "Stella Polare",
-  description:
-    "La rivista editoriale di ASTRA Bocconi: attualità, cultura, economia e diritto raccontati dagli studenti.",
-};
+type Props = { params: Promise<{ lang: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const c = stellaCopy[toLocale((await params).lang)];
+  return { title: c.metaTitle, description: c.metaDescription };
+}
 
 export const revalidate = 300;
 
-export default async function StellaPolareIndex() {
+export default async function StellaPolareIndex({ params }: Props) {
+  const c = stellaCopy[toLocale((await params).lang)];
   const supabase = createPublicClient();
   const { data: articles } = await supabase
     .from("articles")
-    .select("id, slug, title, category, excerpt, author, cover_url, published_at")
+    .select("id, slug, title, excerpt, author, cover_url, published_at")
     .eq("status", "published")
     .order("published_at", { ascending: false, nullsFirst: false });
 
@@ -30,11 +34,10 @@ export default async function StellaPolareIndex() {
         <header className="bg-linear-to-b from-astra-light to-white px-6 pt-[128px] pb-16">
           <div className="mx-auto w-[min(1400px,calc(100%-48px))]">
             <h1 className="text-[clamp(3rem,6.4vw,6rem)] leading-[1.04] font-semibold tracking-[-0.05em] text-astra-primary">
-              Stella Polare
+              {c.heading}
             </h1>
             <p className="mt-6 max-w-2xl text-[1.15rem] text-[#545d70]">
-              La rivista editoriale di ASTRA Bocconi. Attualità, cultura, economia
-              e diritto raccontati dagli studenti.
+              {c.intro}
             </p>
           </div>
         </header>
@@ -42,7 +45,7 @@ export default async function StellaPolareIndex() {
         <div className="mx-auto w-[min(1400px,calc(100%-48px))] pb-28">
           {rows.length === 0 ? (
             <p className="text-sm text-gray-500">
-              Non ci sono ancora articoli pubblicati.
+              {c.empty}
             </p>
           ) : (
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -68,12 +71,7 @@ export default async function StellaPolareIndex() {
                     )}
 
                     <div className="flex flex-1 flex-col p-5">
-                      {a.category && (
-                        <span className="text-xs font-semibold tracking-wide text-astra-accent uppercase">
-                          {a.category}
-                        </span>
-                      )}
-                      <h2 className="mt-1.5 text-base leading-snug font-semibold text-gray-900 group-hover:text-astra-primary">
+                      <h2 className="text-base leading-snug font-semibold text-gray-900 group-hover:text-astra-primary">
                         {a.title}
                       </h2>
                       {a.excerpt && (

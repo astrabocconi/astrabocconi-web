@@ -138,9 +138,12 @@ calcolatori heading, and adding then removing a throwaway `/secret` page.
 
 The open work is all in `docs/ROADMAP.md`. The nearest items:
 
-- Partner logos. Michele said he would send them; `PARTNER_BRANDS` in
-  `src/components/home/home-landing.tsx` already takes `{ name, logo }`.
 - The rotating hero cards are meant to hold videos eventually.
 - The backoffice works but is visually rough; Michele called it out and
   parked it.
 - 16 representative photos are dead links and need re-uploading.
+
+## Vercel moved (2026-10-15)
+
+The live project is now `astrabocconi-web` in team `mfmatozzas-projects` (login: `mfmatozza`, Pro plan), linked in `.vercel/`. Link a new machine with
+`vercel link --project astrabocconi-web --scope mfmatozzas-projects`. Env vars were copied from `.env.local` for Production and Preview (secrets stored as sensitive). Deploy with `vercel deploy --prod --yes`. The earlier `astra-bocconi` team project is superseded; the entries above that mention it are historical.

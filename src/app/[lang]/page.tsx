@@ -1,6 +1,6 @@
 import { HomeLanding } from "@/components/home/home-landing";
 import { getHandoutPreviews } from "@/lib/handouts";
-import { getConference, getLiveNotices } from "@/lib/site-content";
+import { getConference, getLiveNotices, getPartnerBar } from "@/lib/site-content";
 import { getUpcomingEvents } from "@/lib/events";
 
 export const revalidate = 300;
@@ -10,11 +10,12 @@ export default async function Home() {
   // and the browser can start them as soon as it parses the markup. The grid
   // needs 6 columns x 5 rows, so anything under 30 makes the last columns
   // repeat the first ones; 48 leaves room to spare.
-  const [previews, notices, conference, events] = await Promise.all([
+  const [previews, notices, conference, events, partners] = await Promise.all([
     getHandoutPreviews(48),
     getLiveNotices(),
     getConference(),
     getUpcomingEvents(),
+    getPartnerBar(),
   ]);
   return (
     <HomeLanding
@@ -22,6 +23,7 @@ export default async function Home() {
       notices={notices}
       conference={conference}
       events={events}
+      partners={partners}
     />
   );
 }

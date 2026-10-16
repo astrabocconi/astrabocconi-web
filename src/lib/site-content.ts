@@ -1,4 +1,5 @@
 import { createPublicClient } from "@/lib/supabase/public";
+import type { BrandItem } from "@/components/ui/brand-scoller";
 
 // Shapes of the editable home page blocks. The jsonb columns are written by
 // the backoffice, but they are still parsed defensively on read so a bad row
@@ -139,17 +140,41 @@ export async function getLiveNotices(): Promise<Notice[]> {
   }
 }
 
-export async function getConference(): Promise<ConferenceData | null> {
+// RLS hides rows with is_visible off, so a hidden section reads as null.
+async function getSection(key: string): Promise<unknown> {
   try {
     const { data, error } = await createPublicClient()
       .from("site_sections")
       .select("data")
-      .eq("key", "conference")
+      .eq("key", key)
       .maybeSingle();
     if (error) throw error;
-    return parseConference(data?.data);
+    return data?.data ?? null;
   } catch (e) {
-    console.error("conference unavailable:", e instanceof Error ? e.message : e);
+    console.error(`${key} unavailable:`, e instanceof Error ? e.message : e);
     return null;
   }
+}
+
+export async function getConference(): Promise<ConferenceData | null> {
+  return parseConference(await getSection("conference"));
+}
+
+// The partner marquee: site_sections "partner_bar", data { items: BrandItem[] }.
+export const MAX_PARTNER_BRANDS = 40;
+
+export function parsePartnerBar(value: unknown): BrandItem[] {
+  const items = (value as { items?: unknown } | null)?.items;
+  if (!Array.isArray(items)) return [];
+  return items
+    .flatMap((i): BrandItem[] => {
+      const name = str(i?.name);
+      const logo = str(i?.logo);
+      return name ? [{ name, logo: logo && isSafeUrl(logo) ? logo : undefined }] : [];
+    })
+    .slice(0, MAX_PARTNER_BRANDS);
+}
+
+export async function getPartnerBar(): Promise<BrandItem[]> {
+  return parsePartnerBar(await getSection("partner_bar"));
 }

@@ -14,20 +14,22 @@ import { useEffect, useRef } from "react";
 // wedged and froze on Intel GPUs. One decoder, no play and pause churn.
 
 
-// Atlas geometry, fixed by the script.
+// Atlas geometry, fixed by the script. Phones and tablets get atlas-sm.mp4,
+// the same grid at half resolution: the full 1920x2040 atlas, decoded and
+// copied into twelve canvases every frame, crashed mobile browsers outright.
+const SMALL_SCREEN = "(max-width: 900px)";
 const CELL_W = 480;
 const CELL_H = 680;
 const COLS = 4;
-const ROWS = 2;
+const ROWS = 3;
 
 const TILE_COUNT = 12;
-// Atlas cell shown by each tile, in ring order. Cells 0 to 2 are night crowds
-// and 5 and 6 are both basketball, so they are interleaved to keep similar
-// clips apart (the ring is circular: the last tile touches the first).
-const TILE_CELLS = [0, 3, 1, 5, 2, 4, 0, 6, 1, 3, 2, 4];
+// Atlas cell shown by each tile, in ring order: one unique clip per tile.
+// Crowds (1, 2, 11), basketball (5, 6) and indoor talks (4, 7) are interleaved
+// to keep similar clips apart (the ring is circular: the last tile touches the
+// first).
+const TILE_CELLS = [0, 3, 1, 5, 7, 8, 2, 6, 9, 4, 11, 10];
 const STEP_DEG = 360 / TILE_COUNT;
-// Radius follows from the tile pitch: chord = 2 * R * sin(step / 2).
-const RADIUS = 1500;
 // Must match the hero-cylinder-spin duration in globals.css.
 const SPIN_MS = 54_000;
 // Tiles within this many degrees of the far wall are painted each frame. A
@@ -46,6 +48,17 @@ export function HeroCarousel() {
     const video = videoRef.current;
     if (!root || !stage || !video) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const small = window.matchMedia(SMALL_SCREEN).matches;
+    const scale = small ? 0.5 : 1;
+    const cellW = CELL_W * scale;
+    const cellH = CELL_H * scale;
+    video.src = small ? "/hero/atlas-sm.mp4" : "/hero/atlas.mp4";
+    canvasRefs.current.forEach((canvas) => {
+      if (!canvas) return;
+      canvas.width = cellW;
+      canvas.height = cellH;
+    });
 
     const contexts = canvasRefs.current.map((canvas) => canvas?.getContext("2d"));
     let onScreen = true;
@@ -81,14 +94,14 @@ export function HeroCarousel() {
         const cell = TILE_CELLS[index];
         context.drawImage(
           video,
-          (cell % COLS) * CELL_W,
-          Math.floor(cell / COLS) * CELL_H,
-          CELL_W,
-          CELL_H,
+          (cell % COLS) * cellW,
+          Math.floor(cell / COLS) * cellH,
+          cellW,
+          cellH,
           0,
           0,
-          CELL_W,
-          CELL_H,
+          cellW,
+          cellH,
         );
       });
     };
@@ -150,11 +163,11 @@ export function HeroCarousel() {
       <video
         ref={videoRef}
         className="hero-cylinder__source"
-        src="/hero/atlas.mp4"
+        // src is set in the effect: the full atlas or atlas-sm by screen size.
         muted
         loop
         playsInline
-        // "none": the 10MB atlas must not compete with the page's own
+        // "none": the 14MB atlas must not compete with the page's own
         // requests. play() after window load is what starts the download;
         // the atlas poster behind each canvas covers the wait.
         preload="none"
@@ -172,7 +185,6 @@ export function HeroCarousel() {
               style={
                 {
                   "--tile-angle": `${STEP_DEG * index}deg`,
-                  "--tile-radius": `${RADIUS}px`,
                 } as React.CSSProperties
               }
             >

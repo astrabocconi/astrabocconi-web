@@ -1,15 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Search } from "lucide-react";
 import { Badge } from "@/components/admin/ui/badge";
-import { Input, Select } from "@/components/admin/ui/field";
+import { Input } from "@/components/admin/ui/field";
 
 type Row = {
   id: string;
   title: string;
-  category: string | null;
   status: string;
   published_at: string | null;
   updated_at: string;
@@ -28,12 +27,6 @@ const fmt = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "short", y
 export function ArticlesList({ articles }: { articles: Row[] }) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<(typeof STATUSES)[number]["key"]>("all");
-  const [category, setCategory] = useState("");
-
-  const categories = useMemo(
-    () => [...new Set(articles.map((a) => a.category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, "it")),
-    [articles],
-  );
 
   const counts = {
     all: articles.length,
@@ -45,7 +38,6 @@ export function ArticlesList({ articles }: { articles: Row[] }) {
   const shown = articles.filter(
     (a) =>
       (status === "all" || a.status === status) &&
-      (!category || a.category === category) &&
       (!needle || a.title.toLowerCase().includes(needle) || (a.author ?? "").toLowerCase().includes(needle)),
   );
 
@@ -66,14 +58,6 @@ export function ArticlesList({ articles }: { articles: Row[] }) {
             </button>
           ))}
         </div>
-        <Select value={category} onChange={(e) => setCategory(e.target.value)} className="w-auto!">
-          <option value="">Tutte le categorie</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </Select>
         <div className="relative min-w-56 flex-1">
           <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cerca per titolo o autore" className="pl-9" />
@@ -101,7 +85,7 @@ export function ArticlesList({ articles }: { articles: Row[] }) {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-gray-900">{a.title}</p>
                   <p className="mt-0.5 truncate text-sm text-gray-500">
-                    {[a.category, a.author].filter(Boolean).join(" · ") || "Senza categoria"}
+                    {a.author ?? "Senza autore"}
                   </p>
                 </div>
                 <span className="hidden text-xs text-gray-400 sm:block">

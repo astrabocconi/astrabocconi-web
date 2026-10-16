@@ -131,10 +131,10 @@ anything.
 ## Hero video tiles
 
 **One video, many canvases.** All clips are packed into one 4x2 grid video,
-`public/hero/atlas.mp4` (1920x1360, 480x680 cells), by
+`public/hero/atlas.mp4` (1920x2040, 480x680 cells, 4x3), by
 `scripts/make-hero-atlas.sh`. A single hidden `<video>` decodes it and each
 tile paints its cell onto a canvas via `requestVideoFrameCallback`. Rebuild the
-atlas whenever a clip changes; the clip order must match the seven atlas cells in
+atlas whenever a clip changes; the clip order must match the twelve atlas cells in
 `hero-carousel.tsx`.
 
 Why, since it looks like over-engineering and is not:

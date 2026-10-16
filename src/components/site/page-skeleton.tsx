@@ -1,3 +1,7 @@
+"use client";
+
+import { siteCopy } from "@/i18n/copy/site";
+import { useLang } from "@/i18n/locale-context";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 
 // Instant fallback for loading.tsx. Pages are static and normally prefetched,
@@ -14,10 +18,11 @@ export function PageSkeleton({
   tile?: string;
   count?: number;
 }) {
+  const c = siteCopy[useLang()];
   return (
     <>
       <SiteHeader active={active} />
-      <main className="flex-1 bg-white" aria-busy="true" aria-label="Caricamento">
+      <main className="flex-1 bg-white" aria-busy="true" aria-label={c.loading}>
         <header className="bg-linear-to-b from-astra-light to-white px-6 pt-[128px] pb-16">
           <div className="mx-auto w-[min(1400px,calc(100%-48px))]">
             <div className="h-[clamp(3rem,6.4vw,6rem)] w-2/3 max-w-3xl animate-pulse rounded-2xl bg-astra-primary/8" />

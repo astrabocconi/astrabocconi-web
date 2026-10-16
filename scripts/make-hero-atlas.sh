@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Packs the hero clips into one 4x2 grid video, public/hero/atlas.mp4, plus a
+# Packs the hero clips into one 4x3 grid video, public/hero/atlas.mp4, plus a
 # frame-0 poster. The hero decodes this single file and every tile paints its
 # own cell onto a canvas; see "Hero video tiles" in docs/DESIGN.md for why.
 #
-# Usage: scripts/make-hero-atlas.sh clip1.mp4 ... clip7.mp4   (at most 8)
+# Usage: scripts/make-hero-atlas.sh clip1.mp4 ... clip12.mp4   (at most 12)
 # Order matters: it must match CLIPS in src/components/home/hero-carousel.tsx.
 # Needs ffmpeg 5 or newer (for xstack and rotation-aware decoding). The
 # imageio-ffmpeg pip package ships one: FFMPEG="$(python -c 'import
@@ -16,8 +16,9 @@ CRF="${CRF:-23}" # 23 is indistinguishable from the WhatsApp sources
 CELL_W=480 # Tile aspect is 776 x 1100; 480 x 680 matches it.
 CELL_H=680
 COLS=4
+ROWS=3
 
-[ "$#" -ge 1 ] && [ "$#" -le 8 ] || { echo "pass 1 to 8 clips" >&2; exit 1; }
+[ "$#" -ge 1 ] && [ "$#" -le $((COLS * ROWS)) ] || { echo "pass 1 to $((COLS * ROWS)) clips" >&2; exit 1; }
 
 inputs=() chains="" stack="" layout=""
 longest=0
@@ -33,7 +34,7 @@ done
 
 # The atlas runs as long as the longest clip; shorter clips loop inside it.
 "$FFMPEG" -v error -y "${inputs[@]}" \
-  -filter_complex "${chains}${stack}xstack=inputs=$#:layout=${layout%|}:fill=black,pad=$((COLS * CELL_W)):$((2 * CELL_H)):0:0:black[out]" \
+  -filter_complex "${chains}${stack}xstack=inputs=$#:layout=${layout%|}:fill=black,pad=$((COLS * CELL_W)):$((ROWS * CELL_H)):0:0:black[out]" \
   -map "[out]" -t "$longest" -an \
   -c:v libx264 -preset slow -crf "$CRF" -profile:v high -pix_fmt yuv420p -g 60 \
   -movflags +faststart "$OUT/atlas.mp4"

@@ -1,4 +1,6 @@
-import Link from "next/link";
+import Link from "@/i18n/link";
+import { toLocale } from "@/i18n/config";
+import { dispenseCopy } from "@/i18n/copy/dispense";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
@@ -30,22 +32,20 @@ async function resolveCourse(param: string) {
   return (await getMagistrali()).find((c) => c.code === code);
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/dispense/[course]">): Promise<Metadata> {
-  const { course } = await params;
+type Props = { params: Promise<{ lang: string; course: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang, course } = await params;
+  const c = dispenseCopy[toLocale(lang)];
   const found = await resolveCourse(course);
-  if (!found) return { title: "Corso non trovato" };
-  return {
-    title: `Dispense ${found.name}`,
-    description: `Tutte le dispense di ${found.name}, divise per anno, semestre e tipo di esame.`,
-  };
+  if (!found) return { title: c.courseNotFound };
+  const name = c.courseNames[found.code] ?? found.name;
+  return { title: c.courseMetaTitle(name), description: c.courseMetaDescription(name) };
 }
 
-export default async function CoursePage({
-  params,
-}: PageProps<"/dispense/[course]">) {
-  const { course } = await params;
+export default async function CoursePage({ params }: Props) {
+  const { lang, course } = await params;
+  const c = dispenseCopy[toLocale(lang)];
   const found = await resolveCourse(course);
   if (!found) notFound();
 
@@ -63,10 +63,10 @@ export default async function CoursePage({
             className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-astra-primary"
           >
             <ArrowLeft className="h-4 w-4" />
-            Tutti i corsi
+            {c.allCourses}
           </Link>
           <h1 className="mt-6 text-[clamp(2.6rem,5vw,4.4rem)] leading-[1] font-semibold tracking-[-0.045em] text-astra-primary">
-            {found.name}
+            {c.courseNames[found.code] ?? found.name}
           </h1>
         </div>
       </header>
@@ -74,7 +74,7 @@ export default async function CoursePage({
       <div className="mx-auto w-[min(1400px,calc(100%-48px))] pb-28">
         {handouts.length === 0 ? (
           <p className="text-sm text-gray-500">
-            Non ci sono ancora dispense per questo corso.
+            {c.noHandoutsYet}
           </p>
         ) : (
           <HandoutsBrowser handouts={handouts} />

@@ -1,20 +1,17 @@
-import Link from "next/link";
+"use client";
+
+import Link from "@/i18n/link";
 import { ArrowUpRight } from "lucide-react";
 import { AstraLogo } from "@/components/ui/logo";
-
-/** The graduation calculators, one per degree type: each is /calcolatori/[type]. */
-export const CALCULATORS = [
-  { type: "bachelor", name: "Bachelor", tab: "Triennale", detail: "Laurea triennale", years: "3 anni", credits: "180 CFU" },
-  { type: "master", name: "Master", tab: "Magistrale", detail: "Laurea magistrale", years: "2 anni", credits: "120 CFU" },
-  { type: "clmg", name: "CLMG", tab: "Giurisprudenza", detail: "Giurisprudenza", years: "5 anni", credits: "300 CFU" },
-] as const;
-
-const CARDS = [
-  ...CALCULATORS.map(c => ({ href: `/calcolatori/${c.type}`, name: c.name, detail: c.detail, left: c.years, right: c.credits })),
-  { href: "/calcolatori/ammissioni-magistrale", name: "Ammissioni", detail: "Ammissioni magistrali", left: "2 round", right: "18 corsi" },
-];
+import { CALC_TYPES, calculatorCopy } from "@/i18n/copy/calculators";
+import { useLang } from "@/i18n/locale-context";
 
 export function CalculatorCards({ className = "" }: { className?: string }) {
+  const c = calculatorCopy[useLang()];
+  const CARDS = [
+    ...CALC_TYPES.map(type => ({ href: `/calcolatori/${type}`, name: c.types[type].name, detail: c.types[type].detail, left: c.types[type].years, right: c.types[type].credits })),
+    { href: "/calcolatori/ammissioni-magistrale", ...c.admissionsCard },
+  ];
   return <div className={`grid gap-5 sm:grid-cols-2 xl:grid-cols-4 ${className}`}>
     {CARDS.map((item, index) => {
       // Checkerboard in the 2x2 grid, symmetric in the single row.

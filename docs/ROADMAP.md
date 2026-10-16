@@ -40,7 +40,7 @@ the first thing to read when picking the project up on another machine.
 > the local preview. Calculator tests, production build and browser checks
 > passed; lint has only existing warnings.
 
-> **You are here (2026-10-12):** file storage moved from Supabase Storage to Cloudflare R2 (see DECISIONS). Next: attach a custom domain to the bucket, deploy with the R2_* env vars set in Vercel, then retire the Supabase buckets once astra-app reads the new URLs.
+> **You are here (2026-10-15):** site is bilingual (English default, Italian under `/it`) and redeployed from scratch as a new Vercel project under the `mfmatozza` Pro team (production alias https://astrabocconi-web-lilac.vercel.app). Next: attach a custom domain to that project, attach a custom domain to the R2 bucket, then retire the old `astra-bocconi` Vercel project and the Supabase buckets once astra-app reads the new URLs.
 
 > **You are here (2026-10-08):** four pieces landed together, build and
 > calculator tests green, signed-in backoffice click-through done headless.
@@ -148,7 +148,7 @@ The point of the rebuild. Nobody should need a developer to publish anything.
 
 Stella Polare, done:
 
-- [x] `articles` table with slug, title, category, excerpt, author, cover,
+- [x] `articles` table with slug, title, (category, dropped in 008), excerpt, author, cover,
       body, status and published_at (`20260915_002_articles.sql`)
 - [x] Body stored as sanitised HTML; see DECISIONS for why
 - [x] **All 11 hardcoded articles migrated**, with their cover art uploaded to
@@ -255,7 +255,7 @@ design system before this phase starts.
 - [x] `/dispense/[course]` prerendered via `generateStaticParams`. It was
       rendering on every request (0.9 to 2.3 s), which was the slowness.
 - [ ] News from Neon
-- [x] Hero videos: seven clips packed into one grid video,
+- [x] Hero videos: twelve clips (7 original + 5 from clips.zip, 2026-10-15) packed into one 4x3 grid video,
       `public/hero/atlas.mp4`, painted onto the twelve tile canvases under a
       brand scrim without text. Rebuild with `scripts/make-hero-atlas.sh`.
       See DESIGN "Hero video tiles" before touching it: the per-tile video
@@ -263,6 +263,15 @@ design system before this phase starts.
 - [ ] Original hero clips live only in Michele's Downloads (WhatsApp zips
       from 2026-09-28). Keep them somewhere durable; the atlas cannot be
       rebuilt with a changed clip set without them.
+- [x] Board portraits scroll by hand and drift on their own (rAF-driven scrollLeft, pauses on hover/touch).
+ - [x] Partners section rebuilt: five branded cards (BookFlow, Free@B, UniMarket, StudyCheetah with code ASTRA20, Notion), logos fill their panel, assets in `public/partners/`. UniMarket links to uni-market.it, StudyCheetah to studycheetah.com.
+- [x] Partner marquee (blue bar) is live data: `site_sections` key `partner_bar`, `{ items: [{ name, logo }] }`, edited at `/admin/partner` (`site:write`). Seeded 2026-10-16 with BookFlow, Notion, UniMarket, StudyCheetah plus the five active venue logos copied out of Neon's `ImageAsset` into `public/partners/` (one Signorvino for its five locations, one SISU for its two rows). New logos upload to R2 `images/site/`.
+- [x] Partner marquee shows logos only, each at its own aspect ratio, no backing plate.
+- [x] Stella Polare: toolbar button imports a `.docx` (keeps formatting and images) or `.pdf` (text paragraphs only) into the editor. Categories removed from the editor, list and public pages; the English "Heads up: articles are in Italian" note removed. Category values cleared via API.
+- [ ] **Apply `supabase/migrations/20261016_008_drop_article_category.sql`** (drops `articles.category`). Not applied: this machine has no `DIRECT_DATABASE_URL`. Add it to `.env.local`, dry-run, then `--apply`, then regenerate `src/lib/supabase/types.ts`. Or paste the SQL into the Supabase SQL editor.
+- [x] Accounts: `astra@astrabocconi.it` is the only Supabase Auth user and the only operator, role `owner` (2026-10-16).
+- [x] Calculators hub: the three notes under the cards ("The same as the app", etc.) removed.
+- [x] (superseded) Main partner card is BookFlow, links to bookflow.it. Free@B (freeatb.it) is the second card. Assets in `public/partners/`.
 - [x] Hero tile labels removed on request; existing scrim opacity preserved.
 - [x] Board photos enlarged to 256px/320px, 240s loop, hover pause.
 - [x] Entire woven cloth banner removed from the homepage.
@@ -320,3 +329,12 @@ Both of these look like mistakes and are not. They are spelled out in
   white band above its content and the glass bar has nothing to blur.
 - `.hero-cylinder__hue` is masked radially. It is clipped by the hero's
   `overflow-hidden`, so an unmasked glow terminates as a hard horizontal line.
+
+## 2026-10-15 session
+
+- [x] English default, Italian at `/it`: `app/[lang]`, `src/proxy.ts` rewrite, typed copy in `src/i18n/copy/`, header/footer language switch. See DECISIONS 2026-10-15.
+- [x] Backoffice shortcut login: `astra` (editor, no `users:write`). Password lives only in Supabase Auth.
+- [x] Redeployed as a NEW Vercel project `astrabocconi-web` in team `mfmatozzas-projects` (Pro), env vars copied from `.env.local`. The old project under the `astra-bocconi` team still exists and still owns `astrabocconi-web.vercel.app`.
+- [ ] Not translated: database content (articles, events, notices, handout names), the backoffice, `grade-plans.ts` exam names, master admissions programme names.
+- [ ] `src/components/flow/grouped-toggle-flow.tsx` and `woven-cloth.tsx` appear unused; delete if confirmed.
+- [ ] Nothing from this session is committed or pushed yet.

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Download, FileText } from "lucide-react";
 import type { Guide } from "@/lib/guides";
+import { useLang } from "@/i18n/locale-context";
+import { guideCopy } from "@/i18n/copy/guide";
 
 // A title's own wording is language enough: nearly every guide is titled
 // "Guide ..." or "Guida ...", so that word alone tells IT from EN without a
@@ -18,6 +20,7 @@ function detectLanguageFlag(title: string): string | null {
 
 export function GuideFileCard({ guide, priority = false }: { guide: Guide; priority?: boolean }) {
   const [failed, setFailed] = useState(false);
+  const c = guideCopy[useLang()];
   const flag = detectLanguageFlag(guide.title);
   const showThumb = guide.thumbnailUrl && !failed;
 
@@ -64,7 +67,7 @@ export function GuideFileCard({ guide, priority = false }: { guide: Guide; prior
         )}
         <span className="mt-auto inline-flex items-center gap-1.5 pt-1 text-sm text-astra-primary/70 transition-colors group-hover:text-astra-accent">
           <Download className="h-4 w-4" />
-          Scarica PDF
+          {c.downloadPdf}
         </span>
       </div>
     </a>

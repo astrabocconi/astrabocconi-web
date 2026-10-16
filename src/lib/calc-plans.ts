@@ -1,9 +1,10 @@
 import { GRADE_PLANS } from "./grade-plans";
 import type { CalcType } from "./grade-calc";
+import type { Locale } from "@/i18n/config";
 
 // Picker labels for the calculator plans. Keys are GRADE_PLANS keys; anything
 // missing here falls back to its key.
-export const PLAN_NAMES: Record<string, string> = {
+const PLAN_NAMES_IT: Record<string, string> = {
   CLEAM: "CLEAM · Economia aziendale e management",
   CLEF: "CLEF · Economia e finanza",
   BESS: "BESS · Economic and Social Sciences",
@@ -39,8 +40,25 @@ export const PLAN_NAMES: Record<string, string> = {
   CLMG: "CLMG · Giurisprudenza",
 };
 
-export function plansFor(type: CalcType): string[] {
-  return Object.keys(GRADE_PLANS[type]).sort((a, b) => (PLAN_NAMES[a] ?? a).localeCompare(PLAN_NAMES[b] ?? b));
+// Only the Italian-language programmes need an English label; the rest are
+// already English proper names.
+const PLAN_NAMES_EN: Record<string, string> = {
+  ...PLAN_NAMES_IT,
+  CLEAM: "CLEAM · Business Administration and Management",
+  CLEF: "CLEF · Economics and Finance",
+  CLEACC: "CLEACC · Italian class",
+  CLELI: "CLELI · Economics and Law for Business",
+  CLMG: "CLMG · Law",
+};
+
+export const PLAN_NAMES: Record<Locale, Record<string, string>> = { en: PLAN_NAMES_EN, it: PLAN_NAMES_IT };
+
+export const planName = (key: string, lang: Locale) => PLAN_NAMES[lang][key] ?? key;
+
+// Sorted by the Italian labels by default, so the default plan (the first) is
+// the same in every language; pass `lang` to sort a picker by what it shows.
+export function plansFor(type: CalcType, lang: Locale = "it"): string[] {
+  return Object.keys(GRADE_PLANS[type]).sort((a, b) => planName(a, lang).localeCompare(planName(b, lang)));
 }
 
 /**

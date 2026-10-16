@@ -221,3 +221,38 @@ prefetch. Events section sits under Dispense, conference and events side by side
 ## File storage on Cloudflare R2 (2026-10-12)
 
 Uploads and public files moved from Supabase Storage to one R2 bucket, `astra-website-files`, with the old bucket names kept as the first path segment (`images/`, `guides/`, `stella_polare/`, `dispense-uploads/`). Browser uploads go through `POST /api/upload`, which checks the operator's permission and returns a presigned PUT URL; this replaces the `storage.objects` RLS policies. Public reads use the bucket's r2.dev URL (`NEXT_PUBLIC_R2_PUBLIC_URL`), swap for a custom domain when one exists. Postgres and auth stay on Supabase. `scripts/migrate-storage-to-r2.mjs` copied the objects and rewrote stored URLs; old Supabase files were left in place so astra-app keeps working. The RAG `Document` table was deliberately not rewritten.
+
+## 2026-10-15
+
+**English is the default language, Italian is the alternate.** Reverses the
+earlier "Italian first". Routing: `app/[lang]/...` with `en` and `it`; English
+has no prefix and is rewritten to `/en` by `src/proxy.ts`, Italian is served
+under `/it`. A `lang=it` cookie (set by the header switch) sends returning
+Italian visitors to `/it`; browser `Accept-Language` is deliberately ignored,
+the owner wants English by default for everyone. Copy lives in typed
+`src/i18n/copy/*.ts` modules instead of an i18n library: two locales and no
+plural-heavy copy do not justify a dependency. Database content (articles,
+events, notices) is not translated, there is no per-locale column. Backoffice
+stays Italian and lives in its own root layout (`app/admin/layout.tsx`).
+
+**`astra` shortcut login for the backoffice.** The gate accepts a bare username
+and appends `@astrabocconi.it`, so `astra` signs in as `astra@astrabocconi.it`.
+Since 2026-10-16 it is the **only** account: every other Supabase Auth user and
+`admin_users` row was deleted on request, and `astra` is an `owner` with every
+permission (it was an editor without `users:write` before). Anyone with the
+shared password can therefore manage operators; that trade-off was the owner's
+call. The password is not stored in the repo; it lives only in Supabase Auth.
+Rotate it from the Supabase dashboard.
+
+**Stella Polare imports Word and PDF in the browser.** `.docx` goes through
+`mammoth` (headings, bold, lists, links, images uploaded to R2); `.pdf` goes
+through the already installed `pdfjs-dist` and yields plain paragraphs only,
+since a PDF carries no structure. Both fill the editor, so the article stays
+sanitised HTML in `articles.body_html` and no file column was added.
+Categories were removed entirely (migration 008).
+
+**Partner marquee is a site_sections row, not Neon's `Partner` table.** Neon's
+`Partner` rows are app venues (offers, staff logins, map pins); writing BookFlow
+or Notion there would put them in the app's venue list. The site owns its own
+list in `site_sections.partner_bar`; venue logos were copied once into
+`public/partners/` so the bar does not depend on astra-app serving `/api/media`.

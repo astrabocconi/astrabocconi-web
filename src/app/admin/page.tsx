@@ -34,8 +34,10 @@ export default function AdminGate() {
     setBusy(true);
     setError(null);
     const supabase = createClient();
+    // A bare username such as "astra" is shorthand for its @astrabocconi.it account.
+    const login = email.trim().toLowerCase();
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: login.includes("@") ? login : `${login}@astrabocconi.it`,
       password,
     });
     if (error) {
@@ -131,8 +133,8 @@ export default function AdminGate() {
             <form onSubmit={signIn} className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold text-gray-900">Accedi al backoffice</h2>
               <Field
-                label="Email"
-                type="email"
+                label="Email o utente"
+                type="text"
                 value={email}
                 onChange={setEmail}
                 autoComplete="username"

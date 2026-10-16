@@ -6,9 +6,8 @@
 // Two changes from the supplied source:
 //
 // 1. It rendered Spotify, YouTube, Amazon and Google through `react-icons`.
-//    Those are placeholders for ASTRA's own partners, whose logos are coming,
-//    so the list is a prop and each entry falls back to a blank plate. That
-//    keeps `react-icons` out of the tree for icons about to be thrown away.
+//    The list is a prop now, fed from site_sections "partner_bar", which
+//    keeps `react-icons` out of the tree.
 // 2. The original wrote `[gap:var(--gap))]` with a stray bracket, which
 //    Tailwind drops, so the gap never applied and the loop seam showed.
 //
@@ -16,27 +15,21 @@
 
 export type BrandItem = {
   name: string;
-  /** Optional. Until the real logos land, entries render as a blank plate. */
+  /** Optional. Without one, the entry renders its name as text. */
   logo?: string;
 };
 
 const TRACK_COPIES = 4;
 
+// Logo only, at its own aspect ratio: wide wordmarks get their width, square
+// marks stay square. The name is the alt text, and the fallback when there is
+// no logo yet.
 function Brand({ item }: { item: BrandItem }) {
-  return (
-    <div className="flex w-36 shrink-0 items-center gap-3">
-      {item.logo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={item.logo}
-          alt={item.name}
-          className="h-7 w-7 shrink-0 rounded-md object-contain"
-        />
-      ) : (
-        <span className="h-7 w-7 shrink-0 rounded-md bg-white/85" />
-      )}
-      <p className="truncate text-lg font-semibold opacity-80">{item.name}</p>
-    </div>
+  return item.logo ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={item.logo} alt={item.name} className="h-12 w-auto max-w-60 shrink-0 object-contain" />
+  ) : (
+    <p className="shrink-0 text-lg font-semibold whitespace-nowrap opacity-80">{item.name}</p>
   );
 }
 
@@ -48,12 +41,12 @@ function Track({
   reverse?: boolean;
 }) {
   return (
-    <div className="group flex max-w-full flex-row overflow-hidden py-1 [--duration:40s] [--gap:2.5rem] [gap:var(--gap)] [mask-image:linear-gradient(to_right,_rgba(0,_0,_0,_0),rgba(0,_0,_0,_1)_10%,rgba(0,_0,_0,_1)_90%,rgba(0,_0,_0,_0))]">
+    <div className="group flex max-w-full flex-row overflow-hidden py-1 [--duration:40s] [--gap:3.5rem] [gap:var(--gap)] [mask-image:linear-gradient(to_right,_rgba(0,_0,_0,_0),rgba(0,_0,_0,_1)_10%,rgba(0,_0,_0,_1)_90%,rgba(0,_0,_0,_0))]">
       {Array(TRACK_COPIES)
         .fill(0)
         .map((_, i) => (
           <div
-            className={`flex shrink-0 flex-row justify-around [gap:var(--gap)] ${
+            className={`flex shrink-0 flex-row items-center justify-around [gap:var(--gap)] ${
               reverse ? "animate-marquee-reverse" : "animate-marquee"
             }`}
             key={i}

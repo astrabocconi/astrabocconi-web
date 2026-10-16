@@ -11,7 +11,6 @@ type ArticleInput = {
   id?: string;
   slug: string;
   title: string;
-  category: string | null;
   excerpt: string | null;
   author: string | null;
   cover_url: string | null;
@@ -56,7 +55,6 @@ export async function saveArticle(input: ArticleInput): Promise<Result<string>> 
   const row = {
     slug,
     title,
-    category: input.category?.trim() || null,
     excerpt: input.excerpt?.trim() || null,
     author: input.author?.trim() || null,
     cover_url: input.cover_url?.trim() || null,

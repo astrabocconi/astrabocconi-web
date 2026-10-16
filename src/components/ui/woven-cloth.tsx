@@ -1,5 +1,7 @@
 "use client";
 
+import type { Copy, Locale } from "@/i18n/config";
+import { useLang } from "@/i18n/locale-context";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 type EffectMode = "dark" | "light";
@@ -27,6 +29,31 @@ export const WOVEN_CLOTH_DEFAULTS = {
 } as const;
 
 const WOVEN_CLOTH_TITLE = "ASTRA kinetic banner";
+
+const clothCopy: Copy<Record<string, string>> = {
+  en: {
+    est: "Est. 1990 &middot; Milan, Italy",
+    handouts: "Handouts",
+    partners: "Partners",
+    association: "The association",
+    headline: "Bocconi's student network.",
+    lead: "Handouts, guides and calculators built by students, for students.",
+    join: "Join ASTRA",
+    university: "Bocconi University",
+    city: "Milan &middot; 20136",
+  },
+  it: {
+    est: "Est. 1990 &middot; Milano, Italia",
+    handouts: "Dispense",
+    partners: "Partner",
+    association: "L'associazione",
+    headline: "La rete studentesca di Bocconi.",
+    lead: "Dispense, guide e calcolatori costruiti dagli studenti, per gli studenti.",
+    join: "Unisciti ad ASTRA",
+    university: "Università Bocconi",
+    city: "Milano &middot; 20136",
+  },
+};
 // Adapted from the authored #16090b to the ASTRA deep blue.
 const WOVEN_CLOTH_BACKGROUND = "#020a52";
 const WOVEN_CLOTH_TARGETS: readonly FocusTarget[] = [
@@ -41,7 +68,7 @@ const WOVEN_CLOTH_TARGETS: readonly FocusTarget[] = [
 // ASTRA's, and the external aura image and icon font are dropped so the frame
 // has no third party dependencies beyond three.js itself.
 const luminaWeaversClothSource = `<!DOCTYPE html>
-<html lang="it">
+<html lang="{{lang}}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -66,18 +93,18 @@ const luminaWeaversClothSource = `<!DOCTYPE html>
         <header class="flex justify-between items-center w-full pointer-events-auto">
             <div class="overflow-hidden">
                 <div class="reveal-item opacity-0 translate-y-8 text-xs tracking-[0.28em] uppercase text-[#a9b0d8] font-medium">
-                    Est. 1990 &middot; Milano, Italia
+                    {{est}}
                 </div>
             </div>
             <nav class="hidden md:flex gap-8">
                 <div class="overflow-hidden">
-                    <a href="#dispense" class="reveal-item block opacity-0 translate-y-8 text-xs tracking-widest uppercase text-white/80 hover:text-white transition-colors duration-300">Dispense</a>
+                    <a href="#dispense" class="reveal-item block opacity-0 translate-y-8 text-xs tracking-widest uppercase text-white/80 hover:text-white transition-colors duration-300">{{handouts}}</a>
                 </div>
                 <div class="overflow-hidden">
-                    <a href="#partner" class="reveal-item block opacity-0 translate-y-8 text-xs tracking-widest uppercase text-white/80 hover:text-white transition-colors duration-300">Partner</a>
+                    <a href="#partner" class="reveal-item block opacity-0 translate-y-8 text-xs tracking-widest uppercase text-white/80 hover:text-white transition-colors duration-300">{{partners}}</a>
                 </div>
                 <div class="overflow-hidden">
-                    <a href="#associazione" class="reveal-item block opacity-0 translate-y-8 text-xs tracking-widest uppercase text-white/80 hover:text-white transition-colors duration-300">L'associazione</a>
+                    <a href="#associazione" class="reveal-item block opacity-0 translate-y-8 text-xs tracking-widest uppercase text-white/80 hover:text-white transition-colors duration-300">{{association}}</a>
                 </div>
             </nav>
         </header>
@@ -88,15 +115,15 @@ const luminaWeaversClothSource = `<!DOCTYPE html>
             <div class="max-w-md space-y-6">
                 <div>
                     <p class="word-reveal text-sm md:text-base leading-relaxed text-white/90">
-                        <strong class="text-white font-semibold block mb-1 text-base md:text-lg tracking-tight">La rete studentesca di Bocconi.</strong>
-                        Dispense, guide e calcolatori costruiti dagli studenti, per gli studenti.
+                        <strong class="text-white font-semibold block mb-1 text-base md:text-lg tracking-tight">{{headline}}</strong>
+                        {{lead}}
                     </p>
                 </div>
 
                 <div class="overflow-hidden pt-2">
                     <div class="reveal-item opacity-0 translate-y-8 inline-block rounded-sm p-[1px] bg-gradient-to-b from-white/30 via-[#3b4ad0]/30 to-[#020a52]/10 shadow-[0_10px_30px_rgba(2,10,82,0.4)] transition-transform duration-300 hover:-translate-y-0.5 group">
                         <a href="#unisciti" class="flex items-center gap-3 bg-[#3b4ad0] group-hover:bg-[#04107e] text-white px-6 py-3 rounded-[1px] text-sm font-semibold tracking-wide transition-colors relative overflow-hidden">
-                            <span class="relative z-10">Unisciti ad ASTRA</span>
+                            <span class="relative z-10">{{join}}</span>
                             <svg class="relative z-10 transition-transform group-hover:translate-x-1" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
                         </a>
@@ -106,9 +133,9 @@ const luminaWeaversClothSource = `<!DOCTYPE html>
 
             <div class="text-left sm:text-right mt-8 sm:mt-0">
                 <div class="word-reveal text-xs tracking-[0.24em] uppercase text-[#a9b0d8] leading-[1.9] font-medium">
-                    Universit&agrave; Bocconi<br>
+                    {{university}}<br>
                     Via Sarfatti 25<br>
-                    Milano &middot; 20136
+                    {{city}}
                 </div>
             </div>
 
@@ -427,7 +454,7 @@ function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(maximum, Math.max(minimum, value));
 }
 
-function buildFocusedDocument(mode: EffectMode) {
+function buildFocusedDocument(mode: EffectMode, lang: Locale) {
   const targetJson = JSON.stringify(WOVEN_CLOTH_TARGETS).replace(
     /</g,
     "\\u003c",
@@ -474,7 +501,9 @@ body[data-threeui-ready] > [data-threeui-role] { visibility: visible !important;
   window.addEventListener('load', isolate, { once: true });
 })();
 </script>`;
+  const t: Record<string, string> = { ...clothCopy[lang], lang };
   return luminaWeaversClothSource
+    .replace(/\{\{(\w+)\}\}/g, (_, key: string) => t[key] ?? "")
     .replace(/<\/head>/i, `${focusStyle}</head>`)
     .replace(/<\/body>/i, `${focusScript}</body>`);
 }
@@ -488,7 +517,8 @@ function WovenCloth({
   style,
 }: WovenClothProps) {
   const safeMode: EffectMode = mode === "light" ? "light" : "dark";
-  const source = useMemo(() => buildFocusedDocument(safeMode), [safeMode]);
+  const lang = useLang();
+  const source = useMemo(() => buildFocusedDocument(safeMode, lang), [safeMode, lang]);
   const safeHue = clamp(hue, -180, 180);
   const safeSaturation = clamp(saturation, 0, 2);
   const safeBrightness = clamp(brightness, 0.35, 1.65);

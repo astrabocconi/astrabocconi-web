@@ -26,6 +26,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
       { href: "/admin/eventi", label: "Eventi", blurb: "Sul sito e nell'app", permission: "events:write" },
       { href: "/admin/avvisi", label: "Avvisi", blurb: "La fascia sotto la hero", permission: "site:write" },
       { href: "/admin/conferenza", label: "Conferenza", blurb: "Il blocco della conferenza", permission: "site:write" },
+      { href: "/admin/partner", label: "Partner", blurb: "Loghi che scorrono in home", permission: "site:write" },
     ],
   },
   {

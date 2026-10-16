@@ -4,6 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { Download } from "lucide-react";
 import type { Handout } from "@/lib/handouts";
+import { useLang } from "@/i18n/locale-context";
+import { dispenseCopy } from "@/i18n/copy/dispense";
 
 // Responsive covers are cached by the image optimiser on the website's CDN.
 export function HandoutCard({
@@ -14,6 +16,7 @@ export function HandoutCard({
   priority?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const c = dispenseCopy[useLang()];
 
   return (
     <a
@@ -25,7 +28,7 @@ export function HandoutCard({
       <div className="relative aspect-3/4 w-full overflow-hidden bg-astra-light">
         {failed ? (
           <span className="absolute inset-0 grid place-items-center px-4 text-center text-xs text-astra-primary/40">
-            Anteprima non disponibile
+            {c.previewUnavailable}
           </span>
         ) : (
           <Image
@@ -49,7 +52,7 @@ export function HandoutCard({
         </h3>
         <span className="mt-auto inline-flex items-center gap-1.5 text-sm text-astra-primary/70 transition-colors group-hover:text-astra-accent">
           <Download className="h-4 w-4" />
-          Scarica PDF
+          {c.downloadPdf}
         </span>
       </div>
     </a>

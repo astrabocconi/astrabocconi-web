@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   Bold,
   ExternalLink,
+  FileUp,
   Heading2,
   Heading3,
   ImagePlus,
@@ -24,18 +25,18 @@ import {
   Undo2,
 } from "lucide-react";
 import { deleteArticle, saveArticle } from "../actions";
+import { importFile } from "./import-file";
 import { slugify } from "@/lib/slug";
 import { uploadFile } from "@/lib/r2-public";
 import { Button } from "@/components/admin/ui/button";
 import { Card } from "@/components/admin/ui/card";
 import { Badge } from "@/components/admin/ui/badge";
-import { Field, Input, Select, Textarea } from "@/components/admin/ui/field";
+import { Field, Input, Textarea } from "@/components/admin/ui/field";
 
 export type Article = {
   id?: string;
   slug: string;
   title: string;
-  category: string;
   excerpt: string;
   author: string;
   cover_url: string;
@@ -53,7 +54,6 @@ type AuditEntry = {
 };
 
 const EXCERPT_MAX = 280;
-const NEW_CATEGORY = "__nuova__";
 
 // Uploaded from the browser rather than through a server action: actions cap
 // request bodies at 1 MB, which a single photo easily exceeds. The storage
@@ -68,19 +68,16 @@ async function uploadImage(file: File, folder: "covers" | "body"): Promise<strin
 export function ArticleEditor({
   article,
   history,
-  categories,
   canDelete,
 }: {
   article: Article;
   history: AuditEntry[];
-  categories: string[];
   canDelete: boolean;
 }) {
   const router = useRouter();
   const [form, setForm] = useState(article);
   const [saved, setSaved] = useState(article);
   const [slugTouched, setSlugTouched] = useState(Boolean(article.slug));
-  const [newCategory, setNewCategory] = useState(false);
   const [preview, setPreview] = useState(false);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
@@ -126,7 +123,6 @@ export function ArticleEditor({
         ...form,
         status,
         body_html: editor.getHTML(),
-        category: form.category || null,
         excerpt: form.excerpt || null,
         author: form.author || null,
         cover_url: form.cover_url || null,
@@ -163,9 +159,6 @@ export function ArticleEditor({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
-
-  const categoryOptions =
-    form.category && !categories.includes(form.category) ? [...categories, form.category] : categories;
   const published = saved.status === "published";
 
   return (
@@ -282,39 +275,6 @@ export function ArticleEditor({
 
         <aside className="flex w-full shrink-0 flex-col gap-4 lg:w-80">
           <Card className="flex flex-col gap-4">
-            <Field label="Categoria">
-              {newCategory ? (
-                <div className="flex gap-2">
-                  <Input
-                    autoFocus
-                    value={form.category}
-                    placeholder="Nome della categoria"
-                    onChange={(e) => set("category", e.target.value)}
-                  />
-                  <Button variant="secondary" onClick={() => setNewCategory(false)}>
-                    Elenco
-                  </Button>
-                </div>
-              ) : (
-                <Select
-                  value={form.category}
-                  onChange={(e) => {
-                    if (e.target.value === NEW_CATEGORY) {
-                      setNewCategory(true);
-                      set("category", "");
-                    } else set("category", e.target.value);
-                  }}
-                >
-                  <option value="">Nessuna</option>
-                  {categoryOptions.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                  <option value={NEW_CATEGORY}>+ Nuova categoria</option>
-                </Select>
-              )}
-            </Field>
 
             <Field label="Autore">
               <Input value={form.author} onChange={(e) => set("author", e.target.value)} />
@@ -381,6 +341,7 @@ export function ArticleEditor({
 
 function Toolbar({ editor, onError }: { editor: Editor; onError: (text: string) => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const docRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
   const btn = (active: boolean) =>
@@ -451,6 +412,30 @@ function Toolbar({ editor, onError }: { editor: Editor; onError: (text: string) 
             editor.chain().focus().setImage({ src, alt }).run();
           } catch (err) {
             onError(err instanceof Error ? err.message : "Caricamento non riuscito");
+          } finally {
+            setUploading(false);
+          }
+        }}
+      />
+      {sep}
+      <button type="button" onClick={() => docRef.current?.click()} disabled={uploading} className={btn(false)} title="Importa da Word (.docx) o PDF">
+        <FileUp className="h-4 w-4" />
+      </button>
+      <input
+        ref={docRef}
+        type="file"
+        accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        hidden
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (!file) return;
+          if (!editor.isEmpty && !confirm("Sostituire il testo attuale con il contenuto del file?")) return;
+          setUploading(true);
+          try {
+            editor.commands.setContent(await importFile(file, (f) => uploadImage(f, "body")));
+          } catch (err) {
+            onError(err instanceof Error ? err.message : "Importazione non riuscita");
           } finally {
             setUploading(false);
           }

@@ -1,4 +1,6 @@
-import Link from "next/link";
+import Link from "@/i18n/link";
+import { INTL_LOCALE, toLocale } from "@/i18n/config";
+import { stellaCopy } from "@/i18n/copy/stella-polare";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
@@ -22,18 +24,18 @@ async function getArticle(slug: string) {
   const supabase = createPublicClient();
   const { data } = await supabase
     .from("articles")
-    .select("title, category, excerpt, author, cover_url, body_html, published_at")
+    .select("title, excerpt, author, cover_url, body_html, published_at")
     .eq("slug", slug)
     .single();
   return data;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/stella-polare/[slug]">): Promise<Metadata> {
-  const { slug } = await params;
+type Props = { params: Promise<{ lang: string; slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang, slug } = await params;
   const article = await getArticle(slug);
-  if (!article) return { title: "Articolo non trovato" };
+  if (!article) return { title: stellaCopy[toLocale(lang)].notFound };
 
   return {
     title: article.title,
@@ -47,10 +49,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function ArticlePage({
-  params,
-}: PageProps<"/stella-polare/[slug]">) {
-  const { slug } = await params;
+export default async function ArticlePage({ params }: Props) {
+  const { lang, slug } = await params;
+  const l = toLocale(lang);
+  const c = stellaCopy[l];
   const article = await getArticle(slug);
   if (!article) notFound();
 
@@ -66,15 +68,10 @@ export default async function ArticlePage({
               className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-astra-primary"
             >
               <ArrowLeft className="h-4 w-4" />
-              Stella Polare
+              {c.heading}
             </Link>
 
-            {article.category && (
-              <p className="mt-6 text-xs font-semibold tracking-widest text-astra-accent uppercase">
-                {article.category}
-              </p>
-            )}
-            <h1 className="mt-2 text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-astra-primary">
+            <h1 className="mt-6 text-[clamp(2rem,4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-astra-primary">
               {article.title}
             </h1>
             <p className="mt-4 flex flex-wrap items-center gap-x-2 text-sm text-gray-500">
@@ -82,7 +79,7 @@ export default async function ArticlePage({
               {article.author && article.published_at && <span>·</span>}
               {article.published_at && (
                 <time dateTime={article.published_at}>
-                  {new Date(article.published_at).toLocaleDateString("it-IT", {
+                  {new Date(article.published_at).toLocaleDateString(INTL_LOCALE[l], {
                     month: "long",
                     year: "numeric",
                   })}

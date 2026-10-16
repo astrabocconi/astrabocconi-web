@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 import { Minus, Plus } from "lucide-react";
+import { INTL_LOCALE } from "@/i18n/config";
+import { useLang } from "@/i18n/locale-context";
 
 // Small controls shared by the calculators. Web counterparts of the app's
 // SegmentedToggle, Switch and stepper buttons.
@@ -52,7 +54,7 @@ export function SettingRow({ title, sub, children, first }: { title: string; sub
   </div>;
 }
 
-/** Text input for a decimal like 27,45: accepts both comma and dot. */
+/** Text input for a decimal like 27,45 or 27.45: accepts both comma and dot. */
 export function DecimalInput({ value, onChange, placeholder, label, maxLength = 5, integer }: {
   value: string; onChange: (v: string) => void; placeholder: string; label: string; maxLength?: number; integer?: boolean;
 }) {
@@ -61,8 +63,11 @@ export function DecimalInput({ value, onChange, placeholder, label, maxLength = 
     className="w-24 shrink-0 rounded-xl bg-astra-light px-3 py-2.5 text-right text-base font-semibold text-astra-primary tabular-nums placeholder:text-astra-primary/35" />;
 }
 
-export const fmt = (n: number, digits = 2) =>
-  n.toLocaleString("it-IT", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+/** Number formatter in the visitor's language: 27,45 in Italian, 27.45 in English. */
+export function useFmt() {
+  const locale = INTL_LOCALE[useLang()];
+  return (n: number, digits = 2) => n.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
 
 /** "27,45" or "27.45" to a number; null when empty or not a number. */
 export const parseDecimal = (s: string) => {
