@@ -175,6 +175,9 @@ export function HeroCarousel() {
         tabIndex={-1}
       />
 
+      {/* The 3D scene lives in its own box so phones can build it small and
+          scale the projected result back up. See .hero-cylinder__lens. */}
+      <div className="hero-cylinder__lens">
       <div ref={stageRef} className="hero-cylinder__stage">
         {Array.from({ length: TILE_COUNT }).map((_, index) => {
           const cell = TILE_CELLS[index];
@@ -207,6 +210,7 @@ export function HeroCarousel() {
             </div>
           );
         })}
+      </div>
       </div>
 
       <div className="hero-cylinder__edge hero-cylinder__edge--left" />

@@ -108,9 +108,14 @@ body {
 .hero-cylinder {
   position: absolute;
   inset: 0;
+  pointer-events: none;
+}
+
+.hero-cylinder__lens {
+  position: absolute;
+  inset: 0;
   perspective: 560px;
   perspective-origin: 50% 52%;
-  pointer-events: none;
 }
 
 /* The glow is clipped by the hero's overflow, so without a mask its edge lands
@@ -238,8 +243,38 @@ body {
 }
 
 @media (width <= 900px) {
-  .hero-cylinder {
-    perspective: 320px;
+  /* Phones crashed: WebKit backs every 3D layer at its own size times the
+     device pixel ratio, ignoring that perspective shrinks it. Twelve 776x1100
+     tiles at 3x came to roughly 600MB of GPU memory for tiles drawn about
+     136px wide. So the whole scene (radius, tiles, perspective distance) is
+     built at 0.3 scale, which projects to the same picture at 0.3 size, and
+     the lens scales that picture back up as a flat 2D transform. Same image,
+     about 11x less layer memory. Positions inside the lens are multiplied by
+     0.3 to land where they did before the scale-up. */
+  .hero-cylinder__lens {
+    perspective: 96px;
+    perspective-origin: 50% 15.6%;
+    transform: scale(3.3333);
+    transform-origin: 50% 0;
+  }
+
+  .hero-cylinder__stage {
+    top: 21%;
+  }
+
+  .hero-cylinder__tile {
+    --tile-radius: 450px;
+    width: 232.8px;
+    height: 330px;
+    margin-top: -165px;
+    margin-left: -116.4px;
+  }
+
+  .hero-cylinder__card {
+    border-radius: 7.8px;
+    box-shadow:
+      0 12px 24px rgb(4 16 126 / 12%),
+      0 3px 7.2px rgb(4 16 126 / 7%);
   }
 
   /* Matches the half-resolution atlas the hero plays on small screens. */
@@ -252,11 +287,15 @@ body {
    the ring to the same height puts the band's centre exactly there, just under
    the headline, instead of low in a full-screen section. */
 @media (width < 640px) {
-  .hero-cylinder {
-    perspective-origin: 50% 362px;
+  /* 362px, times the lens's 0.3 (see above). */
+  .hero-cylinder__lens {
+    perspective-origin: 50% 108.6px;
   }
 
-  .hero-cylinder__stage,
+  .hero-cylinder__stage {
+    top: 108.6px;
+  }
+
   .hero-cylinder__hue {
     top: 362px;
   }

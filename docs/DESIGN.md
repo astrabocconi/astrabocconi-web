@@ -148,6 +148,14 @@ Why, since it looks like over-engineering and is not:
   seconds, and that wedged the video decoder. Blocking the iframe alone made
   Chrome solid. The cloth now mounts only within 600px of the viewport. Do not
   make it eager again.
+- **Phones build the ring at 0.3 scale** (`.hero-cylinder__lens`, `width <= 900px`)
+  and scale the projected picture back up in 2D. WebKit backs each 3D layer
+  at its own size times the device pixel ratio, ignoring perspective, so the
+  full-size ring cost ~600MB of GPU memory at 3x and iOS Safari killed the tab
+  on load (2026-10-16). Change the ring's geometry in both places, and keep
+  every length inside the lens multiplied by 0.3.
+- Never put `mask-image` on a scroll container (the board scroller): it
+  composites the whole scrolled strip as one layer. Mask a wrapper instead.
 - Test hero video in a **headed** browser with frame or paint counts.
   Headless decodes in software and never shows any of this, and `currentTime`
   keeps advancing while the picture is frozen.

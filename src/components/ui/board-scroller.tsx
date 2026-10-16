@@ -111,7 +111,11 @@ export function BoardScroller({ members }: { members: BoardMember[] }) {
   }, []);
 
   return (
-    <div ref={ref} className="flex min-w-0 max-w-full flex-row overflow-x-auto py-1 [--gap:1.75rem] [gap:var(--gap)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,_transparent,black_4%,black_96%,transparent)]">
+    // The edge fade sits on a wrapper, not the scroller: a mask on the scroll
+    // container itself makes the browser composite the whole ~12,000px strip
+    // as one layer, which at 3x was ~150MB and helped crash iPhones.
+    <div className="min-w-0 max-w-full [mask-image:linear-gradient(to_right,_transparent,black_4%,black_96%,transparent)]">
+    <div ref={ref} className="flex flex-row overflow-x-auto py-1 [--gap:1.75rem] [gap:var(--gap)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {Array(TRACK_COPIES)
         .fill(0)
         .map((_, i) => (
@@ -125,6 +129,7 @@ export function BoardScroller({ members }: { members: BoardMember[] }) {
             ))}
           </div>
         ))}
+    </div>
     </div>
   );
 }
